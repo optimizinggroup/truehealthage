@@ -73,15 +73,11 @@ const PHASE1_QUESTIONS = [
   {
     id: 6,
     module: 'Body & Vitals',
-    question: 'What is your weight category (BMI)?',
-    type: 'single',
-    options: [
-      { text: 'Underweight (BMI <18.5)', years: 1 },
-      { text: 'Healthy weight (BMI 18.5-25)', years: 0 },
-      { text: 'Overweight (BMI 25-30)', years: 1.5 },
-      { text: 'Obese Class I (BMI 30-35)', years: 3 },
-      { text: 'Obese Class II (BMI >35)', years: 4 }
-    ]
+    question: 'What is your height and weight? (for BMI calculation)',
+    type: 'bmi',
+    note: 'This helps us calculate your BMI accurately',
+    placeholder_height: 'Height (inches)',
+    placeholder_weight: 'Weight (lbs)'
   },
   {
     id: 7,
@@ -105,6 +101,7 @@ const PHASE1_QUESTIONS = [
     question: 'What is your resting heart rate (beats per minute)?',
     type: 'single',
     options: [
+      { text: 'I don\'t know', years: 0 },
       { text: '<40 bpm', years: -1 },
       { text: '40-59 bpm', years: 0 },
       { text: '60-79 bpm', years: 0.5 },
@@ -118,6 +115,7 @@ const PHASE1_QUESTIONS = [
     question: 'What is your blood pressure?',
     type: 'single',
     options: [
+      { text: 'I don\'t know', years: 0 },
       { text: 'Normal (<120/80)', years: 0 },
       { text: 'Elevated (120-129/<80)', years: 0.5 },
       { text: 'Stage 1 (130-139/80-89)', years: 1.5 },
@@ -416,6 +414,58 @@ export default function Phase1Quiz({ onComplete }) {
     })
   }
 
+  const handleBMIAnswer = (heightInput, weightInput) => {
+    if (!heightInput.trim() || !weightInput.trim()) {
+      alert('Please enter both height and weight')
+      return
+    }
+
+    const height = parseFloat(heightInput)
+    const weight = parseFloat(weightInput)
+
+    if (isNaN(height) || isNaN(weight) || height <= 0 || weight <= 0) {
+      alert('Please enter valid height and weight')
+      return
+    }
+
+    // Calculate BMI: (weight in pounds / (height in inches)^2) * 703
+    const bmi = (weight / (height * height)) * 703
+
+    let bmiYears = 0
+    let bmiCategory = ''
+    if (bmi < 18.5) {
+      bmiYears = 1
+      bmiCategory = `Underweight (BMI ${bmi.toFixed(1)})`
+    } else if (bmi < 25) {
+      bmiYears = 0
+      bmiCategory = `Healthy weight (BMI ${bmi.toFixed(1)})`
+    } else if (bmi < 30) {
+      bmiYears = 1.5
+      bmiCategory = `Overweight (BMI ${bmi.toFixed(1)})`
+    } else if (bmi < 35) {
+      bmiYears = 3
+      bmiCategory = `Obese Class I (BMI ${bmi.toFixed(1)})`
+    } else {
+      bmiYears = 4
+      bmiCategory = `Obese Class II (BMI ${bmi.toFixed(1)})`
+    }
+
+    const qId = currentQ.id
+    setAnswers({
+      ...answers,
+      [qId]: {
+        text: bmiCategory,
+        years: bmiYears,
+        bmi: bmi
+      }
+    })
+
+    if (currentQuestion < PHASE1_QUESTIONS.length - 1) {
+      setCurrentQuestion(currentQuestion + 1)
+      setNumberInput('')
+    }
+  }
+
   const handleSubmit = async () => {
     setLoading(true)
 
@@ -454,6 +504,7 @@ export default function Phase1Quiz({ onComplete }) {
 
       <div className="question-container">
         <h2>{currentQ.question}</h2>
+        {currentQ.note && <p className="question-note">{currentQ.note}</p>}
 
         {currentQ.type === 'number' ? (
           <div className="number-input-group">
@@ -468,6 +519,37 @@ export default function Phase1Quiz({ onComplete }) {
             />
             <button
               onClick={handleNumberAnswer}
+              className="next-btn"
+            >
+              Next →
+            </button>
+          </div>
+        ) : currentQ.type === 'bmi' ? (
+          <div className="bmi-input-group">
+            <div className="bmi-inputs">
+              <input
+                type="number"
+                id="height"
+                placeholder={currentQ.placeholder_height}
+                min="1"
+                max="120"
+                step="0.1"
+              />
+              <input
+                type="number"
+                id="weight"
+                placeholder={currentQ.placeholder_weight}
+                min="1"
+                max="999"
+                step="0.1"
+              />
+            </div>
+            <button
+              onClick={() => {
+                const height = document.getElementById('height').value
+                const weight = document.getElementById('weight').value
+                handleBMIAnswer(height, weight)
+              }}
               className="next-btn"
             >
               Next →
