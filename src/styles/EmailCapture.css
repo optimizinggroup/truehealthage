@@ -1,0 +1,122 @@
+.email-capture {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.email-capture-card {
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  animation: slideIn 0.5s ease;
+}
+
+.email-capture-card h2 {
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 1.8rem;
+  color: var(--gray-900);
+}
+
+.email-capture-card > p {
+  text-align: center;
+  color: var(--gray-600);
+  margin-bottom: 30px;
+  font-size: 1rem;
+}
+
+.email-capture form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.email-capture input {
+  padding: 14px 16px;
+  font-size: 1rem;
+  border: 2px solid var(--gray-300);
+  border-radius: 8px;
+  transition: border-color 0.3s ease;
+}
+
+.email-capture input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.email-capture input:disabled {
+  background: var(--gray-100);
+  color: var(--gray-500);
+}
+
+.error-message {
+  color: var(--danger-color);
+  font-size: 0.9rem;
+  padding: 10px;
+  background: rgba(244, 67, 54, 0.1);
+  border-radius: 6px;
+  text-align: center;
+}
+
+.submit-btn {
+  padding: 14px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  background: var(--primary-color);
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(37, 99, 235, 0.3);
+}
+
+.submit-btn:disabled {
+  background: var(--gray-400);
+  cursor: not-allowed;
+}
+
+.submit-btn.full-width {
+  width: 100%;
+}
+
+.privacy-note {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--gray-500);
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--gray-200);
+}
+
+@media (max-width: 768px) {
+  .email-capture {
+    padding: 20px;
+    min-height: auto;
+  }
+
+  .email-capture-card {
+    padding: 30px 20px;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+
+  .submit-btn,
+  .skip-btn {
+    width: 100%;
+  }
+}

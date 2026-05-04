@@ -1,0 +1,136 @@
+.login-component {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.login-card {
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  animation: slideIn 0.5s ease;
+  width: 100%;
+}
+
+.login-card h2 {
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 1.8rem;
+  color: var(--gray-900);
+}
+
+.login-card > p {
+  text-align: center;
+  color: var(--gray-600);
+  margin-bottom: 30px;
+  font-size: 0.95rem;
+}
+
+.login-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.login-card input {
+  padding: 14px 16px;
+  font-size: 1rem;
+  border: 2px solid var(--gray-300);
+  border-radius: 8px;
+  transition: border-color 0.3s ease;
+  font-family: inherit;
+}
+
+.login-card input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.login-card input:disabled {
+  background: var(--gray-100);
+  color: var(--gray-500);
+}
+
+.login-card .error-message {
+  color: var(--danger-color);
+  font-size: 0.9rem;
+  padding: 10px;
+  background: rgba(244, 67, 54, 0.1);
+  border-radius: 6px;
+  text-align: center;
+}
+
+.login-card .submit-btn {
+  padding: 14px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  background: var(--primary-color);
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  margin-top: 10px;
+}
+
+.login-card .submit-btn:hover:not(:disabled) {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(37, 99, 235, 0.3);
+}
+
+.login-card .submit-btn:disabled {
+  background: var(--gray-400);
+  cursor: not-allowed;
+}
+
+.login-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--gray-200);
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  cursor: pointer;
+  font-size: 0.95rem;
+  padding: 8px;
+  text-decoration: underline;
+  transition: color 0.3s ease;
+}
+
+.link-btn:hover:not(:disabled) {
+  color: var(--primary-dark);
+}
+
+.link-btn:disabled {
+  color: var(--gray-400);
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .login-component {
+    padding: 20px;
+    min-height: auto;
+  }
+
+  .login-card {
+    padding: 30px 20px;
+  }
+
+  .login-card h2 {
+    font-size: 1.5rem;
+  }
+}
