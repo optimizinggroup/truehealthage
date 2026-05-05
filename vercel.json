@@ -1,6 +1,5 @@
 {
-  "buildCommand": "cd TrueHealthAge/app && npm install && npm run build",
-  "outputDirectory": "TrueHealthAge/app/dist",
-  "devCommand": "cd TrueHealthAge/app && npm run dev",
-  "installCommand": "npm install -g npm && npm install"
+  "buildCommand": "cd app && npm install && npm run build",
+  "outputDirectory": "app/dist",
+  "devCommand": "cd app && npm run dev"
 }
