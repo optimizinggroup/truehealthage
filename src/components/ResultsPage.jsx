@@ -10,7 +10,8 @@ export default function ResultsPage({
   showPhase2Option,
   onPhase2Selection,
   onSkipPhase2,
-  onRetakeQuiz
+  onRetakeQuiz,
+  onLogout
 }) {
   const [showShare, setShowShare] = useState(false)
 

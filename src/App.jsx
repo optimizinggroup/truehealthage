@@ -204,6 +204,7 @@ export default function App() {
             showPhase2Option={true}
             onPhase2Selection={handlePhase1ResultsComplete}
             onSkipPhase2={() => setCurrentPhase('results')}
+            onLogout={handleLogout}
           />
         )}
 
@@ -234,6 +235,7 @@ export default function App() {
             userEmail={userEmail}
             showPhase2Option={false}
             onRetakeQuiz={handleRetakeQuiz}
+            onLogout={handleLogout}
           />
         )}
       </main>
