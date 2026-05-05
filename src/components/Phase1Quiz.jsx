@@ -451,6 +451,7 @@ export default function Phase1Quiz({ onComplete }) {
       <div className="question-container">
         <div className="question-banner">
           <img src={TrueHealthAgeLogo} alt="TrueHealth Age" className="question-logo" />
+          <span className="question-number">Question {currentQuestion + 1}</span>
         </div>
         <h2>{currentQ.question}</h2>
         {currentQ.note && <p className="question-note">{currentQ.note}</p>}

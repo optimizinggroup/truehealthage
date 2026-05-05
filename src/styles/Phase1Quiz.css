@@ -42,7 +42,7 @@
   border-radius: 8px 8px 0 0;
   margin: -40px -40px 25px -40px;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
 }
 
@@ -51,6 +51,13 @@
   width: auto;
   max-width: 200px;
   object-fit: contain;
+}
+
+.question-number {
+  color: white;
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
 .question-container h2 {
@@ -213,6 +220,10 @@
 
   .question-logo {
     height: 50px;
+  }
+
+  .question-number {
+    font-size: 1rem;
   }
 
   .bmi-input-group input,

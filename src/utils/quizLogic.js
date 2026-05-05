@@ -5,9 +5,26 @@ export function calculatePhase1Results(answers) {
   // Get user's chronological age (now in question ID 1)
   const chronoAge = parseInt(answers[1]?.text) || 40
 
+  // Define question categories
+  const categoryMap = {
+    'Baseline': [1, 2],
+    'High-Impact Risks': [3, 4, 5],
+    'Body & Vitals': [6, 7, 8, 9],
+    'Movement': [10, 11],
+    'Sleep': [12],
+    'Nutrition': [13, 14, 15],
+    'Mental Health': [16, 17, 18, 19, 20]
+  }
+
   // Sum all years adjustments from answers
   let yearsAdjustment = 0
   const factors = []
+  const categoryYears = {}
+
+  // Initialize category years
+  Object.keys(categoryMap).forEach(cat => {
+    categoryYears[cat] = 0
+  })
 
   Object.entries(answers).forEach(([questionId, answerData]) => {
     const qId = parseInt(questionId)
@@ -17,28 +34,45 @@ export function calculatePhase1Results(answers) {
       return
     }
 
+    // Find which category this question belongs to
+    const category = Object.entries(categoryMap).find(([_, qIds]) => qIds.includes(qId))?.[0] || 'Other'
+
     // Handle multi-select (life events)
     if (answerData.selections) {
       const totalYears = answerData.selections.reduce((sum, sel) => sum + sel.years, 0)
       yearsAdjustment += totalYears
+      categoryYears[category] += totalYears
       answerData.selections.forEach(sel => {
         factors.push({
           questionId: qId,
           answer: sel.text,
           years: sel.years,
+          category,
           type: sel.years > 0 ? 'aging' : 'protecting'
         })
       })
     } else {
       // Single answer
       yearsAdjustment += answerData.years
+      categoryYears[category] += answerData.years
       factors.push({
         questionId: qId,
         answer: answerData.text,
         years: answerData.years,
+        category,
         type: answerData.years > 0 ? 'aging' : 'protecting'
       })
     }
+  })
+
+  // Calculate category scores (0-10 scale, where 10 is excellent)
+  // Max possible aging years per category is roughly 10-15, so we'll normalize
+  const categoryScores = {}
+  Object.entries(categoryYears).forEach(([category, yearsValue]) => {
+    // Convert years to score: 10 - (years / 2)
+    // More years = lower score (indicates worse health)
+    const score = Math.max(0, 10 - (yearsValue / 1.5))
+    categoryScores[category] = Math.min(10, score)
   })
 
   // Calculate True Health Age
@@ -97,6 +131,7 @@ export function calculatePhase1Results(answers) {
     yearsAdjustment,
     top3Aging,
     top3Protecting,
+    categoryScores,
   }
 }
 

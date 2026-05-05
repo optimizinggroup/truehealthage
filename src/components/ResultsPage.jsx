@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import ShareComponent from './ShareComponent'
+import ResultsReport from './ResultsReport'
 import '../styles/ResultsPage.css'
 
 export default function ResultsPage({
@@ -94,6 +95,9 @@ export default function ResultsPage({
               </ul>
             </div>
           </div>
+
+          {/* Results Report */}
+          <ResultsReport phase1Results={phase1Results} userEmail={userEmail} />
 
           {/* Phase 2 Gateway */}
           {showPhase2Option && (
