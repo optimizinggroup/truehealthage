@@ -8,28 +8,38 @@ export default function ResultsReport({ phase1Results, userEmail }) {
   const generateHTMLReport = () => {
     const { grade, label, trueHealthAge, chronoAge, ageDiff, top3Aging, top3Protecting, categoryScores } = phase1Results
 
-    const getHealthStatus = (score) => {
-      if (score >= 8) return { status: 'Great', color: '#4CAF50', emoji: '🟢' }
-      if (score >= 5) return { status: 'Could Improve', color: '#FFC107', emoji: '🟡' }
-      return { status: 'Areas of Concern', color: '#F44336', emoji: '🔴' }
+    const getEmojiForStatus = (status) => {
+      const emojiMap = {
+        'Great': '🟢',
+        'Good': '🟢',
+        'Moderate Concern': '🟡',
+        'Serious Concern': '🔴'
+      }
+      return emojiMap[status] || '⚪'
     }
 
-    const categoryRows = Object.entries(categoryScores || {}).map(([category, score]) => {
-      const health = getHealthStatus(score)
-      const barWidth = (score / 10) * 100
+    const categoryRows = Object.entries(categoryScores || {}).map(([category, scoreObj]) => {
+      const status = scoreObj.status || 'Good'
+      const years = scoreObj.years || 0
+      const color = scoreObj.color || '#999'
+      const emoji = getEmojiForStatus(status)
+
+      // Display years impact
+      const yearsDisplay = years > 0 ? `+${years} years` : years < 0 ? `${years} years` : 'Neutral'
+
       return `
         <div class="category-row">
           <div class="category-info">
             <div class="category-name">${category.replace(/_/g, ' ')}</div>
-            <div class="category-status" style="color: ${health.color};">
-              ${health.emoji} ${health.status}
+            <div class="category-status" style="color: ${color};">
+              ${emoji} ${status}
             </div>
           </div>
           <div class="category-score-display">
             <div class="score-bar">
-              <div class="score-fill" style="width: ${barWidth}%; background-color: ${health.color};"></div>
+              <div class="score-fill" style="background-color: ${color};"></div>
             </div>
-            <span class="score-value">${score.toFixed(1)}/10</span>
+            <span class="score-value">${yearsDisplay}</span>
           </div>
         </div>
       `
@@ -200,6 +210,7 @@ export default function ResultsReport({ phase1Results, userEmail }) {
           }
           .score-fill {
             height: 100%;
+            width: 100%;
             transition: width 0.3s ease;
           }
           .score-value {

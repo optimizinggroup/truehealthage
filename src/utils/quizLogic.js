@@ -65,14 +65,39 @@ export function calculatePhase1Results(answers) {
     }
   })
 
-  // Calculate category scores (0-10 scale, where 10 is excellent)
-  // Max possible aging years per category is roughly 10-15, so we'll normalize
+  // Calculate category scores and health status
   const categoryScores = {}
-  Object.entries(categoryYears).forEach(([category, yearsValue]) => {
-    // Convert years to score: 10 - (years / 2)
-    // More years = lower score (indicates worse health)
-    const score = Math.max(0, 10 - (yearsValue / 1.5))
-    categoryScores[category] = Math.min(10, score)
+  const categoryStatus = {}
+
+  Object.entries(categoryMap).forEach(([category, qIds]) => {
+    const categoryFactors = factors.filter(f => f.category === category)
+    const totalYears = categoryYears[category]
+
+    // Count questions with positive years in this category
+    const positiveYearsFactors = categoryFactors.filter(f => f.years > 0)
+    const numQuestionsInCategory = qIds.filter(qId => qId > 2).length // Exclude baseline
+    const percentBadQuestions = numQuestionsInCategory > 0 ? (positiveYearsFactors.length / numQuestionsInCategory) : 0
+
+    // Find if there's a single very bad question (>= 5 years)
+    const veryBadQuestion = categoryFactors.find(f => f.years >= 5)
+
+    // Determine status
+    let status
+    if (totalYears < 0) {
+      status = 'Great'
+      categoryScores[category] = { years: totalYears, status, color: '#4CAF50' }
+    } else if (totalYears === 0) {
+      status = 'Good'
+      categoryScores[category] = { years: totalYears, status, color: '#81C784' }
+    } else if (veryBadQuestion || percentBadQuestions > 0.5) {
+      status = 'Serious Concern'
+      categoryScores[category] = { years: totalYears, status, color: '#F44336' }
+    } else if (totalYears > 0) {
+      status = 'Moderate Concern'
+      categoryScores[category] = { years: totalYears, status, color: '#FFC107' }
+    }
+
+    categoryStatus[category] = status
   })
 
   // Calculate True Health Age
