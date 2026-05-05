@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import TrueHealthAgeLogo from '../assets/logos/truehealthage.svg'
-import TrueHealthProtocolLogo from '../assets/logos/truehealthprotocol.svg'
+import TrueHealthAgeLogo from '../assets/logos/truehealthage.png'
+import TrueHealthProtocolLogo from '../assets/logos/truehealthprotocol.png'
 import '../styles/AppHeader.css'
 
 export default function AppHeader({ currentPhase, userEmail, onLogout }) {

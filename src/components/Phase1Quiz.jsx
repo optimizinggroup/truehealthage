@@ -63,7 +63,7 @@ const PHASE1_QUESTIONS = [
     question: 'Have you been diagnosed with any of the following?',
     type: 'multi',
     options: [
-      { text: 'None', years: 0 },
+      { text: 'None', years: 0, isNone: true },
       { text: 'Diabetes', years: 3 },
       { text: 'Heart disease', years: 6 },
       { text: 'Cancer', years: 4 }
@@ -77,7 +77,8 @@ const PHASE1_QUESTIONS = [
     question: 'What is your height and weight?',
     type: 'bmi',
     note: 'Used to calculate your BMI',
-    placeholder_height: 'Height (inches)',
+    placeholder_feet: 'Height (feet)',
+    placeholder_inches: 'Height (inches)',
     placeholder_weight: 'Weight (lbs)'
   },
 
@@ -228,11 +229,11 @@ const PHASE1_QUESTIONS = [
     ]
   },
 
-  // Q18: Healthy Food Choices (Nutrition)
+  // Q18: Healthy Protein Choices (Nutrition)
   {
     id: 18,
     category: 'Nutrition',
-    question: 'How often do you choose whole grains, fish, beans, or nuts?',
+    question: 'How often do you eat healthy protein sources (fish, poultry, eggs, beans, nuts)?',
     type: 'single',
     options: [
       { text: 'Most of the time', years: 0 },
@@ -262,8 +263,8 @@ const PHASE1_QUESTIONS = [
     type: 'single',
     options: [
       { text: 'No', years: 0 },
-      { text: 'Managed', years: 1 },
-      { text: 'Ongoing', years: 3 }
+      { text: 'Sometimes', years: 1 },
+      { text: 'Often', years: 3 }
     ]
   }
 ]
@@ -326,7 +327,13 @@ export default function Phase1Quiz({ onComplete }) {
     if (alreadySelected) {
       updatedSelections = currentAnswers.filter(a => a.text !== selectedOption.text)
     } else {
-      updatedSelections = [...currentAnswers, selectedOption]
+      // If "None" is selected, clear other selections
+      if (selectedOption.isNone) {
+        updatedSelections = [selectedOption]
+      } else {
+        // Remove "None" if other options are selected
+        updatedSelections = [...currentAnswers.filter(a => !a.isNone), selectedOption]
+      }
     }
 
     setAnswers({
@@ -336,24 +343,38 @@ export default function Phase1Quiz({ onComplete }) {
         years: updatedSelections.reduce((sum, a) => sum + a.years, 0)
       }
     })
+
+    // If "None" is selected, automatically proceed
+    if (selectedOption.isNone && !alreadySelected) {
+      setTimeout(() => {
+        if (currentQuestion < PHASE1_QUESTIONS.length - 1) {
+          setCurrentQuestion(currentQuestion + 1)
+          setNumberInput('')
+        }
+      }, 100)
+    }
   }
 
-  const handleBMIAnswer = (heightInput, weightInput) => {
-    if (!heightInput.trim() || !weightInput.trim()) {
-      alert('Please enter both height and weight')
+  const handleBMIAnswer = (feetInput, inchesInput, weightInput) => {
+    if (!feetInput.trim() || !inchesInput.trim() || !weightInput.trim()) {
+      alert('Please enter height (feet and inches) and weight')
       return
     }
 
-    const height = parseFloat(heightInput)
+    const feet = parseFloat(feetInput)
+    const inches = parseFloat(inchesInput)
     const weight = parseFloat(weightInput)
 
-    if (isNaN(height) || isNaN(weight) || height <= 0 || weight <= 0) {
+    if (isNaN(feet) || isNaN(inches) || isNaN(weight) || feet < 0 || inches < 0 || weight <= 0 || inches >= 12) {
       alert('Please enter valid height and weight')
       return
     }
 
+    // Convert to total inches: (feet * 12) + inches
+    const totalHeightInches = (feet * 12) + inches
+
     // Calculate BMI: (weight in pounds / (height in inches)^2) * 703
-    const bmi = (weight / (height * height)) * 703
+    const bmi = (weight / (totalHeightInches * totalHeightInches)) * 703
 
     let bmiYears = 0
     let bmiCategory = ''
@@ -453,11 +474,19 @@ export default function Phase1Quiz({ onComplete }) {
             <div className="bmi-inputs">
               <input
                 type="number"
-                id="height"
-                placeholder={currentQ.placeholder_height}
-                min="1"
-                max="120"
-                step="0.1"
+                id="feet"
+                placeholder={currentQ.placeholder_feet}
+                min="3"
+                max="8"
+                step="1"
+              />
+              <input
+                type="number"
+                id="inches"
+                placeholder={currentQ.placeholder_inches}
+                min="0"
+                max="11"
+                step="1"
               />
               <input
                 type="number"
@@ -470,9 +499,10 @@ export default function Phase1Quiz({ onComplete }) {
             </div>
             <button
               onClick={() => {
-                const height = document.getElementById('height').value
+                const feet = document.getElementById('feet').value
+                const inches = document.getElementById('inches').value
                 const weight = document.getElementById('weight').value
-                handleBMIAnswer(height, weight)
+                handleBMIAnswer(feet, inches, weight)
               }}
               className="next-btn"
             >

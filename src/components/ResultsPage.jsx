@@ -98,19 +98,19 @@ export default function ResultsPage({
           {/* Phase 2 Gateway */}
           {showPhase2Option && (
             <section className="phase2-gateway">
-              <h3>Would you like personalized help in any of these areas?</h3>
-              <p className="gateway-description">Get deeper insights and personalized recommendations for specific health categories.</p>
+              <h3>Get Your Personalized TrueHealth Protocol</h3>
+              <p className="gateway-description">Based on your assessment, we've identified specific areas where targeted actions can help improve your health. Select the areas most important to you and get a personalized action plan.</p>
               <button
                 className="proceed-btn"
                 onClick={onPhase2Selection}
               >
-                Yes, Show Me My Options →
+                Start My Personalized Protocol →
               </button>
               <button
                 className="skip-btn"
                 onClick={onSkipPhase2}
               >
-                No, I'm Done
+                Skip for Now
               </button>
             </section>
           )}
