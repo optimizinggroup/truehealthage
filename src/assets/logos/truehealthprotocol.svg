@@ -1,0 +1,52 @@
+<svg viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- TrueHealth Protocol Logo -->
+
+  <!-- Left circle with person (teal) -->
+  <g id="left-person">
+    <circle cx="35" cy="60" r="28" fill="#17a2b8" opacity="0.3" stroke="#17a2b8" stroke-width="2"/>
+    <!-- Head -->
+    <circle cx="35" cy="40" r="6" fill="#17a2b8"/>
+    <!-- Body -->
+    <rect x="32" y="48" width="6" height="15" fill="#17a2b8"/>
+    <!-- Arms -->
+    <line x1="32" y1="52" x2="20" y2="45" stroke="#17a2b8" stroke-width="2"/>
+    <line x1="38" y1="52" x2="50" y2="45" stroke="#17a2b8" stroke-width="2"/>
+    <!-- Legs -->
+    <line x1="33" y1="63" x2="30" y2="78" stroke="#17a2b8" stroke-width="2"/>
+    <line x1="37" y1="63" x2="40" y2="78" stroke="#17a2b8" stroke-width="2"/>
+  </g>
+
+  <!-- Right circle with person (green) -->
+  <g id="right-person">
+    <circle cx="65" cy="60" r="28" fill="#28a745" opacity="0.3" stroke="#28a745" stroke-width="2"/>
+    <!-- Head -->
+    <circle cx="65" cy="40" r="6" fill="#28a745"/>
+    <!-- Body -->
+    <rect x="62" y="48" width="6" height="15" fill="#28a745"/>
+    <!-- Arms -->
+    <line x1="62" y1="52" x2="50" y2="45" stroke="#28a745" stroke-width="2"/>
+    <line x1="68" y1="52" x2="80" y2="45" stroke="#28a745" stroke-width="2"/>
+    <!-- Legs -->
+    <line x1="63" y1="63" x2="60" y2="78" stroke="#28a745" stroke-width="2"/>
+    <line x1="67" y1="63" x2="70" y2="78" stroke="#28a745" stroke-width="2"/>
+  </g>
+
+  <!-- Center heart with medical cross -->
+  <g id="heart-medical">
+    <!-- Heart shape -->
+    <path d="M 50 50 L 48 48 Q 46 46 44 48 Q 42 50 44 52 L 50 58 L 56 52 Q 58 50 56 48 Q 54 46 52 48 Z"
+          fill="#28a745" stroke="#17a2b8" stroke-width="1.5"/>
+    <!-- Medical cross inside heart -->
+    <g fill="white" opacity="0.9">
+      <rect x="48.5" y="50" width="3" height="8" rx="1"/>
+      <rect x="46" y="52.5" width="8" height="3" rx="1"/>
+    </g>
+  </g>
+
+  <!-- Text -->
+  <g id="text">
+    <text x="140" y="50" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#0d3b66">TRUE</text>
+    <text x="140" y="80" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#17a2b8">HEALTH</text>
+    <text x="275" y="75" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#0d3b66">PROTOCOL</text>
+  </g>
+</svg>

@@ -1,0 +1,41 @@
+<svg viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- TrueHealth Age Logo -->
+
+  <!-- Hexagon border -->
+  <g id="hexagon" stroke="#1e88e5" stroke-width="3" fill="none">
+    <path d="M 40 20 L 60 15 L 70 35 L 70 65 L 60 85 L 40 90 L 30 70 L 30 30 Z"/>
+  </g>
+
+  <!-- Human figure (striped body) -->
+  <g id="figure" fill="none" stroke="#1e88e5" stroke-width="2">
+    <!-- Head -->
+    <circle cx="50" cy="35" r="6" fill="#1e88e5"/>
+
+    <!-- Body stripes -->
+    <line x1="45" y1="42" x2="55" y2="42" stroke="#1e88e5" stroke-width="1.5"/>
+    <line x1="44" y1="46" x2="56" y2="46" stroke="#1e88e5" stroke-width="1.5"/>
+    <line x1="44" y1="50" x2="56" y2="50" stroke="#1e88e5" stroke-width="1.5"/>
+    <line x1="45" y1="54" x2="55" y2="54" stroke="#1e88e5" stroke-width="1.5"/>
+    <line x1="46" y1="58" x2="54" y2="58" stroke="#1e88e5" stroke-width="1.5"/>
+
+    <!-- Heart -->
+    <path d="M 50 48 L 48 46 Q 46 44 44 46 Q 42 48 44 50 L 50 56 L 56 50 Q 58 48 56 46 Q 54 44 52 46 Z"
+          fill="#1e88e5" stroke="none"/>
+
+    <!-- Legs -->
+    <line x1="46" y1="62" x2="46" y2="72" stroke="#1e88e5" stroke-width="1.5"/>
+    <line x1="54" y1="62" x2="54" y2="72" stroke="#1e88e5" stroke-width="1.5"/>
+  </g>
+
+  <!-- Heartbeat line -->
+  <g id="heartbeat" stroke="#1e88e5" stroke-width="2" fill="none">
+    <polyline points="35,50 40,50 42,45 44,55 46,50 48,50 50,48 52,50 54,50 56,48 58,50 60,50 65,50"/>
+  </g>
+
+  <!-- Text -->
+  <g id="text">
+    <text x="130" y="50" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#0d3b66">TRUE</text>
+    <text x="130" y="80" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#1e88e5">HEALTH</text>
+    <text x="250" y="75" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#0d3b66">AGE</text>
+  </g>
+</svg>
