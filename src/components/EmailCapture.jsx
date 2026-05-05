@@ -157,6 +157,27 @@ export default function EmailCapture({
           >
             {loading ? 'Creating Account...' : 'See My Health Age'}
           </button>
+
+          <button
+            type="button"
+            onClick={() => onComplete('test@example.com')}
+            className="skip-btn"
+            style={{
+              width: '100%',
+              padding: '12px',
+              marginTop: '12px',
+              background: '#f5f5f5',
+              border: '1px solid #ddd',
+              borderRadius: '8px',
+              fontSize: '1rem',
+              cursor: 'pointer',
+              color: '#666',
+              fontWeight: '500',
+              transition: 'all 0.2s'
+            }}
+          >
+            Skip for Now (Testing)
+          </button>
         </form>
 
         <p className="privacy-note">
