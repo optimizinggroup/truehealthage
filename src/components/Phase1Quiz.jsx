@@ -3,343 +3,267 @@ import axios from 'axios'
 import { calculatePhase1Results } from '../utils/quizLogic'
 import '../styles/Phase1Quiz.css'
 
-// ORIGINAL EVIDENCE-BASED QUESTIONS WITH YEARS SCORING
+// EVIDENCE-BASED QUESTIONS - FINAL 20 HEALTH AGE ASSESSMENT
 const PHASE1_QUESTIONS = [
-  // MODULE 1: The Basics
+  // Q1: Age (Baseline)
   {
     id: 1,
-    module: 'Basics',
-    question: 'What is your biological sex?',
-    type: 'single',
-    options: [
-      { text: 'Female', years: 0 },
-      { text: 'Male', years: 2 },
-      { text: 'Other', years: 0 }
-    ]
-  },
-  {
-    id: 2,
-    module: 'Basics',
-    question: 'What is your current age?',
+    category: 'Baseline',
+    question: 'What is your age?',
     type: 'number',
-    placeholder: 'Enter your age',
+    placeholder: 'Enter your age (years)',
     years: 0
   },
 
-  // MODULE 2: Smoking & Substances
+  // Q2: Biological Sex (Baseline)
   {
-    id: 3,
-    module: 'Smoking & Substances',
-    question: 'What is your smoking status?',
+    id: 2,
+    category: 'Baseline',
+    question: 'What is your biological sex?',
     type: 'single',
     options: [
-      { text: 'Never smoked', years: 0 },
-      { text: 'Quit 10+ years ago', years: 0.5 },
-      { text: 'Quit 5-10 years ago', years: 1 },
-      { text: 'Quit 1-5 years ago', years: 2 },
-      { text: 'Occasional (few per month)', years: 3 },
-      { text: 'Occasional (few per week)', years: 4 },
-      { text: 'Regular smoker (1 pack/day)', years: 6 },
-      { text: 'Heavy smoker (1.5+ packs/day)', years: 7 }
-    ]
-  },
-  {
-    id: 4,
-    module: 'Smoking & Substances',
-    question: 'Do you vape or use e-cigarettes?',
-    type: 'single',
-    options: [
-      { text: 'Never', years: 0 },
-      { text: 'Occasionally', years: 0.5 },
-      { text: 'Regularly', years: 1 },
-      { text: 'Daily', years: 2 }
-    ]
-  },
-  {
-    id: 5,
-    module: 'Smoking & Substances',
-    question: 'How much alcohol do you drink per week?',
-    type: 'single',
-    options: [
-      { text: 'None', years: 0 },
-      { text: '1-2 drinks', years: 0 },
-      { text: '3-7 drinks', years: 0.5 },
-      { text: '8-14 drinks', years: 1.5 },
-      { text: '15+ drinks (heavy)', years: 3 }
+      { text: 'Male', years: 0 },
+      { text: 'Female', years: 0 },
+      { text: 'Other', years: 0 }
     ]
   },
 
-  // MODULE 3: Body & Vitals
+  // Q3: Smoking Status (High-Impact Risks)
   {
-    id: 6,
-    module: 'Body & Vitals',
-    question: 'What is your height and weight? (for BMI calculation)',
-    type: 'bmi',
-    note: 'This helps us calculate your BMI accurately',
-    placeholder_height: 'Height (inches)',
-    placeholder_weight: 'Weight (lbs)'
+    id: 3,
+    category: 'High-Impact Risks',
+    question: 'Do you currently smoke cigarettes?',
+    type: 'single',
+    options: [
+      { text: 'Never', years: 0 },
+      { text: 'Former', years: 0.5 },
+      { text: 'Occasionally', years: 5 },
+      { text: 'Daily', years: 7 }
+    ]
   },
+
+  // Q4: Alcohol Consumption (High-Impact Risks)
   {
-    id: 7,
-    module: 'Body & Vitals',
-    question: 'Do you have any diagnosed chronic conditions?',
+    id: 4,
+    category: 'High-Impact Risks',
+    question: 'How many alcoholic drinks do you have in a typical week?',
+    type: 'single',
+    options: [
+      { text: '0–2', years: 0 },
+      { text: '3–7', years: 0.5 },
+      { text: '8–14', years: 2 },
+      { text: '15+', years: 4 }
+    ]
+  },
+
+  // Q5: Chronic Disease Diagnosis (High-Impact Risks)
+  {
+    id: 5,
+    category: 'High-Impact Risks',
+    question: 'Have you been diagnosed with any of the following?',
     type: 'multi',
     options: [
       { text: 'None', years: 0 },
+      { text: 'Diabetes', years: 3 },
       { text: 'Heart disease', years: 6 },
-      { text: 'Hypertension (high blood pressure)', years: 2 },
-      { text: 'Type 2 diabetes', years: 3 },
-      { text: 'Cancer history', years: 4 },
-      { text: 'Autoimmune condition', years: 2 },
-      { text: 'Thyroid disorder', years: 1 },
-      { text: 'Other', years: 1 }
-    ]
-  },
-  {
-    id: 8,
-    module: 'Body & Vitals',
-    question: 'What is your resting heart rate (beats per minute)?',
-    type: 'single',
-    options: [
-      { text: 'I don\'t know', years: 0 },
-      { text: '<40 bpm', years: -1 },
-      { text: '40-59 bpm', years: 0 },
-      { text: '60-79 bpm', years: 0.5 },
-      { text: '80-99 bpm', years: 1 },
-      { text: '100+ bpm', years: 2 }
-    ]
-  },
-  {
-    id: 9,
-    module: 'Body & Vitals',
-    question: 'What is your blood pressure?',
-    type: 'single',
-    options: [
-      { text: 'I don\'t know', years: 0 },
-      { text: 'Normal (<120/80)', years: 0 },
-      { text: 'Elevated (120-129/<80)', years: 0.5 },
-      { text: 'Stage 1 (130-139/80-89)', years: 1.5 },
-      { text: 'Stage 2 (140+/90+)', years: 3 }
+      { text: 'Cancer', years: 4 }
     ]
   },
 
-  // MODULE 4: Movement & Fitness
+  // Q6: Height & Weight (Body & Vitals)
+  {
+    id: 6,
+    category: 'Body & Vitals',
+    question: 'What is your height and weight?',
+    type: 'bmi',
+    note: 'Used to calculate your BMI',
+    placeholder_height: 'Height (inches)',
+    placeholder_weight: 'Weight (lbs)'
+  },
+
+  // Q7: Blood Pressure (Body & Vitals)
+  {
+    id: 7,
+    category: 'Body & Vitals',
+    question: 'Do you know your blood pressure?',
+    type: 'single',
+    options: [
+      { text: 'Normal', years: 0 },
+      { text: 'High', years: 2 },
+      { text: 'I don\'t know', years: 0 }
+    ]
+  },
+
+  // Q8: Resting Heart Rate (Body & Vitals)
+  {
+    id: 8,
+    category: 'Body & Vitals',
+    question: 'Do you know your resting heart rate?',
+    type: 'single',
+    options: [
+      { text: 'Under 60 bpm', years: 0 },
+      { text: '60–80 bpm', years: 0 },
+      { text: '80+ bpm', years: 1 },
+      { text: 'I don\'t know', years: 0 }
+    ]
+  },
+
+  // Q9: Overall Health Rating (Body & Vitals)
+  {
+    id: 9,
+    category: 'Body & Vitals',
+    question: 'How would you describe your overall health?',
+    type: 'single',
+    options: [
+      { text: 'Excellent', years: 0 },
+      { text: 'Good', years: 0.5 },
+      { text: 'Fair', years: 2 },
+      { text: 'Poor', years: 4 }
+    ]
+  },
+
+  // Q10: Exercise Frequency (Movement)
   {
     id: 10,
-    module: 'Movement & Fitness',
-    question: 'How physically active are you?',
+    category: 'Movement',
+    question: 'How often do you exercise or move your body?',
     type: 'single',
     options: [
-      { text: 'Sedentary (little to no exercise)', years: 3 },
-      { text: 'Lightly active (1-3 days/week)', years: 1.5 },
-      { text: 'Moderately active (3-4 days/week)', years: 0 },
-      { text: 'Very active (5-6 days/week)', years: -0.5 },
-      { text: 'Extremely active (7 days/week)', years: -1.5 }
+      { text: 'Rarely', years: 3 },
+      { text: '1–2 days/week', years: 1.5 },
+      { text: '3–4 days/week', years: 0 },
+      { text: '5+ days/week', years: -1 }
     ]
   },
+
+  // Q11: Daily Sitting Time (Movement)
   {
     id: 11,
-    module: 'Movement & Fitness',
-    question: 'Do you do strength/resistance training?',
+    category: 'Movement',
+    question: 'On a typical day, how many hours do you sit?',
     type: 'single',
     options: [
-      { text: 'Never', years: 0 },
-      { text: 'Occasionally (1-2x/month)', years: -0.25 },
-      { text: 'Regularly (1-2x/week)', years: -0.5 },
-      { text: 'Frequently (3+x/week)', years: -1 }
-    ]
-  },
-  {
-    id: 12,
-    module: 'Movement & Fitness',
-    question: 'How much do you sit per day?',
-    type: 'single',
-    options: [
-      { text: '<3 hours', years: 0 },
-      { text: '3-5 hours', years: 0.5 },
-      { text: '5-8 hours', years: 1 },
+      { text: '<4 hours', years: 0 },
+      { text: '4–8 hours', years: 1 },
       { text: '8+ hours', years: 2 }
     ]
   },
 
-  // MODULE 5: Sleep
+  // Q12: Fitness Perception (Movement)
+  {
+    id: 12,
+    category: 'Movement',
+    question: 'How physically fit do you feel compared to others your age?',
+    type: 'single',
+    options: [
+      { text: 'Much fitter', years: -1 },
+      { text: 'About the same', years: 0 },
+      { text: 'Less fit', years: 2 }
+    ]
+  },
+
+  // Q13: Sleep Hours (Sleep)
   {
     id: 13,
-    module: 'Sleep',
-    question: 'How many hours of sleep do you typically get per night?',
+    category: 'Sleep',
+    question: 'How many hours do you sleep per night on average?',
     type: 'single',
     options: [
-      { text: '<5 hours', years: 4 },
-      { text: '5-6 hours', years: 2 },
-      { text: '6-7 hours', years: 1 },
-      { text: '7-9 hours', years: 0 },
-      { text: '9+ hours', years: -1 }
+      { text: '<6 hours', years: 2 },
+      { text: '6–7 hours', years: 1 },
+      { text: '7–8 hours', years: 0 },
+      { text: '8+ hours', years: 0 }
     ]
   },
+
+  // Q14: Sleep Quality (Sleep)
   {
     id: 14,
-    module: 'Sleep',
-    question: 'How would you rate your sleep quality?',
+    category: 'Sleep',
+    question: 'How well do you usually sleep?',
     type: 'single',
     options: [
-      { text: 'Poor (restless, frequent wake-ups)', years: 2 },
-      { text: 'Fair (occasional issues)', years: 1 },
-      { text: 'Good (generally restful)', years: -0.5 },
-      { text: 'Excellent (wake refreshed)', years: -0.5 }
+      { text: 'Very well', years: 0 },
+      { text: 'Okay', years: 0.5 },
+      { text: 'Poor', years: 2 }
     ]
   },
+
+  // Q15: Sleep Apnea (Sleep)
   {
     id: 15,
-    module: 'Sleep',
-    question: 'Do you have or suspect sleep apnea?',
+    category: 'Sleep',
+    question: 'Have you ever been told you might have sleep apnea?',
     type: 'single',
     options: [
       { text: 'No', years: 0 },
-      { text: 'Suspect but untreated', years: 3 },
-      { text: 'Diagnosed and treated', years: 0.5 }
+      { text: 'Yes (untreated)', years: 3 },
+      { text: 'Yes (treated)', years: 0.5 }
     ]
   },
 
-  // MODULE 6: Diet & Nutrition
+  // Q16: Diet Type (Nutrition)
   {
     id: 16,
-    module: 'Diet & Nutrition',
-    question: 'How would you describe your typical diet?',
+    category: 'Nutrition',
+    question: 'Which best describes how you usually eat?',
     type: 'single',
     options: [
-      { text: 'Poor (mostly processed, fast food)', years: 3 },
-      { text: 'Fair (mix of processed and whole foods)', years: 1.5 },
-      { text: 'Good (mostly whole foods, occasional processed)', years: -0.5 },
-      { text: 'Excellent (Mediterranean, whole-food based)', years: -1.5 }
+      { text: 'Mostly whole foods', years: 0 },
+      { text: 'Mix of whole and processed', years: 1 },
+      { text: 'Mostly processed or fast foods', years: 3 }
     ]
   },
+
+  // Q17: Fast Food & Sugary Beverages (Nutrition)
   {
     id: 17,
-    module: 'Diet & Nutrition',
-    question: 'How often do you eat fruits and vegetables?',
+    category: 'Nutrition',
+    question: 'How often do you eat fast food, packaged snacks, or drink sugary beverages?',
     type: 'single',
     options: [
-      { text: 'Rarely', years: 2 },
-      { text: '1-2 servings per day', years: 1 },
-      { text: '3-4 servings per day', years: -0.5 },
-      { text: '5+ servings per day', years: -1 }
+      { text: 'Rarely (<1/week)', years: 0 },
+      { text: 'A few times/week', years: 1.5 },
+      { text: 'Daily', years: 3 }
     ]
   },
+
+  // Q18: Healthy Food Choices (Nutrition)
   {
     id: 18,
-    module: 'Diet & Nutrition',
-    question: 'How much ultra-processed food do you eat?',
+    category: 'Nutrition',
+    question: 'How often do you choose whole grains, fish, beans, or nuts?',
     type: 'single',
     options: [
-      { text: 'Most meals', years: 2 },
-      { text: 'Several meals per week', years: 1.5 },
-      { text: 'Occasionally', years: 0.5 },
-      { text: 'Rarely', years: 0 }
+      { text: 'Most of the time', years: 0 },
+      { text: 'Sometimes', years: 1 },
+      { text: 'Rarely', years: 2 }
     ]
   },
 
-  // MODULE 7: Mental Health
+  // Q19: Stress Level (Mental Health)
   {
     id: 19,
-    module: 'Mental Health',
-    question: 'How would you describe your typical stress level?',
+    category: 'Mental Health',
+    question: 'How would you rate your stress level?',
     type: 'single',
     options: [
-      { text: 'Very high (constant stress)', years: 3 },
-      { text: 'High (frequent stress)', years: 2 },
-      { text: 'Moderate (manageable)', years: 0.5 },
-      { text: 'Low (well-managed)', years: 0 }
+      { text: 'Low', years: 0 },
+      { text: 'Moderate', years: 1 },
+      { text: 'High', years: 3 }
     ]
   },
+
+  // Q20: Depression or Low Mood (Mental Health)
   {
     id: 20,
-    module: 'Mental Health',
-    question: 'Do you experience depression?',
+    category: 'Mental Health',
+    question: 'Have you experienced depression or low mood recently?',
     type: 'single',
     options: [
       { text: 'No', years: 0 },
-      { text: 'Occasionally', years: 0.5 },
-      { text: 'Yes, but managed', years: 1 },
-      { text: 'Yes, untreated', years: 3 }
-    ]
-  },
-  {
-    id: 21,
-    module: 'Mental Health',
-    question: 'Do you have a strong sense of purpose?',
-    type: 'single',
-    options: [
-      { text: 'Not really', years: 2 },
-      { text: 'Somewhat', years: 0.5 },
-      { text: 'Yes', years: -0.5 },
-      { text: 'Very much', years: -1 }
-    ]
-  },
-
-  // MODULE 8: Social Connection
-  {
-    id: 22,
-    module: 'Social Connection',
-    question: 'How many close relationships do you have?',
-    type: 'single',
-    options: [
-      { text: 'None', years: 4 },
-      { text: '1-2', years: 2 },
-      { text: '3-5', years: 0 },
-      { text: '6+', years: -1 }
-    ]
-  },
-  {
-    id: 23,
-    module: 'Social Connection',
-    question: 'How often do you interact socially in person?',
-    type: 'single',
-    options: [
-      { text: 'Rarely/Never', years: 2 },
-      { text: 'Monthly', years: 1 },
-      { text: 'Weekly', years: 0.5 },
-      { text: 'Multiple times per week', years: -0.5 }
-    ]
-  },
-
-  // MODULE 9: Recent Life Events
-  {
-    id: 24,
-    module: 'Recent Life Events',
-    question: 'Have any major life events happened in the past 2 years?',
-    type: 'multi',
-    options: [
-      { text: 'None', years: 0 },
-      { text: 'Death of loved one', years: 3 },
-      { text: 'Divorce/breakup', years: 2 },
-      { text: 'Job loss', years: 2 },
-      { text: 'Serious illness/injury', years: 2 },
-      { text: 'Major financial stress', years: 1.5 },
-      { text: 'Relocation', years: 1 }
-    ]
-  },
-
-  // MODULE 10: Family History
-  {
-    id: 25,
-    module: 'Family History',
-    question: 'How long did your parents/grandparents typically live?',
-    type: 'single',
-    options: [
-      { text: '<70 years', years: 3 },
-      { text: '70-80 years', years: 1 },
-      { text: '80-90 years', years: -1 },
-      { text: '90+ years', years: -2 }
-    ]
-  },
-  {
-    id: 26,
-    module: 'Family History',
-    question: 'Do you have first-degree relatives with early Alzheimer\'s disease?',
-    type: 'single',
-    options: [
-      { text: 'No', years: 0 },
-      { text: 'Yes (parent/sibling before age 65)', years: 1.5 }
+      { text: 'Managed', years: 1 },
+      { text: 'Ongoing', years: 3 }
     ]
   }
 ]
