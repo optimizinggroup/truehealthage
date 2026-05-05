@@ -7,6 +7,7 @@ import EmailCapture from './components/EmailCapture'
 import LoginComponent from './components/LoginComponent'
 import ForgotPasswordComponent from './components/ForgotPasswordComponent'
 import ResetPasswordComponent from './components/ResetPasswordComponent'
+import AppHeader from './components/AppHeader'
 import './App.css'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
@@ -128,15 +129,7 @@ export default function App() {
 
   return (
     <div className="app-container">
-      <header className="app-header">
-        <h1>True Health Age</h1>
-        {userEmail && (
-          <div className="user-info">
-            <span className="user-email">{userEmail}</span>
-            <button className="logout-btn" onClick={handleLogout}>Logout</button>
-          </div>
-        )}
-      </header>
+      <AppHeader currentPhase={currentPhase} userEmail={userEmail} onLogout={handleLogout} />
 
       <main className="app-main">
         {currentPhase === 'landing' && (

@@ -1,0 +1,179 @@
+.app-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 16px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.header-content {
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-placeholder {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.logo-placeholder svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.brand-name {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.3px;
+}
+
+.brand-tagline {
+  margin: 0;
+  font-size: 12px;
+  opacity: 0.9;
+  font-weight: 400;
+}
+
+.user-section {
+  position: relative;
+}
+
+.user-menu-trigger {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.user-menu-trigger:active {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.user-initial {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.user-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  color: #333;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  min-width: 200px;
+  margin-top: 8px;
+  overflow: hidden;
+  z-index: 101;
+}
+
+.user-email {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+  font-size: 13px;
+  color: #666;
+  word-break: break-all;
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #667eea;
+  transition: background-color 0.2s;
+}
+
+.logout-btn:active {
+  background-color: #f5f5f5;
+}
+
+/* Mobile optimizations */
+@media (max-width: 480px) {
+  .app-header {
+    padding: 12px 16px;
+  }
+
+  .header-content {
+    gap: 10px;
+  }
+
+  .logo-section {
+    gap: 10px;
+  }
+
+  .logo-placeholder {
+    width: 40px;
+    height: 40px;
+  }
+
+  .brand-name {
+    font-size: 16px;
+  }
+
+  .brand-tagline {
+    font-size: 11px;
+  }
+
+  .user-menu-trigger {
+    width: 36px;
+    height: 36px;
+  }
+
+  .user-initial {
+    font-size: 14px;
+  }
+
+  .user-menu {
+    right: -8px;
+  }
+}
+
+/* Logo replacement instructions for developer */
+/* To replace placeholder logo:
+   1. Add your logo file to /src/assets/logos/
+   2. Import at top: import TrueHealthAgeLogo from '../assets/logos/truehealthage.svg'
+   3. Replace <div className="logo-placeholder"> with: <img src={TrueHealthAgeLogo} alt="Logo" className="logo-image" />
+   4. Add CSS: .logo-image { width: 100%; height: 100%; } */
