@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { getRecommendedProtocols, getCategoryTopConcerns } from '../utils/protocolMapping'
 
-export default function ResultsReport({ phase1Results, userEmail }) {
+export default function ResultsReport({ phase1Results, userEmail, onStartProtocol }) {
   const [showReport, setShowReport] = useState(false)
 
   if (!phase1Results) return null
@@ -17,6 +18,41 @@ export default function ResultsReport({ phase1Results, userEmail }) {
       }
       return emojiMap[status] || '⚪'
     }
+
+    // Get category-based top concerns
+    const allFactors = []
+    Object.entries(categoryScores || {}).forEach(([category, scoreObj]) => {
+      if (scoreObj.years > 0) {
+        allFactors.push({ category, years: scoreObj.years, type: 'aging' })
+      } else if (scoreObj.years < 0) {
+        allFactors.push({ category, years: Math.abs(scoreObj.years), type: 'protecting' })
+      }
+    })
+
+    const topAgingCategories = allFactors
+      .filter(f => f.type === 'aging')
+      .sort((a, b) => b.years - a.years)
+      .slice(0, 3)
+
+    const topProtectingCategories = allFactors
+      .filter(f => f.type === 'protecting')
+      .sort((a, b) => b.years - a.years)
+      .slice(0, 3)
+
+    // Get recommended protocols
+    const recommendedProtocols = getRecommendedProtocols(categoryScores)
+
+    const protocolHTML = recommendedProtocols.map((protocol, idx) => `
+      <div style="margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+          <span style="font-size: 1.5rem; margin-right: 12px;">${protocol.emoji}</span>
+          <div>
+            <div style="font-weight: 600; font-size: 1.05rem; color: #333;">${protocol.protocol}</div>
+            <div style="font-size: 0.9rem; color: #666;">${protocol.description}</div>
+          </div>
+        </div>
+      </div>
+    `).join('')
 
     const categoryRows = Object.entries(categoryScores || {}).map(([category, scoreObj]) => {
       const status = scoreObj.status || 'Good'
@@ -57,21 +93,21 @@ export default function ResultsReport({ phase1Results, userEmail }) {
       `
     }).join('')
 
-    const agingFactorsHTML = (top3Aging || []).map((factor, idx) => `
+    const agingFactorsHTML = (topAgingCategories || []).map((factor, idx) => `
       <div class="factor-row aging">
         <div class="factor-rank">${idx + 1}</div>
         <div class="factor-content">
-          <div class="factor-text">${factor.answer}</div>
+          <div class="factor-text">${factor.category}</div>
           <div class="factor-impact">+${factor.years} years</div>
         </div>
       </div>
     `).join('')
 
-    const protectingFactorsHTML = (top3Protecting || []).map((factor, idx) => `
+    const protectingFactorsHTML = (topProtectingCategories || []).map((factor, idx) => `
       <div class="factor-row protecting">
         <div class="factor-rank">${idx + 1}</div>
         <div class="factor-content">
-          <div class="factor-text">${factor.answer}</div>
+          <div class="factor-text">${factor.category}</div>
           <div class="factor-impact">-${factor.years} years</div>
         </div>
       </div>
@@ -380,11 +416,19 @@ export default function ResultsReport({ phase1Results, userEmail }) {
               </div>
             </div>
 
+            <!-- Recommended Protocols -->
+            <h2 class="section-title">🎯 Recommended Protocols for You</h2>
+            <p style="color: #666; margin-bottom: 30px; font-size: 1.05rem;">Based on your health assessment and areas of concern, we recommend diving deeper into these protocols:</p>
+            <div style="display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 40px;">
+              ${protocolHTML}
+            </div>
+
             <!-- Call to Action -->
             <div class="cta-section">
               <h2>Ready to Improve Your Health?</h2>
               <p>Get your personalized TrueHealth Protocol with targeted actions based on your assessment.</p>
               <p style="font-size: 1rem; opacity: 0.9;">Start your personalized protocol today to reverse your health age.</p>
+              <button onclick="window.location.href='#start-protocol'" style="background: white; color: #667eea; padding: 12px 30px; border: 2px solid white; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 20px;">Start My Protocol →</button>
             </div>
           </div>
 
@@ -420,13 +464,32 @@ export default function ResultsReport({ phase1Results, userEmail }) {
 
   return (
     <div style={{ margin: '20px 0' }}>
+      {onStartProtocol && (
+        <button
+          onClick={onStartProtocol}
+          style={{
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            color: 'white',
+            padding: '14px 28px',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '1rem',
+            fontWeight: '600',
+            cursor: 'pointer',
+            marginRight: '10px',
+            boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
+          }}
+        >
+          🚀 Start My Personalized Protocol
+        </button>
+      )}
       <button
         onClick={() => setShowReport(!showReport)}
         style={{
-          background: '#667eea',
-          color: 'white',
+          background: '#f5f5f5',
+          color: '#333',
           padding: '12px 24px',
-          border: 'none',
+          border: '1px solid #ddd',
           borderRadius: '8px',
           fontSize: '1rem',
           fontWeight: '600',

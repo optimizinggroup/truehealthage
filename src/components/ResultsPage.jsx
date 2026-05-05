@@ -97,7 +97,11 @@ export default function ResultsPage({
           </div>
 
           {/* Results Report */}
-          <ResultsReport phase1Results={phase1Results} userEmail={userEmail} />
+          <ResultsReport
+            phase1Results={phase1Results}
+            userEmail={userEmail}
+            onStartProtocol={onPhase2Selection}
+          />
 
           {/* Phase 2 Gateway */}
           {showPhase2Option && (
