@@ -23,9 +23,19 @@ export default function ResultsReport({ phase1Results, userEmail }) {
       const years = scoreObj.years || 0
       const color = scoreObj.color || '#999'
       const emoji = getEmojiForStatus(status)
+      const whyItMatters = scoreObj.whyItMatters || ''
+      const improvementSteps = scoreObj.improvementSteps || []
 
       // Display years impact
       const yearsDisplay = years > 0 ? `+${years} years` : years < 0 ? `${years} years` : 'Neutral'
+
+      // Build improvement steps HTML if present
+      const improvementHTML = improvementSteps.length > 0 ? `
+        <div class="improvement-steps" style="margin-top: 12px; padding: 12px; background: ${color}15; border-left: 3px solid ${color}; border-radius: 4px;">
+          <div style="font-weight: 600; color: ${color}; margin-bottom: 8px; font-size: 0.9rem;">💡 Next Steps:</div>
+          ${improvementSteps.map(step => `<div style="font-size: 0.85rem; color: #333; margin-bottom: 6px; line-height: 1.4;">${step}</div>`).join('')}
+        </div>
+      ` : ''
 
       return `
         <div class="category-row">
@@ -34,6 +44,8 @@ export default function ResultsReport({ phase1Results, userEmail }) {
             <div class="category-status" style="color: ${color};">
               ${emoji} ${status}
             </div>
+            ${whyItMatters ? `<div style="font-size: 0.85rem; color: #666; margin-top: 8px; line-height: 1.4;">${whyItMatters}</div>` : ''}
+            ${improvementHTML}
           </div>
           <div class="category-score-display">
             <div class="score-bar">

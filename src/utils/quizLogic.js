@@ -1,6 +1,8 @@
 // ORIGINAL EVIDENCE-BASED SCORING ALGORITHM
 // Sums all "years" adjustments and adds to chronological age to get True Health Age
 
+import { QUESTION_METADATA } from './questionMetadata'
+
 export function calculatePhase1Results(answers) {
   // Get user's chronological age (now in question ID 1)
   const chronoAge = parseInt(answers[1]?.text) || 40
@@ -65,11 +67,17 @@ export function calculatePhase1Results(answers) {
     }
   })
 
-  // Calculate category scores and health status
+  // Calculate category scores and health status (exclude Baseline from reporting)
   const categoryScores = {}
   const categoryStatus = {}
+  const categoryExplanations = {}
 
   Object.entries(categoryMap).forEach(([category, qIds]) => {
+    // Skip Baseline - it's metadata only
+    if (category === 'Baseline') {
+      return
+    }
+
     const categoryFactors = factors.filter(f => f.category === category)
     const totalYears = categoryYears[category]
 
@@ -81,20 +89,36 @@ export function calculatePhase1Results(answers) {
     // Find if there's a single very bad question (>= 5 years)
     const veryBadQuestion = categoryFactors.find(f => f.years >= 5)
 
+    // Get "Why It Matters" for this category from the first question
+    const categoryQId = qIds.find(qId => qId > 2) // Get first non-baseline question
+    const categoryMetadata = QUESTION_METADATA[categoryQId]
+    const whyItMatters = categoryMetadata?.whyItMatters || ''
+
+    // Get improvement steps if there are concerns
+    let improvementSteps = []
+    if (totalYears > 0) {
+      categoryFactors.forEach(factor => {
+        const metadata = QUESTION_METADATA[factor.questionId]
+        if (metadata?.improvementSteps && factor.years > 0) {
+          improvementSteps.push(metadata.improvementSteps)
+        }
+      })
+    }
+
     // Determine status
     let status
     if (totalYears < 0) {
       status = 'Great'
-      categoryScores[category] = { years: totalYears, status, color: '#4CAF50' }
+      categoryScores[category] = { years: totalYears, status, color: '#4CAF50', whyItMatters }
     } else if (totalYears === 0) {
       status = 'Good'
-      categoryScores[category] = { years: totalYears, status, color: '#81C784' }
+      categoryScores[category] = { years: totalYears, status, color: '#81C784', whyItMatters }
     } else if (veryBadQuestion || percentBadQuestions > 0.5) {
       status = 'Serious Concern'
-      categoryScores[category] = { years: totalYears, status, color: '#F44336' }
+      categoryScores[category] = { years: totalYears, status, color: '#F44336', whyItMatters, improvementSteps: improvementSteps.slice(0, 2) }
     } else if (totalYears > 0) {
       status = 'Moderate Concern'
-      categoryScores[category] = { years: totalYears, status, color: '#FFC107' }
+      categoryScores[category] = { years: totalYears, status, color: '#FFC107', whyItMatters, improvementSteps: improvementSteps.slice(0, 1) }
     }
 
     categoryStatus[category] = status
