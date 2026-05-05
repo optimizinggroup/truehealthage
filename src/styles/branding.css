@@ -1,0 +1,98 @@
+/* TrueHealthAge Brand Colors & Theming */
+
+:root {
+  /* Primary Brand Colors - from TrueHealth Age logo */
+  --brand-primary-blue: #2563EB;
+  --brand-accent-blue: #1E40AF;
+  --brand-light-blue: #DBEAFE;
+
+  /* Secondary Brand Colors - from TrueHealth Protocol logo */
+  --brand-teal: #0D9488;
+  --brand-green: #10B981;
+  --brand-light-green: #D1FAE5;
+
+  /* Neutral colors */
+  --brand-dark-navy: #1F2937;
+  --brand-gray-light: #F9FAFB;
+  --brand-gray-medium: #E5E7EB;
+  --brand-gray-dark: #6B7280;
+
+  /* Status colors */
+  --status-optimal: #10B981;
+  --status-attention: #F59E0B;
+  --status-priority: #EF4444;
+
+  /* Shadows & Effects */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Brand Gradients */
+.gradient-primary {
+  background: linear-gradient(135deg, var(--brand-primary-blue), var(--brand-accent-blue));
+}
+
+.gradient-secondary {
+  background: linear-gradient(135deg, var(--brand-teal), var(--brand-green));
+}
+
+.gradient-warm {
+  background: linear-gradient(135deg, var(--brand-primary-blue), var(--brand-green));
+}
+
+/* Brand Button Styles */
+.btn-primary {
+  background: linear-gradient(135deg, var(--brand-primary-blue), var(--brand-accent-blue));
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, var(--brand-teal), var(--brand-green));
+  color: white;
+  border: none;
+}
+
+.btn-secondary:hover {
+  box-shadow: 0 8px 20px rgba(13, 148, 136, 0.3);
+}
+
+/* Logo container styles */
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-icon {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+}
+
+.logo-icon.small {
+  width: 32px;
+  height: 32px;
+}
+
+.logo-icon.large {
+  width: 64px;
+  height: 64px;
+}
+
+.brand-text {
+  color: var(--brand-dark-navy);
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: -0.5px;
+}
+
+.brand-text .accent {
+  color: var(--brand-primary-blue);
+}

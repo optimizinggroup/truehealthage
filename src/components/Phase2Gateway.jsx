@@ -1,0 +1,143 @@
+import { useState } from 'react'
+import { PHASE2_CATEGORIES } from '../utils/phase2Data'
+import '../styles/branding.css'
+import '../styles/Phase2Gateway.css'
+
+export default function Phase2Gateway({ phase1Results, onStart, onSkip }) {
+  const [mode, setMode] = useState('quick') // 'quick' or 'full'
+  const [selectedAreas, setSelectedAreas] = useState([])
+
+  const handleAreaToggle = (categoryId) => {
+    if (selectedAreas.includes(categoryId)) {
+      setSelectedAreas(selectedAreas.filter(id => id !== categoryId))
+    } else {
+      if (mode === 'quick' && selectedAreas.length >= 3) {
+        // Max 3 for quick plan
+        return
+      }
+      setSelectedAreas([...selectedAreas, categoryId])
+    }
+  }
+
+  const handleContinue = () => {
+    if (selectedAreas.length === 0) return
+    onStart(selectedAreas)
+  }
+
+  const isQuickValid = mode === 'quick' && selectedAreas.length > 0
+  const isFullValid = mode === 'full'
+
+  return (
+    <div className="phase2-gateway">
+      <div className="gateway-container">
+        {/* Header */}
+        <div className="gateway-header">
+          <h1>Phase 2: Your Behavior-Change Plan</h1>
+          <p>Let's identify the areas where you can make the biggest impact with small, daily changes.</p>
+          {phase1Results && (
+            <div className="phase1-context">
+              <p>Based on your True Health Age of <strong>{Math.round(phase1Results.trueHealthAge)}</strong>, let's focus on what matters most.</p>
+            </div>
+          )}
+        </div>
+
+        {/* Mode Selection */}
+        <div className="mode-selector">
+          <div
+            className={`mode-card ${mode === 'quick' ? 'active' : ''}`}
+            onClick={() => {
+              setMode('quick')
+              setSelectedAreas([])
+            }}
+          >
+            <h3>Quick Plan</h3>
+            <p>Choose up to 3 areas you want to focus on</p>
+            <small>~5 min assessment</small>
+          </div>
+
+          <div
+            className={`mode-card ${mode === 'full' ? 'active' : ''}`}
+            onClick={() => {
+              setMode('full')
+              setSelectedAreas(PHASE2_CATEGORIES.map(c => c.id))
+            }}
+          >
+            <h3>Full Assessment</h3>
+            <p>Complete evaluation across all 7 areas</p>
+            <small>~15 min assessment</small>
+          </div>
+        </div>
+
+        {/* Category Selection (Quick Mode) */}
+        {mode === 'quick' && (
+          <div className="quick-mode">
+            <h2>Select focus areas</h2>
+            <p className="mode-instruction">
+              Choose up to 3 areas where you'd like to start making changes:
+            </p>
+            <div className="categories-grid">
+              {PHASE2_CATEGORIES.map(category => (
+                <div
+                  key={category.id}
+                  className={`category-card ${selectedAreas.includes(category.id) ? 'selected' : ''}`}
+                  onClick={() => handleAreaToggle(category.id)}
+                >
+                  <div className="card-icon">{category.icon}</div>
+                  <h3>{category.name}</h3>
+                  <p>{category.description}</p>
+                  {selectedAreas.includes(category.id) && (
+                    <div className="selection-badge">✓ Selected</div>
+                  )}
+                </div>
+              ))}
+            </div>
+            <p className="selection-count">
+              {selectedAreas.length === 0 ? 'Select at least 1 area' : `${selectedAreas.length} of 3 areas selected`}
+            </p>
+          </div>
+        )}
+
+        {/* Category Overview (Full Mode) */}
+        {mode === 'full' && (
+          <div className="full-mode">
+            <h2>Full Assessment</h2>
+            <p className="mode-instruction">
+              We'll ask 6 questions in each of these 7 areas to create a personalized plan:
+            </p>
+            <div className="categories-list">
+              {PHASE2_CATEGORIES.map(category => (
+                <div key={category.id} className="category-item">
+                  <span className="category-icon">{category.icon}</span>
+                  <div className="category-info">
+                    <h4>{category.name}</h4>
+                    <p>{category.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="assessment-note">
+              💡 You can pause and resume your full assessment at any point.
+            </p>
+          </div>
+        )}
+
+        {/* Footer Actions */}
+        <div className="gateway-footer">
+          <button
+            className="skip-btn"
+            onClick={onSkip}
+          >
+            Skip Phase 2
+          </button>
+          <button
+            className={`continue-btn ${(isQuickValid || isFullValid) ? 'active' : 'disabled'}`}
+            onClick={handleContinue}
+            disabled={!isQuickValid && !isFullValid}
+          >
+            Continue to Assessment
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
