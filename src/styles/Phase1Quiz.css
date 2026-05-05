@@ -36,6 +36,23 @@
   animation: fadeIn 0.3s ease;
 }
 
+.question-banner {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  border-radius: 8px 8px 0 0;
+  margin: -40px -40px 25px -40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.question-logo {
+  height: 60px;
+  width: auto;
+  max-width: 200px;
+  object-fit: contain;
+}
+
 .question-container h2 {
   font-size: 1.5rem;
   color: var(--gray-900);
@@ -110,7 +127,7 @@
 
 .bmi-inputs {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 15px;
 }
 
@@ -187,6 +204,15 @@
 
   .bmi-inputs {
     grid-template-columns: 1fr;
+  }
+
+  .question-banner {
+    margin: -25px -20px 25px -20px;
+    padding: 15px;
+  }
+
+  .question-logo {
+    height: 50px;
   }
 
   .bmi-input-group input,

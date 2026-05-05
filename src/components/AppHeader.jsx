@@ -6,21 +6,11 @@ import '../styles/AppHeader.css'
 export default function AppHeader({ currentPhase, userEmail, onLogout }) {
   const [showUserMenu, setShowUserMenu] = useState(false)
 
-  // Determine which logo to show based on current phase
-  const isPhase2 = currentPhase?.includes('phase2') || currentPhase === 'results'
-  const currentLogo = isPhase2 ? TrueHealthProtocolLogo : TrueHealthAgeLogo
-
   return (
     <header className="app-header">
       <div className="header-content">
         <div className="logo-section">
-          <div className="logo-container">
-            <img
-              src={currentLogo}
-              alt={isPhase2 ? 'TrueHealth Protocol' : 'TrueHealth Age'}
-              className="logo-image"
-            />
-          </div>
+          <div className="logo-placeholder">TrueHealth</div>
         </div>
 
         {userEmail && (
