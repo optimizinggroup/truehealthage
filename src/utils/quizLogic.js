@@ -2,8 +2,8 @@
 // Sums all "years" adjustments and adds to chronological age to get True Health Age
 
 export function calculatePhase1Results(answers) {
-  // Get user's chronological age
-  const chronoAge = parseInt(answers[2]?.text) || 40
+  // Get user's chronological age (now in question ID 1)
+  const chronoAge = parseInt(answers[1]?.text) || 40
 
   // Sum all years adjustments from answers
   let yearsAdjustment = 0
@@ -13,7 +13,7 @@ export function calculatePhase1Results(answers) {
     const qId = parseInt(questionId)
 
     if (qId === 1 || qId === 2) {
-      // Skip sex and age - just metadata
+      // Skip age and sex - just metadata
       return
     }
 
