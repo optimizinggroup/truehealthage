@@ -7,15 +7,15 @@ export function calculatePhase1Results(answers) {
   // Get user's chronological age (now in question ID 1)
   const chronoAge = parseInt(answers[1]?.text) || 40
 
-  // Define question categories
+  // Define question categories - CORRECTED per questionMetadata.js
   const categoryMap = {
     'Baseline': [1, 2],
     'High-Impact Risks': [3, 4, 5],
     'Body & Vitals': [6, 7, 8, 9],
     'Movement': [10, 11],
-    'Sleep': [12],
-    'Nutrition': [13, 14, 15],
-    'Mental Health': [16, 17, 18, 19, 20]
+    'Sleep': [12, 13, 14],
+    'Nutrition': [15, 16, 17],
+    'Mental Health': [18, 19, 20]
   }
 
   // Sum all years adjustments from answers

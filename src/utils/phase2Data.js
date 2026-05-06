@@ -279,57 +279,57 @@ export const PHASE2_QUESTIONS = {
   sleep_recovery: [
     {
       id: 'sr_q1',
-      question: 'How many hours do you sleep on an average night?',
+      question: 'What is your primary sleep goal?',
       answer_type: 'single-select',
       options: [
-        { label: '7–8 hours', value: 'optimal', score: 0, risk_tags: [], protocol_triggers: [] },
-        { label: '6–7 hours', value: '6_7', score: 1, risk_tags: ['SHORT_SLEEP'], protocol_triggers: ['SLEEP_EXTENSION'] },
-        { label: 'Less than 6 hours', value: 'less_6', score: 2, risk_tags: ['SHORT_SLEEP'], protocol_triggers: ['SLEEP_PROTOCOL'] },
-        { label: 'More than 9 hours but still tired', value: 'too_much_tired', score: 3, risk_tags: ['POOR_SLEEP_QUALITY', 'SLEEP_APNEA_RISK'], protocol_triggers: ['SLEEP_QUALITY_CHECK', 'SLEEP_APNEA_CHECK'] }
+        { label: 'Improve sleep consistency', value: 'consistency', score: 0, risk_tags: [], protocol_triggers: ['SLEEP_SCHEDULE'] },
+        { label: 'Get to bed earlier', value: 'earlier_bedtime', score: 1, risk_tags: ['LATE_BEDTIME'], protocol_triggers: ['BEDTIME_PROTOCOL'] },
+        { label: 'Wake up earlier', value: 'earlier_wake', score: 1, risk_tags: ['LATE_WAKEUP'], protocol_triggers: ['CIRCADIAN_RESET'] },
+        { label: 'Align with natural rhythms', value: 'circadian', score: 0, risk_tags: [], protocol_triggers: ['CIRCADIAN_ALIGNMENT'] }
       ]
     },
     {
       id: 'sr_q2',
-      question: 'How would you rate your sleep quality?',
+      question: 'What time do you typically wake up?',
       answer_type: 'single-select',
       options: [
-        { label: 'Very good', value: 'very_good', score: 0, risk_tags: [], protocol_triggers: [] },
-        { label: 'Okay', value: 'okay', score: 1, risk_tags: ['POOR_SLEEP_QUALITY'], protocol_triggers: ['SLEEP_HYGIENE'] },
-        { label: 'Poor', value: 'poor', score: 2, risk_tags: ['POOR_SLEEP_QUALITY'], protocol_triggers: ['SLEEP_PROTOCOL'] },
-        { label: 'Very poor', value: 'very_poor', score: 3, risk_tags: ['POOR_SLEEP_QUALITY', 'SLEEP_APNEA_RISK'], protocol_triggers: ['SLEEP_APNEA_CHECK', 'MEDICAL_EVAL'] }
+        { label: 'Before 6:00 AM', value: 'before_6', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: '6:00 – 7:00 AM', value: '6_7am', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: '7:00 – 8:00 AM', value: '7_8am', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: 'After 8:00 AM', value: 'after_8', score: 1, risk_tags: ['LATE_WAKEUP'], protocol_triggers: ['CIRCADIAN_RESET'] }
       ]
     },
     {
       id: 'sr_q3',
-      question: 'How often do you wake up during the night?',
+      question: 'Do you get morning light exposure (sun or bright light) within 1 hour of waking?',
       answer_type: 'single-select',
       options: [
-        { label: 'Rarely', value: 'rarely', score: 0, risk_tags: [], protocol_triggers: [] },
-        { label: '1 time/night', value: 'once', score: 1, risk_tags: ['NIGHT_WAKING'], protocol_triggers: ['SLEEP_ENVIRONMENT'] },
-        { label: '2+ times/night', value: 'multiple', score: 2, risk_tags: ['NIGHT_WAKING', 'SLEEP_APNEA_RISK'], protocol_triggers: ['SLEEP_APNEA_CHECK'] },
-        { label: 'I struggle to stay asleep', value: 'struggle', score: 3, risk_tags: ['NIGHT_WAKING', 'SLEEP_APNEA_RISK'], protocol_triggers: ['SLEEP_APNEA_CHECK', 'MEDICAL_EVAL'] }
+        { label: 'Yes, regularly', value: 'yes', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: 'Yes, sometimes', value: 'sometimes', score: 1, risk_tags: ['LOW_LIGHT_EXPOSURE'], protocol_triggers: ['MORNING_LIGHT'] },
+        { label: 'Rarely', value: 'rarely', score: 2, risk_tags: ['LOW_LIGHT_EXPOSURE'], protocol_triggers: ['MORNING_LIGHT_PROTOCOL'] },
+        { label: 'I wake in the dark (shift work or timing)', value: 'dark', score: 3, risk_tags: ['DARK_WAKING', 'CIRCADIAN_MISALIGNMENT'], protocol_triggers: ['CIRCADIAN_LIGHT_THERAPY', 'SHIFT_ADJUSTMENT'] }
       ]
     },
     {
       id: 'sr_q4',
-      question: 'Do you snore, gasp, or suspect sleep apnea?',
+      question: 'What time do you typically go to bed?',
       answer_type: 'single-select',
       options: [
-        { label: 'No', value: 'no', score: 0, risk_tags: [], protocol_triggers: [] },
-        { label: 'Not sure', value: 'unsure', score: 1, risk_tags: ['SLEEP_APNEA_RISK'], protocol_triggers: ['SLEEP_APNEA_SCREENING'] },
-        { label: 'Yes, untreated', value: 'untreated', score: 3, risk_tags: ['SLEEP_APNEA_RISK'], escalation_flag: true, protocol_triggers: ['MEDICAL_EVAL', 'SLEEP_APNEA_TREATMENT'] },
-        { label: 'Yes, treated', value: 'treated', score: 1, risk_tags: [], protocol_triggers: ['ADHERENCE_CHECK'] }
+        { label: '9:00 – 10:00 PM', value: '9_10pm', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: '10:00 – 11:00 PM', value: '10_11pm', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: '11:00 PM – 12:00 AM', value: '11pm_12am', score: 1, risk_tags: ['LATE_BEDTIME'], protocol_triggers: ['EARLIER_BEDTIME'] },
+        { label: 'After 12:00 AM', value: 'after_12am', score: 2, risk_tags: ['LATE_BEDTIME', 'SHORT_SLEEP'], protocol_triggers: ['SLEEP_EXTENSION'] }
       ]
     },
     {
       id: 'sr_q5',
-      question: 'Do you use screens within 1 hour of bed?',
+      question: 'Do you work night shift or have rotating shift work?',
       answer_type: 'single-select',
       options: [
-        { label: 'Rarely', value: 'rarely', score: 0, risk_tags: [], protocol_triggers: [] },
-        { label: 'Sometimes', value: 'sometimes', score: 1, risk_tags: ['SCREEN_EXPOSURE'], protocol_triggers: ['SCREEN_CUTOFF'] },
-        { label: 'Often', value: 'often', score: 2, risk_tags: ['SCREEN_EXPOSURE'], protocol_triggers: ['BEDTIME_ROUTINE'] },
-        { label: 'Almost every night', value: 'every_night', score: 3, risk_tags: ['SCREEN_EXPOSURE'], protocol_triggers: ['NO_SCREENS_PROTOCOL'] }
+        { label: 'No', value: 'no', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: 'Occasionally', value: 'occasional', score: 1, risk_tags: ['SHIFT_WORK'], protocol_triggers: ['SHIFT_RECOVERY'] },
+        { label: 'Regular shift work', value: 'regular', score: 2, risk_tags: ['SHIFT_WORK', 'CIRCADIAN_MISALIGNMENT'], protocol_triggers: ['SHIFT_PROTOCOL'] },
+        { label: 'Rotating or on-call', value: 'rotating', score: 3, risk_tags: ['SHIFT_WORK', 'CIRCADIAN_MISALIGNMENT'], protocol_triggers: ['SHIFT_MANAGEMENT', 'CIRCADIAN_SUPPORT'] }
       ]
     },
     {
