@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { PHASE2_CATEGORIES } from '../utils/phase2Data'
+import { getRecommendedProtocols } from '../utils/protocolMapping'
 import '../styles/branding.css'
 import '../styles/Phase2Gateway.css'
 
@@ -40,6 +41,35 @@ export default function Phase2Gateway({ phase1Results, onStart, onSkip }) {
             </div>
           )}
         </div>
+
+        {/* Recommended Protocols from Phase 1 */}
+        {phase1Results?.categoryScores && (
+          <div style={{
+            marginBottom: '30px',
+            padding: '20px',
+            background: '#f0f4ff',
+            borderRadius: '8px',
+            borderLeft: '4px solid #667eea'
+          }}>
+            <h3 style={{ marginBottom: '15px', fontSize: '1.1rem', color: '#333' }}>
+              💡 Our Recommendations for You:
+            </h3>
+            <p style={{ color: '#666', marginBottom: '12px', fontSize: '0.95rem' }}>
+              Based on your assessment, these areas showed the most opportunity for improvement:
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px' }}>
+              {getRecommendedProtocols(phase1Results.categoryScores).map((protocol) => (
+                <div key={protocol.protocol} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={{ fontSize: '1.5rem' }}>{protocol.emoji}</span>
+                  <div>
+                    <div style={{ fontWeight: '600', color: '#333' }}>{protocol.protocol}</div>
+                    <div style={{ fontSize: '0.85rem', color: '#666' }}>{protocol.description}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Mode Selection */}
         <div className="mode-selector">

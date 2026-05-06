@@ -15,6 +15,15 @@ import '../styles/Phase2Results.css'
 export default function Phase2Results({ phase1Results, phase2Data, selectedAreas, onComplete }) {
   const [expandedProtocol, setExpandedProtocol] = useState(null)
 
+  // Safety check - if data is missing, show loading/error
+  if (!phase2Data || !phase2Data.responses || !selectedAreas || selectedAreas.length === 0) {
+    return (
+      <div style={{ padding: '40px', textAlign: 'center', color: '#666' }}>
+        <p>Loading your results...</p>
+      </div>
+    )
+  }
+
   // Calculate category scores and generate protocols
   const results = useMemo(() => {
     const categoryScores = {}

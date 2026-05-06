@@ -508,18 +508,18 @@ export const PHASE2_QUESTIONS = {
     },
     {
       id: 'lp_q3',
-      question: 'Do you track any health metrics?',
+      question: 'Do you track your health metrics? (e.g., blood pressure, glucose, cholesterol, weight, or other wellness data)',
       answer_type: 'single-select',
       options: [
-        { label: 'Multiple metrics', value: 'multiple', score: 0, risk_tags: [], protocol_triggers: [] },
-        { label: 'One or two metrics', value: 'one_two', score: 1, risk_tags: ['NO_TRACKING'], protocol_triggers: [] },
-        { label: 'Rarely', value: 'rarely', score: 2, risk_tags: ['NO_TRACKING'], protocol_triggers: ['SIMPLE_TRACKING'] },
-        { label: 'None', value: 'none', score: 3, risk_tags: ['NO_TRACKING'], protocol_triggers: ['START_TRACKING'] }
+        { label: 'Multiple metrics regularly', value: 'multiple', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: 'One or two metrics occasionally', value: 'one_two', score: 1, risk_tags: ['NO_TRACKING'], protocol_triggers: [] },
+        { label: 'Rarely track anything', value: 'rarely', score: 2, risk_tags: ['NO_TRACKING'], protocol_triggers: ['SIMPLE_TRACKING'] },
+        { label: 'Never track health metrics', value: 'none', score: 3, risk_tags: ['NO_TRACKING'], protocol_triggers: ['START_TRACKING'] }
       ]
     },
     {
       id: 'lp_q4',
-      question: 'How consistent are your health habits?',
+      question: 'How consistently do you maintain healthy behaviors? (e.g., exercise, nutrition, sleep, stress management)',
       answer_type: 'single-select',
       options: [
         { label: 'Very consistent', value: 'very', score: 0, risk_tags: [], protocol_triggers: [] },
