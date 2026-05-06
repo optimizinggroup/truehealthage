@@ -84,7 +84,7 @@ export default function App() {
   }
 
   const handlePhase2Complete = (results) => {
-    setPhase2Results(results)
+    setPhase2Results(results.phase2Results)
     setCurrentPhase('results')
   }
 

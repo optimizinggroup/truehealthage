@@ -12,6 +12,7 @@ export default function Phase2Selection({
   const [stage, setStage] = useState('gateway') // gateway, quiz, results
   const [selectedAreas, setSelectedAreas] = useState([])
   const [phase2Data, setPhase2Data] = useState(null)
+  const [phase2Results, setPhase2Results] = useState(null)
 
   const handleGatewayStart = (areas) => {
     setSelectedAreas(areas)
@@ -31,10 +32,11 @@ export default function Phase2Selection({
     setStage('results')
   }
 
-  const handleResultsComplete = () => {
+  const handleResultsComplete = (resultData) => {
+    setPhase2Results(resultData)
     onComplete({
       phase1Results,
-      phase2Results: phase2Data,
+      phase2Results: resultData,
       selectedAreas,
       stage: 'complete',
       timestamp: new Date().toISOString()
@@ -65,6 +67,7 @@ export default function Phase2Selection({
       <Phase2Results
         phase1Results={phase1Results}
         phase2Data={phase2Data}
+        selectedAreas={selectedAreas}
         onComplete={handleResultsComplete}
       />
     )

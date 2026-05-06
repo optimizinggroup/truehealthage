@@ -97,6 +97,22 @@ export default function Phase2Results({ phase1Results, phase2Data, selectedAreas
     }
   }, [phase2Data, selectedAreas])
 
+  // Handler for complete button - passes calculated results back to parent
+  const handleComplete = () => {
+    const resultData = {
+      categoryScores: results.categoryScores,
+      rankedCategories: results.rankedCategories,
+      protocols: results.protocols,
+      topRiskTags: results.topRiskTags,
+      escalationFlags: results.escalationFlags,
+      // Map to legacy format for compatibility with ResultsPage
+      areaScores: results.categoryScores,
+      recommendations: results.protocols.map(p => `${p.icon} ${p.name}: ${p.description}`),
+      priorityFactors: results.topRiskTags
+    }
+    onComplete(resultData)
+  }
+
   return (
     <div className="phase2-results">
       {/* Branding Header */}
@@ -237,7 +253,7 @@ export default function Phase2Results({ phase1Results, phase2Data, selectedAreas
       </div>
 
       <div className="results-footer">
-        <button className="complete-btn" onClick={onComplete}>
+        <button className="complete-btn" onClick={handleComplete}>
           Complete
         </button>
       </div>
