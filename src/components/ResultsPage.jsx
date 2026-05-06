@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import ShareComponent from './ShareComponent'
 import ResultsReport from './ResultsReport'
+import { getRecommendedProtocols } from '../utils/protocolMapping'
 import '../styles/ResultsPage.css'
 
 export default function ResultsPage({
@@ -69,34 +70,81 @@ export default function ResultsPage({
             </div>
           </div>
 
-          {/* Top Factors */}
-          <div className="factors-section">
-            <div className="factors-group aging">
-              <h3>🔴 Top 3 Aging Factors</h3>
-              <ul>
-                {phase1Results.top3Aging?.map((factor, idx) => (
-                  <li key={idx}>
-                    <strong>{factor.answer}</strong>
-                    <p className="years-impact">+{factor.years} years</p>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          {/* Category Breakdown with "Why It Matters" */}
+          {phase1Results.categoryScores && (
+            <div style={{ marginTop: '40px', marginBottom: '40px' }}>
+              <h3 style={{ fontSize: '1.3rem', marginBottom: '20px', color: '#333' }}>📊 Your Health by Category</h3>
+              {Object.entries(phase1Results.categoryScores).map(([category, scoreObj]) => {
+                const status = scoreObj.status || 'Good'
+                const years = scoreObj.years || 0
+                const color = scoreObj.color || '#999'
+                const whyItMatters = scoreObj.whyItMatters || ''
+                const improvementSteps = scoreObj.improvementSteps || []
 
-            <div className="factors-group protecting">
-              <h3>🟢 Top 3 Protecting Factors</h3>
-              <ul>
-                {phase1Results.top3Protecting?.map((factor, idx) => (
-                  <li key={idx}>
-                    <strong>{factor.answer}</strong>
-                    <p className="years-impact">-{factor.years} years</p>
-                  </li>
-                ))}
-              </ul>
+                return (
+                  <div
+                    key={category}
+                    style={{
+                      padding: '20px',
+                      background: '#f9f9f9',
+                      borderLeft: `4px solid ${color}`,
+                      marginBottom: '15px',
+                      borderRadius: '6px'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '10px' }}>
+                      <div>
+                        <h4 style={{ fontSize: '1.1rem', marginBottom: '5px' }}>{category.replace(/_/g, ' ')}</h4>
+                        <p style={{ color: color, fontSize: '1rem', fontWeight: '600' }}>
+                          {status === 'Great' && '🟢 Great'}
+                          {status === 'Good' && '🟢 Good'}
+                          {status === 'Moderate Concern' && '🟡 Moderate Concern'}
+                          {status === 'Serious Concern' && '🔴 Serious Concern'}
+                        </p>
+                      </div>
+                      <div style={{ fontSize: '1.1rem', fontWeight: '600', color: color }}>
+                        {years > 0 ? `+${years} years` : years < 0 ? `${years} years` : 'Neutral'}
+                      </div>
+                    </div>
+                    {whyItMatters && (
+                      <p style={{ fontSize: '0.95rem', color: '#555', marginBottom: '12px', lineHeight: '1.5' }}>
+                        {whyItMatters}
+                      </p>
+                    )}
+                    {improvementSteps.length > 0 && (
+                      <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: `1px solid ${color}33` }}>
+                        <p style={{ fontSize: '0.9rem', fontWeight: '600', color: color, marginBottom: '8px' }}>💡 Next Steps:</p>
+                        {improvementSteps.map((step, idx) => (
+                          <p key={idx} style={{ fontSize: '0.85rem', color: '#555', marginBottom: '6px', marginLeft: '12px' }}>
+                            • {step}
+                          </p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
             </div>
-          </div>
+          )}
 
-          {/* Results Report */}
+          {/* Protocol Recommendations */}
+          {phase1Results.categoryScores && (
+            <div style={{ marginTop: '40px', marginBottom: '40px', padding: '20px', background: '#f0f4ff', borderRadius: '8px', borderLeft: '4px solid #667eea' }}>
+              <h3 style={{ fontSize: '1.3rem', marginBottom: '10px' }}>🎯 Based on Your Health Age</h3>
+              <p style={{ color: '#555', marginBottom: '20px' }}>We recommend diving deeper into these protocols to improve your health:</p>
+              {getRecommendedProtocols(phase1Results.categoryScores).map((protocol) => (
+                <div key={protocol.protocol} style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '15px' }}>
+                  <span style={{ fontSize: '1.5rem', marginRight: '15px' }}>{protocol.emoji}</span>
+                  <div>
+                    <h4 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '4px' }}>{protocol.protocol}</h4>
+                    <p style={{ fontSize: '0.9rem', color: '#666' }}>{protocol.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Results Report - Detailed breakdown with categories and explanations */}
           <ResultsReport
             phase1Results={phase1Results}
             userEmail={userEmail}
