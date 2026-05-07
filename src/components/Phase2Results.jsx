@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useMemo } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import {
   PHASE2_CATEGORIES,
@@ -9,7 +9,6 @@ import {
   aggregateRiskTags,
   checkEscalationFlags
 } from '../utils/phase2Data'
-import ProtocolDetail from './ProtocolDetail'
 import '../styles/branding.css'
 import '../styles/Phase2Results.css'
 
@@ -19,8 +18,6 @@ const supabase = createClient(
 )
 
 export default function Phase2Results({ phase1Results, phase2Data, selectedAreas, onComplete }) {
-  const [expandedProtocol, setExpandedProtocol] = useState(null)
-
   const hasValidData = !!(phase2Data && phase2Data.responses && selectedAreas && selectedAreas.length > 0)
 
   // Calculate category scores and generate protocols.
@@ -168,8 +165,8 @@ export default function Phase2Results({ phase1Results, phase2Data, selectedAreas
       </div>
 
       <div className="results-header">
-        <h2>Your Personalized Behavior-Change Plan</h2>
-        <p>Based on your responses, here are your priority areas and daily actions to get started:</p>
+        <h2>Here's What I Found</h2>
+        <p>Your responses tell me where you have the most room to improve. The next screen will let you pick where you want to start — we work on one area at a time, on purpose.</p>
       </div>
 
       {/* Escalation Warnings */}
@@ -196,6 +193,9 @@ export default function Phase2Results({ phase1Results, phase2Data, selectedAreas
       {/* Category Scores */}
       <div className="category-scores">
         <h3>Your Assessment Results</h3>
+        <p className="scores-legend">
+          Each category is scored 0–18, where the number reflects how many areas need attention. <strong>Lower is healthier.</strong> 0–4 = Optimal · 5–9 = Needs Attention · 10+ = High Priority.
+        </p>
         <div className="scores-grid">
           {results.rankedCategories.map(({ categoryId, score, status }) => {
             const category = PHASE2_CATEGORIES.find(c => c.id === categoryId)
@@ -220,73 +220,16 @@ export default function Phase2Results({ phase1Results, phase2Data, selectedAreas
         </div>
       </div>
 
-      {/* Protocols/Micro-Wins */}
-      <div className="protocols-section">
-        <h3>Start Here: Your Daily Micro-Wins</h3>
-        <p className="protocols-intro">
-          These are small, actionable changes you can start TODAY. Focus on one or two to build momentum:
-        </p>
-
-        <div className="protocols-grid">
-          {results.protocols.map((protocol, index) => {
-            const category = PHASE2_CATEGORIES.find(c => c.id === protocol.category)
-
-            return (
-              <div
-                key={protocol.name}
-                className="protocol-card"
-                onClick={() => setExpandedProtocol(expandedProtocol === protocol.name ? null : protocol.name)}
-              >
-                <div className="protocol-header">
-                  <div className="protocol-rank">
-                    <span className="rank-badge">{index + 1}</span>
-                  </div>
-
-                  <div className="protocol-info">
-                    <span className="protocol-icon">{category?.icon}</span>
-                    <div>
-                      <h4>{protocol.name}</h4>
-                      <p className="protocol-goal">{protocol.theme || 'Daily actions'}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {expandedProtocol === protocol.name && (
-                  <ProtocolDetail protocol={protocol} />
-                )}
-
-                <div className="protocol-toggle">
-                  <small>{expandedProtocol === protocol.name ? 'Click to collapse' : 'Click to expand'}</small>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* Risk Summary */}
-      {results.topRiskTags.length > 0 && (
-        <div className="risk-summary">
-          <h3>Key Health Patterns We Noticed</h3>
-          <div className="risk-tags">
-            {results.topRiskTags.map(tag => (
-              <span key={tag} className="risk-tag">{tag.replace(/_/g, ' ')}</span>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Disclaimer */}
       <div className="results-disclaimer">
         <p>
-          <strong>Educational Note:</strong> Phase 2 is a behavior-change assessment, not medical diagnosis.
-          Results suggest areas where lifestyle changes may help. Always consult healthcare providers for medical concerns.
+          <strong>Educational Note:</strong> This is a behavior-change assessment, not a medical diagnosis. Results suggest areas where lifestyle changes may help. Always consult healthcare providers for medical concerns.
         </p>
       </div>
 
       <div className="results-footer">
         <button className="complete-btn" onClick={handleComplete}>
-          Complete
+          Continue — Pick Where to Start →
         </button>
       </div>
     </div>

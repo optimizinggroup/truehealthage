@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { PHASE2_CATEGORIES } from '../utils/phase2Data'
 import '../styles/PrioritySelection.css'
@@ -9,33 +9,64 @@ const supabase = createClient(
 )
 
 /**
- * PrioritySelection — the "pick what to work on first" screen.
+ * PrioritySelection — three-step flow per Keith's coaching spec:
  *
- * Shows up after Phase2Results so the user sees what we identified, then
- * chooses ONE area to start with. We assign only that protocol — nothing
- * else. They can come back and add more after they make progress.
+ *   Step 1 (default):  "Your priority is [X]. Want to start there?"
+ *                       [Yes, start here]  [Choose another area]
  *
- * This is Keith's stated coaching principle: "Lets pick biggest area of
- * concern tackle some key elements of that... start small."
+ *   Step 2 (choose):   List of all categories needing attention,
+ *                       sorted worst-first. User picks one.
+ *
+ *   Step 3 (when):     "Ready to start today or tomorrow?"
+ *                       Records start choice, activates the protocol,
+ *                       routes to the dashboard.
+ *
+ * Key behavior change from v1: this now picks at the CATEGORY level,
+ * not the protocol level. Once a category is chosen, we activate the
+ * highest-priority protocol within that category. The user never sees
+ * raw protocol keys like RECOVERY_TIME or STRESS_MANAGEMENT — they
+ * see the friendly category name (e.g. "Stress & Mental Health").
  */
 export default function PrioritySelection({ phase2Results, onActivated, onSkip }) {
-  const [selectedKey, setSelectedKey] = useState(null)
-  const [activating, setActivating] = useState(false)
+  const [step, setStep] = useState('default') // 'default' | 'choose' | 'when'
+  const [chosen, setChosen] = useState(null)  // the category+protocol bundle they picked
   const [error, setError] = useState(null)
+  const [activating, setActivating] = useState(false)
 
-  // The protocols from Phase 2 are already ranked by category-priority
-  // (in Phase2Results' useMemo: rankedCategories drives sort order).
+  // Always scroll to top when this screen mounts or step changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'instant' })
+  }, [step])
+
+  // Build the actionable list: each category that has a triggered protocol AND
+  // is not "Optimal". Top of the list is the worst-scoring (= most concerns).
+  const rankedCategories = phase2Results?.rankedCategories || []
   const protocols = phase2Results?.protocols || []
 
-  // If no protocols, the user had no concerns triggered — graceful skip
-  if (protocols.length === 0) {
+  const actionableCategories = rankedCategories
+    .map((cat) => {
+      const meta = PHASE2_CATEGORIES.find(c => c.id === cat.categoryId)
+      const topProtocol = protocols.find(p => p.category === cat.categoryId)
+      return {
+        categoryId: cat.categoryId,
+        categoryName: meta?.name || cat.categoryId,
+        icon: meta?.icon || '🎯',
+        score: cat.score,
+        status: cat.status,
+        topProtocol,
+      }
+    })
+    // Skip categories with no triggered protocol AND skip optimal categories
+    .filter(c => c.topProtocol && c.status?.level !== 'optimal')
+
+  // Empty state — nothing actionable triggered
+  if (actionableCategories.length === 0) {
     return (
       <div className="priority-selection">
         <div className="priority-card">
           <h2>You're in good shape.</h2>
           <p>
-            Your assessment didn't surface any priority concerns to coach you
-            through right now. That's the goal — keep doing what you're doing.
+            Your assessment didn't surface any priority concerns to coach you through right now. Keep doing what you're doing.
           </p>
           <button className="primary-btn" onClick={onSkip}>
             Continue to Dashboard
@@ -45,119 +76,209 @@ export default function PrioritySelection({ phase2Results, onActivated, onSkip }
     )
   }
 
-  const handleStart = async () => {
-    if (!selectedKey) return
+  const topPriority = actionableCategories[0]
+  const currentChoice = chosen || topPriority
+
+  const handleConfirmTop = () => {
+    setChosen(topPriority)
+    setStep('when')
+  }
+
+  const handlePickFromList = (category) => {
+    setChosen(category)
+    setStep('when')
+  }
+
+  const handleStart = async (when) => {
+    if (!currentChoice?.topProtocol) return
     setActivating(true)
     setError(null)
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
-        // Skip the persistence and let App.jsx handle the missing-session case
-        onActivated(selectedKey)
-        return
-      }
-      const chosen = protocols.find(p => p.name === selectedKey)
-      if (!chosen) {
-        setError('Protocol selection error. Please try again.')
-        setActivating(false)
+        // No session — just route through without persistence
+        onActivated(currentChoice.topProtocol.name, when)
         return
       }
 
       const { error: insertError } = await supabase.from('user_protocols').insert({
         user_id: user.id,
-        protocol_key: chosen.name,
-        category: chosen.category,
+        protocol_key: currentChoice.topProtocol.name,
+        category: currentChoice.categoryId,
         current_week: 1,
         status: 'active',
         difficulty_tier: 'standard',
+        notes: `Start preference: ${when}`,
       })
 
       if (insertError && insertError.code !== '23505') {
-        // 23505 = duplicate; the user already has this protocol active. Fine,
-        // we just route to the dashboard.
         console.warn('user_protocols insert failed:', insertError)
         setError('Could not save your choice. ' + insertError.message)
         setActivating(false)
         return
       }
 
-      onActivated(selectedKey)
+      onActivated(currentChoice.topProtocol.name, when)
     } catch (err) {
-      console.warn('protocol activation error:', err)
       setError('Unexpected error: ' + (err.message || String(err)))
       setActivating(false)
     }
   }
 
-  return (
-    <div className="priority-selection">
-      <div className="priority-card">
-        <div className="priority-header">
-          <h2>Pick where you want to start.</h2>
-          <p className="priority-subhead">
-            From Coach K — these are the areas that came up in your assessment.
-            Real change happens when you focus on one thing at a time, not all
-            at once. Pick the one that matters most to you right now.
-          </p>
-          <p className="priority-note">
-            You can come back and add more once this one's working.
-          </p>
-        </div>
+  // ─── STEP 1: default recommendation ─────────────────────────────────────
+  if (step === 'default') {
+    return (
+      <div className="priority-selection">
+        <div className="priority-card">
+          <div className="priority-header">
+            <p className="priority-eyebrow">From Coach K</p>
+            <h2>
+              Your priority is <span className="highlight">{topPriority.categoryName}</span>.
+            </h2>
+            <p className="priority-subhead">
+              This is the area where you scored the most concerns ({topPriority.score} of 18). It's where small, consistent changes will move the needle the most for you. Want to start here?
+            </p>
+          </div>
 
-        <div className="priority-list">
-          {protocols.map((protocol, idx) => {
-            const category = PHASE2_CATEGORIES.find(c => c.id === protocol.category)
-            const isSelected = selectedKey === protocol.name
+          <div className="priority-default-card">
+            <div className="default-icon">{topPriority.icon}</div>
+            <div className="default-body">
+              <h3>{topPriority.categoryName}</h3>
+              <p>{topPriority.topProtocol.this_week}</p>
+            </div>
+          </div>
 
-            return (
-              <button
-                key={protocol.name}
-                type="button"
-                className={`priority-option ${isSelected ? 'selected' : ''}`}
-                onClick={() => setSelectedKey(protocol.name)}
-              >
-                <div className="priority-option-rank">
-                  <span className="rank-number">{idx + 1}</span>
-                </div>
-                <div className="priority-option-body">
-                  <div className="priority-option-header">
-                    <span className="priority-icon">{category?.icon || '🎯'}</span>
-                    <h3>{protocol.theme || protocol.name.replace(/_/g, ' ').toLowerCase()}</h3>
-                  </div>
-                  <p className="priority-option-meta">
-                    {category?.name || protocol.category}
-                  </p>
-                  <p className="priority-option-preview">{protocol.this_week}</p>
-                </div>
-                <div className="priority-option-check">
-                  {isSelected && <span className="checkmark">✓</span>}
-                </div>
-              </button>
-            )
-          })}
-        </div>
+          <div className="priority-footer two-buttons">
+            <button
+              type="button"
+              className="secondary-btn"
+              onClick={() => setStep('choose')}
+            >
+              Choose another area
+            </button>
+            <button
+              type="button"
+              className="primary-btn"
+              onClick={handleConfirmTop}
+            >
+              Yes, start here →
+            </button>
+          </div>
 
-        {error && <div className="priority-error">⚠️ {error}</div>}
-
-        <div className="priority-footer">
           <button
             type="button"
-            className="text-btn"
+            className="text-btn skip-btn"
             onClick={onSkip}
-            disabled={activating}
           >
-            Skip for now
-          </button>
-          <button
-            type="button"
-            className="primary-btn"
-            onClick={handleStart}
-            disabled={!selectedKey || activating}
-          >
-            {activating ? 'Setting up your plan…' : selectedKey ? `Start with this →` : 'Pick one to continue'}
+            Skip — go straight to dashboard
           </button>
         </div>
       </div>
-    </div>
-  )
+    )
+  }
+
+  // ─── STEP 2: pick from the list ─────────────────────────────────────────
+  if (step === 'choose') {
+    return (
+      <div className="priority-selection">
+        <div className="priority-card">
+          <div className="priority-header">
+            <p className="priority-eyebrow">From Coach K</p>
+            <h2>Pick the area you want to work on first.</h2>
+            <p className="priority-subhead">
+              Listed worst-first, but you know your life better than the score does. Pick whichever feels most urgent right now.
+            </p>
+          </div>
+
+          <div className="priority-list">
+            {actionableCategories.map((cat) => (
+              <button
+                key={cat.categoryId}
+                type="button"
+                className="priority-option"
+                onClick={() => handlePickFromList(cat)}
+              >
+                <div className="priority-option-rank">
+                  <span className="priority-icon">{cat.icon}</span>
+                </div>
+                <div className="priority-option-body">
+                  <h3>{cat.categoryName}</h3>
+                  <p className="priority-option-meta">
+                    Score: {cat.score} of 18 · {cat.status?.label}
+                  </p>
+                </div>
+                <div className="priority-option-check">→</div>
+              </button>
+            ))}
+          </div>
+
+          <div className="priority-footer">
+            <button
+              type="button"
+              className="text-btn"
+              onClick={() => setStep('default')}
+            >
+              ← Back
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // ─── STEP 3: when do you want to start ──────────────────────────────────
+  if (step === 'when') {
+    return (
+      <div className="priority-selection">
+        <div className="priority-card">
+          <div className="priority-header">
+            <p className="priority-eyebrow">From Coach K</p>
+            <h2>One last question — when do you want to start?</h2>
+            <p className="priority-subhead">
+              You picked <strong>{currentChoice.categoryName}</strong>. I'll send your first daily action through the app and email — you tell me when you want it.
+            </p>
+          </div>
+
+          <div className="when-options">
+            <button
+              type="button"
+              className="when-option today"
+              onClick={() => handleStart('today')}
+              disabled={activating}
+            >
+              <div className="when-icon">⚡</div>
+              <h3>Start Today</h3>
+              <p>I'm ready. Send my first action right after this.</p>
+            </button>
+
+            <button
+              type="button"
+              className="when-option tomorrow"
+              onClick={() => handleStart('tomorrow')}
+              disabled={activating}
+            >
+              <div className="when-icon">🌅</div>
+              <h3>Start Tomorrow</h3>
+              <p>Give me one day to mentally prepare. First action arrives tomorrow morning.</p>
+            </button>
+          </div>
+
+          {error && <div className="priority-error">⚠️ {error}</div>}
+
+          <div className="priority-footer">
+            <button
+              type="button"
+              className="text-btn"
+              onClick={() => setStep('default')}
+              disabled={activating}
+            >
+              ← Back
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return null
 }

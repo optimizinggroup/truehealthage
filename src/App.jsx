@@ -21,6 +21,10 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export default function App() {
   const [currentPhase, setCurrentPhase] = useState('landing') // landing | coach_intro | login | forgot_password | reset_password | phase1 | phase1_results | phase2 | email_capture | results | priority_selection | coach_dashboard
+
+  // Always scroll to top when the user moves between phases. Without this,
+  // they land on the next screen at the previous scroll position — which
+  // makes it look like the page is broken or jumping to the wrong section.
   const [userEmail, setUserEmail] = useState(null)
   const [userId, setUserId] = useState(null)
   const [phase1Results, setPhase1Results] = useState(null)
@@ -28,6 +32,12 @@ export default function App() {
   const [resultId, setResultId] = useState(null)
   const [selectedAreas, setSelectedAreas] = useState([])
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'instant' })
+    }
+  }, [currentPhase])
 
   // Check for reset password token or existing session on mount
   useEffect(() => {
@@ -263,7 +273,7 @@ export default function App() {
         {currentPhase === 'priority_selection' && phase2Results && (
           <PrioritySelection
             phase2Results={phase2Results}
-            onActivated={() => setCurrentPhase('coach_dashboard')}
+            onActivated={(_protocolKey, _when) => setCurrentPhase('coach_dashboard')}
             onSkip={() => setCurrentPhase('coach_dashboard')}
           />
         )}

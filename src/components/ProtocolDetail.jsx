@@ -49,7 +49,7 @@ export default function ProtocolDetail({ protocol }) {
         <button
           type="button"
           className="show-more-btn"
-          onClick={() => setShowMore(true)}
+          onClick={(e) => { e.stopPropagation(); setShowMore(true) }}
         >
           Show more from Coach K →
         </button>
