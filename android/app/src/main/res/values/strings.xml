@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">True Health Age</string>
+    <string name="title_activity_main">True Health Age</string>
+    <string name="package_name">com.optimizinggroup.truehealthage</string>
+    <string name="custom_url_scheme">com.optimizinggroup.truehealthage</string>
+</resources>
