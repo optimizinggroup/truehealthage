@@ -115,6 +115,70 @@
   margin: 0;
 }
 
+/* Tabs — for when the user has multiple active protocols (added a second
+   area). Lets them flip focus without losing either one. */
+.active-protocol-tabs {
+  margin-bottom: 14px;
+}
+
+.tabs-label {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.tabs-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.protocol-tab {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: white;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4b5563;
+  transition: all 0.15s ease;
+}
+
+.protocol-tab:hover {
+  border-color: #99f6e4;
+}
+
+.protocol-tab.is-current {
+  background: #f0fdfa;
+  border-color: #0D9488;
+  color: #0D9488;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.12);
+}
+
+.protocol-tab .tab-icon {
+  font-size: 18px;
+}
+
+.protocol-tab .tab-week {
+  font-size: 11px;
+  padding: 2px 6px;
+  background: #f3f4f6;
+  color: #6b7280;
+  border-radius: 100px;
+}
+
+.protocol-tab.is-current .tab-week {
+  background: white;
+  color: #0D9488;
+}
+
 /* New: single-active-protocol focus card */
 .active-protocol-card {
   background: white;

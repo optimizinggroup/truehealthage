@@ -33,6 +33,7 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onAd
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [activeProtocol, setActiveProtocol] = useState(null)
+  const [activeProtocols, setActiveProtocols] = useState([])
   const [allProtocols, setAllProtocols] = useState([])
   const [latestQuiz, setLatestQuiz] = useState(null)
   const [latestCheckin, setLatestCheckin] = useState(null)
@@ -95,9 +96,16 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onAd
 
       setAllProtocols(hydrated)
 
-      // Pick the single active protocol — most recently assigned active row
-      const active = hydrated.find(p => p.status === 'active') || null
+      // Get ALL active protocols. If user added a second area, both should
+      // be visible — previously we only rendered the most recently assigned
+      // and the first one disappeared. Order them oldest-first so primary
+      // focus stays consistent (the one they picked first).
+      const actives = hydrated
+        .filter(p => p.status === 'active')
+        .sort((a, b) => new Date(a.assigned_at) - new Date(b.assigned_at))
+      const active = actives[0] || null
       setActiveProtocol(active)
+      setActiveProtocols(actives)
 
       // Latest check-in for the active protocol drives the weekly progress
       if (active) {
@@ -242,6 +250,33 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onAd
 
       {error && (
         <div className="dashboard-error">⚠️ {error}</div>
+      )}
+
+      {/* If user has more than one active protocol (added another area
+          via the dashboard prompt), show a switcher tab strip so they can
+          flip between protocols. Default selection = the first-assigned. */}
+      {activeProtocols.length > 1 && (
+        <div className="active-protocol-tabs">
+          <p className="tabs-label">You're working on {activeProtocols.length} areas:</p>
+          <div className="tabs-row">
+            {activeProtocols.map((p) => {
+              const cat = PHASE2_CATEGORIES.find(c => c.id === p.category)
+              const isCurrent = activeProtocol && activeProtocol.id === p.id
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  className={`protocol-tab ${isCurrent ? 'is-current' : ''}`}
+                  onClick={() => setActiveProtocol(p)}
+                >
+                  <span className="tab-icon">{cat?.icon || '🎯'}</span>
+                  <span className="tab-label">{cat?.name || p.category}</span>
+                  <span className="tab-week">W{p.current_week}</span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
       )}
 
       {/* Active protocol focus card — single, deep, no other distractions */}

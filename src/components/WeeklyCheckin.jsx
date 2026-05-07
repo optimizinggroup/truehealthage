@@ -75,17 +75,22 @@ export default function WeeklyCheckin({ userProtocol, onComplete, onCancel }) {
         return
       }
 
+      // The protocol_checkins table has a CHECK (days_completed BETWEEN 0 AND 7)
+      // constraint from the original 1-task design. Now we sum across 3 tasks
+      // (so totalDays can be 0-21). Store the AVERAGE per task instead so the
+      // value stays in 0-7 — keeps the constraint, preserves the percentage,
+      // and matches the dashboard's days_completed/goal_target math.
+      const avgDaysPerTask = Math.round(totalDays / Math.max(1, taskCount))
+
       const { error: insertError } = await supabase.from('protocol_checkins').insert({
         user_id: user.id,
         user_protocol_id: userProtocol.id,
         week_number: userProtocol.current_week,
-        days_completed: totalDays,
-        goal_target: weeklyTarget,
+        days_completed: avgDaysPerTask,        // 0-7, average across the tasks
+        goal_target: 7,                         // baseline target (per-task)
         user_note: userNote || null,
         outcome,
         branch_shown: outcome,
-        // Per-task adherence preserved in metadata for richer feedback later
-        // (note: protocol_checkins schema supports JSONB metadata via migration)
       })
       if (insertError) {
         console.warn('checkin insert failed:', insertError)
