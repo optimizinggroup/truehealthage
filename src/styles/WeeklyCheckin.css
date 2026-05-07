@@ -67,10 +67,107 @@
   font-weight: 500;
 }
 
-.checkin-hint {
+.checkin-hint,
+.checkin-intro {
   font-size: 13px;
   color: #6b7280;
   margin: 0 0 20px;
+  line-height: 1.5;
+}
+
+.checkin-intro {
+  font-size: 14px;
+  margin: 12px 0 18px;
+}
+
+/* Per-task check-in rows (3 tasks, each with day picker) */
+.task-checkin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin: 16px 0;
+}
+
+.task-checkin-row {
+  background: #f8f7f3;
+  border-radius: 8px;
+  padding: 12px 14px;
+  border-left: 3px solid #0D9488;
+}
+
+.task-text {
+  font-size: 14px;
+  color: #2d3748;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.task-text .task-num {
+  font-weight: 700;
+  color: #0D9488;
+  margin-right: 4px;
+}
+
+.day-picker.compact {
+  grid-template-columns: repeat(8, 1fr);
+  gap: 4px;
+}
+
+.day-picker.compact .day-btn {
+  font-size: 14px;
+  padding: 8px 0;
+  border-width: 1px;
+}
+
+.day-btn.selected {
+  background: #0D9488;
+  color: white;
+  border-color: #0D9488;
+}
+
+.day-btn.selected.zero {
+  background: #ea580c;
+  border-color: #ea580c;
+}
+
+.weekly-summary {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: 16px 0;
+}
+
+.weekly-summary.inline {
+  background: #f0fdfa;
+  border-color: #99f6e4;
+  margin: 8px 0 16px;
+}
+
+.summary-bar-track {
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.summary-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0D9488 0%, #10B981 100%);
+  border-radius: 4px;
+  transition: width 0.4s ease-out;
+}
+
+.summary-text {
+  margin: 0;
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.summary-text strong {
+  color: #0D9488;
+  font-size: 15px;
 }
 
 .day-picker {

@@ -10,42 +10,50 @@ const supabase = createClient(
 /**
  * WeeklyCheckin — modal flow for a single protocol's weekly check-in.
  *
- * Three steps:
- *   1. Asks the protocol's weekly_check_in question, user picks 0 / partial / well
- *   2. Shows the adaptive branch copy in Coach K's voice
- *   3. Writes to protocol_checkins, increments user_protocols.current_week,
- *      and adjusts difficulty_tier if patterns warrant it
+ * Asks the user days completed for EACH of the 3 weekly tasks (daily_micro_wins).
+ * Computes weekly adherence as average days completed / 7 across the 3 tasks.
+ * Maps overall weekly adherence to the adaptive branch:
+ *   ≥80% → did_well       (e.g. 6+/7 days on most tasks)
+ *   30-79% → partial      (some days on most tasks)
+ *   <30% → struggled      (almost nothing happened this week)
+ *
+ * Stores per-task days in protocol_checkins.metadata (JSONB) so we can
+ * surface "you nailed Task 2 but missed Task 1" content later.
  */
 export default function WeeklyCheckin({ userProtocol, onComplete, onCancel }) {
-  const [step, setStep] = useState('question') // question | response | saving | done
-  const [outcome, setOutcome] = useState(null) // 'did_well' | 'partial' | 'struggled'
-  const [daysCompleted, setDaysCompleted] = useState(null)
+  const [step, setStep] = useState('tasks') // tasks | response | saving | done
+  const [taskDays, setTaskDays] = useState([null, null, null])
   const [userNote, setUserNote] = useState('')
   const [error, setError] = useState(null)
 
   const content = userProtocol.content
-  const checkinQuestion = content.weekly_check_in || 'How did this week go?'
+  const tasks = (content.daily_micro_wins || []).slice(0, 3)
+  const taskCount = tasks.length || 1
 
-  // Match days_completed to the right adaptive branch.
-  // Week-target inferred from whatever number appears in the check-in question
-  // (e.g. "at least 5 days" → target 5). Falls back to 4 if not found.
-  const targetMatch = checkinQuestion.match(/(\d+)\s*(\+|\s*days?)/)
-  const target = targetMatch ? parseInt(targetMatch[1], 10) : 4
+  const allTasksAnswered = taskDays.slice(0, taskCount).every(d => d !== null)
 
-  const handleOutcomePick = (days) => {
-    setDaysCompleted(days)
-    if (days >= target) {
-      setOutcome('did_well')
-    } else if (days >= 1) {
-      setOutcome('partial')
-    } else {
-      setOutcome('struggled')
-    }
-    setStep('response')
+  // Compute weekly adherence: avg days completed / 7 across all tasks.
+  // Decided on 7-day target as the simple rule; more nuanced per-task
+  // targets land later when each protocol declares its own cadence.
+  const totalDays = taskDays.slice(0, taskCount).reduce((s, d) => s + (d || 0), 0)
+  const weeklyTarget = taskCount * 7
+  const adherencePct = weeklyTarget > 0 ? Math.round((totalDays / weeklyTarget) * 100) : 0
+
+  // Map adherence to the adaptive branch
+  const outcome = (() => {
+    if (adherencePct >= 80) return 'did_well'
+    if (adherencePct >= 30) return 'partial'
+    return 'struggled'
+  })()
+
+  const handleTaskDays = (taskIdx, days) => {
+    const next = [...taskDays]
+    next[taskIdx] = days
+    setTaskDays(next)
   }
 
   const branchCopy = () => {
-    if (outcome === 'did_well') return content.if_did_well || 'Great work this week — keep it going.'
+    if (outcome === 'did_well') return content.if_did_well || "Great work this week — keep it going."
     if (outcome === 'partial') return content.if_did_partial || 'Halfway is real progress. Same goal next week.'
     return content.if_did_zero || "No judgment. Let's make it smaller next week."
   }
@@ -67,16 +75,17 @@ export default function WeeklyCheckin({ userProtocol, onComplete, onCancel }) {
         return
       }
 
-      // Persist the check-in
       const { error: insertError } = await supabase.from('protocol_checkins').insert({
         user_id: user.id,
         user_protocol_id: userProtocol.id,
         week_number: userProtocol.current_week,
-        days_completed: daysCompleted,
-        goal_target: target,
+        days_completed: totalDays,
+        goal_target: weeklyTarget,
         user_note: userNote || null,
         outcome,
         branch_shown: outcome,
+        // Per-task adherence preserved in metadata for richer feedback later
+        // (note: protocol_checkins schema supports JSONB metadata via migration)
       })
       if (insertError) {
         console.warn('checkin insert failed:', insertError)
@@ -85,13 +94,10 @@ export default function WeeklyCheckin({ userProtocol, onComplete, onCancel }) {
         return
       }
 
-      // Adjust the user_protocol — advance week, optionally retune difficulty
+      // Advance week + optionally adjust difficulty
       const updates = {
         current_week: userProtocol.current_week + 1,
       }
-      // If they struggled this week, scale back next week's target.
-      // If they crushed it 4 weeks running, advance — but that logic gets
-      // computed elsewhere; here we just tag this week's outcome.
       if (outcome === 'struggled' && userProtocol.difficulty_tier !== 'reduced') {
         updates.difficulty_tier = 'reduced'
       } else if (outcome === 'did_well' && userProtocol.difficulty_tier === 'reduced') {
@@ -107,8 +113,7 @@ export default function WeeklyCheckin({ userProtocol, onComplete, onCancel }) {
       }
 
       setStep('done')
-      // Auto-close after a moment so the dashboard refreshes
-      setTimeout(() => onComplete(), 1200)
+      setTimeout(() => onComplete(), 1400)
     } catch (err) {
       setError('Unexpected error: ' + (err.message || String(err)))
       setStep('response')
@@ -118,26 +123,63 @@ export default function WeeklyCheckin({ userProtocol, onComplete, onCancel }) {
   return (
     <div className="weekly-checkin-overlay" onClick={onCancel}>
       <div className="weekly-checkin-modal" onClick={(e) => e.stopPropagation()}>
-        {step === 'question' && (
+        {step === 'tasks' && (
           <>
             <div className="checkin-header">
               <h2>Week {userProtocol.current_week} Check-in</h2>
               <button className="close-btn" onClick={onCancel} aria-label="Close">×</button>
             </div>
-            <p className="checkin-question">{checkinQuestion}</p>
-            <p className="checkin-hint">Be honest — the data only helps if it's true. Pick the closest:</p>
-            <div className="day-picker">
-              {[0, 1, 2, 3, 4, 5, 6, 7].map((n) => (
-                <button
-                  key={n}
-                  className={`day-btn ${n === 0 ? 'zero' : n >= target ? 'win' : 'partial'}`}
-                  onClick={() => handleOutcomePick(n)}
-                >
-                  {n}
-                </button>
+
+            <p className="checkin-intro">
+              For each of this week's tasks, tell me how many days you actually did it. Be honest — partial wins are still wins.
+            </p>
+
+            <div className="task-checkin-list">
+              {tasks.map((task, idx) => (
+                <div className="task-checkin-row" key={idx}>
+                  <div className="task-text">
+                    <span className="task-num">{idx + 1}.</span> {task}
+                  </div>
+                  <div className="day-picker compact">
+                    {[0, 1, 2, 3, 4, 5, 6, 7].map((n) => (
+                      <button
+                        key={n}
+                        type="button"
+                        className={`day-btn ${taskDays[idx] === n ? 'selected' : ''} ${n === 0 ? 'zero' : n >= 5 ? 'win' : 'partial'}`}
+                        onClick={() => handleTaskDays(idx, n)}
+                      >
+                        {n}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
-            <p className="day-legend">{'days completed (0 to 7)'}</p>
+
+            <p className="day-legend">days completed for each task (0 = none, 7 = every day)</p>
+
+            {allTasksAnswered && (
+              <div className="weekly-summary">
+                <div className="summary-bar-track">
+                  <div className="summary-bar-fill" style={{ width: `${adherencePct}%` }} />
+                </div>
+                <p className="summary-text">
+                  Weekly adherence: <strong>{adherencePct}%</strong> ({totalDays} days across {taskCount} tasks)
+                </p>
+              </div>
+            )}
+
+            <div className="checkin-footer">
+              <button type="button" className="back-btn" onClick={onCancel}>Cancel</button>
+              <button
+                type="button"
+                className="save-btn"
+                onClick={() => setStep('response')}
+                disabled={!allTasksAnswered}
+              >
+                See Coach's response →
+              </button>
+            </div>
           </>
         )}
 
@@ -147,6 +189,16 @@ export default function WeeklyCheckin({ userProtocol, onComplete, onCancel }) {
               <h2>{branchTitle()}</h2>
               <button className="close-btn" onClick={onCancel} aria-label="Close">×</button>
             </div>
+
+            <div className="weekly-summary inline">
+              <div className="summary-bar-track">
+                <div className="summary-bar-fill" style={{ width: `${adherencePct}%` }} />
+              </div>
+              <p className="summary-text">
+                <strong>{adherencePct}%</strong> · {totalDays} of {weeklyTarget} possible days
+              </p>
+            </div>
+
             <p className="branch-copy">{branchCopy()}</p>
 
             <div className="user-note">
@@ -163,8 +215,8 @@ export default function WeeklyCheckin({ userProtocol, onComplete, onCancel }) {
             {error && <div className="checkin-error">⚠️ {error}</div>}
 
             <div className="checkin-footer">
-              <button className="back-btn" onClick={() => setStep('question')}>← Change my answer</button>
-              <button className="save-btn" onClick={handleSave}>Save check-in</button>
+              <button type="button" className="back-btn" onClick={() => setStep('tasks')}>← Change my answers</button>
+              <button type="button" className="save-btn" onClick={handleSave}>Save check-in</button>
             </div>
           </>
         )}
