@@ -95,7 +95,11 @@ export default function App() {
   const handlePhase2Complete = (data) => {
     setPhase2Results(data.phase2Results || null)
     setSelectedAreas(data.selectedAreas || [])
-    setCurrentPhase('results')
+    // Skip the legacy ResultsPage entirely after Phase 2 — it duplicated the
+    // category scores and showed a broken 0-450/100 "deep dive" calculation.
+    // The Phase2Results page already showed the user their scores cleanly;
+    // they go straight to picking what to work on first.
+    setCurrentPhase(data.phase2Results ? 'priority_selection' : 'coach_dashboard')
   }
 
   const handleRetakeQuiz = () => {

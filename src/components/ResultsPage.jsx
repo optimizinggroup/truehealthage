@@ -173,46 +173,20 @@ export default function ResultsPage({
           )}
         </section>
 
-        {/* Phase 2 Results */}
-        {phase2Results && (
+        {/* Phase 2 Results — stub.
+            The detailed Phase 2 view already happened on Phase2Results
+            (with proper 0-18 category scoring + status badges). The previous
+            "10-Area Deep Dive" section here multiplied the 0-18 score by 25
+            and displayed it as "X/100" — producing nonsense like 200/100,
+            175/100. That section is removed. If a user does land here with
+            phase2Results set (e.g. they retook the quiz), we just show a
+            short summary + send them to the coaching dashboard. */}
+        {phase2Results && onContinueCoaching && (
           <section className="phase2-results">
-            <h2>Your 10-Area Health Deep Dive</h2>
-
-            <div className="areas-scores">
-              {Object.entries(phase2Results.areaScores).map(([area, score]) => (
-                <div key={area} className="area-score">
-                  <div className="area-name">
-                    {area.replace(/_/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
-                  </div>
-                  <div className="score-bar">
-                    <div className="score-fill" style={{ width: `${score * 25}%` }}></div>
-                  </div>
-                  <div className="score-value">{Math.round(score * 25)}/100</div>
-                </div>
-              ))}
-            </div>
-
-            {phase2Results.recommendations && (
-              <div className="recommendations">
-                <h3>Personalized Recommendations</h3>
-                <ul>
-                  {phase2Results.recommendations.map((rec, idx) => (
-                    <li key={idx}>{rec}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {phase2Results.priorityFactors && (
-              <div className="priority-factors">
-                <h3>Priority Areas to Focus On</h3>
-                <ul>
-                  {phase2Results.priorityFactors.map((factor, idx) => (
-                    <li key={idx}>{factor}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            <h2>Ready to start coaching?</h2>
+            <p style={{ marginBottom: '14px' }}>
+              I've already shown you which areas need the most attention. Now we pick where to start and build from there — one small thing at a time.
+            </p>
           </section>
         )}
 
@@ -222,7 +196,7 @@ export default function ResultsPage({
             className="share-btn"
             onClick={() => setShowShare(!showShare)}
           >
-            📤 Share Your Results
+            🌱 Help a Friend Discover Their True Health Age
           </button>
 
           {showShare && (

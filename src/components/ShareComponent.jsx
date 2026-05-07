@@ -66,39 +66,44 @@ export default function ShareComponent({ trueHealthAge, grade, resultId }) {
 
   return (
     <div className="share-component">
-      <h3>Share Your Results</h3>
-      <p>Let others know about your True Health Age</p>
+      <h3>Help a Friend Discover Their True Health Age</h3>
+      <p>Pass it on. The more people who know where their health actually stands, the more lives we improve together.</p>
 
       <div className="share-buttons">
         <button
           className={`share-btn twitter ${shared.twitter ? 'shared' : ''}`}
           onClick={() => handleShare('twitter')}
         >
-          𝕏 Twitter
+          <span className="share-icon" aria-hidden="true">𝕏</span>
+          <span className="share-label">Twitter / X</span>
         </button>
         <button
           className={`share-btn facebook ${shared.facebook ? 'shared' : ''}`}
           onClick={() => handleShare('facebook')}
         >
-          f Facebook
+          <span className="share-icon facebook-icon" aria-hidden="true">f</span>
+          <span className="share-label">Facebook</span>
         </button>
         <button
           className={`share-btn linkedin ${shared.linkedin ? 'shared' : ''}`}
           onClick={() => handleShare('linkedin')}
         >
-          in LinkedIn
+          <span className="share-icon linkedin-icon" aria-hidden="true">in</span>
+          <span className="share-label">LinkedIn</span>
         </button>
         <button
           className={`share-btn whatsapp ${shared.whatsapp ? 'shared' : ''}`}
           onClick={() => handleShare('whatsapp')}
         >
-          💬 WhatsApp
+          <span className="share-icon" aria-hidden="true">💬</span>
+          <span className="share-label">WhatsApp</span>
         </button>
         <button
           className={`share-btn copy ${shared.copy ? 'shared' : ''}`}
           onClick={() => handleShare('copy')}
         >
-          📋 Copy Link
+          <span className="share-icon" aria-hidden="true">🔗</span>
+          <span className="share-label">Copy Link</span>
         </button>
       </div>
     </div>

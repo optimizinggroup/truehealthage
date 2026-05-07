@@ -93,7 +93,12 @@ export default function Phase2Results({ phase1Results, phase2Data, selectedAreas
         const bRank = rankedCategories.findIndex(c => c.categoryId === b.category)
         return aRank - bRank
       })
-      .slice(0, 5)
+    // ^ NOT sliced. Used to be .slice(0, 5) which dropped protocols outside
+    //   the top 5 — meaning the PrioritySelection screen could only offer
+    //   categories with a protocol in the top 5. If the user had concerns in
+    //   six categories but only four made the cut, the 5th and 6th were
+    //   silently invisible. Now PrioritySelection sees the full set.
+    const protocolsTop5 = protocols.slice(0, 5)
 
     const topRiskTags = Object.entries(allRiskTags)
       .sort((a, b) => b[1] - a[1])
@@ -103,7 +108,8 @@ export default function Phase2Results({ phase1Results, phase2Data, selectedAreas
     return {
       categoryScores,
       rankedCategories,
-      protocols,
+      protocols,           // full list, used by PrioritySelection
+      protocolsTop5,       // top-5 only, used by legacy ResultsPage display
       topRiskTags,
       escalationFlags
     }
@@ -130,9 +136,10 @@ export default function Phase2Results({ phase1Results, phase2Data, selectedAreas
       protocols: results.protocols,
       topRiskTags: results.topRiskTags,
       escalationFlags: results.escalationFlags,
-      // Map to legacy format for compatibility with ResultsPage
+      // Legacy fields kept only for backward compat — ResultsPage no longer
+      // shows the broken 10-area "X/100" deep-dive section that used these.
       areaScores: results.categoryScores,
-      recommendations: results.protocols.map(p => {
+      recommendations: (results.protocolsTop5 || results.protocols.slice(0, 5)).map(p => {
         const headline = p.theme || p.name
         const firstAction = p.daily_micro_wins?.[0] || ''
         return `${p.icon || ''} ${headline}${firstAction ? ': ' + firstAction : ''}`.trim()

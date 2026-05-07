@@ -148,14 +148,16 @@ export default function PrioritySelection({ phase2Results, onActivated, onSkip }
             </div>
           </div>
 
-          <div className="priority-footer two-buttons">
-            <button
-              type="button"
-              className="secondary-btn"
-              onClick={() => setStep('choose')}
-            >
-              Choose another area
-            </button>
+          <div className={`priority-footer ${actionableCategories.length > 1 ? 'two-buttons' : ''}`}>
+            {actionableCategories.length > 1 && (
+              <button
+                type="button"
+                className="secondary-btn"
+                onClick={() => setStep('choose')}
+              >
+                Choose another area
+              </button>
+            )}
             <button
               type="button"
               className="primary-btn"
