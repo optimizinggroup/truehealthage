@@ -220,6 +220,135 @@
   line-height: 1.5;
 }
 
+/* Graduation block — celebrating 8-week completion. More prominent than
+   the old plain-text note, and includes a clear reassess CTA. */
+.graduation-block {
+  margin: 14px 0 0;
+  padding: 18px 20px;
+  background: linear-gradient(135deg, #d1fae5 0%, #ecfdf5 100%);
+  border: 2px solid #10B981;
+  border-radius: 10px;
+}
+
+.graduation-block h4 {
+  margin: 0 0 8px;
+  font-size: 17px;
+  color: #065f46;
+}
+
+.graduation-block p {
+  margin: 0 0 14px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #047857;
+}
+
+.graduation-block .reassess-btn {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  color: white;
+  border: none;
+  padding: 12px 22px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.graduation-block .reassess-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* Add-another-concern block. Sits below the active protocol card.
+   Default state is just a toggle button; expands to show Coach K's
+   "master one first" recommendation + a path to add anyway. */
+.add-concern-block {
+  margin: 16px 0 18px;
+  padding: 0;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  background: #fafafa;
+}
+
+.add-concern-toggle {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: #4b5563;
+  transition: background 0.15s ease;
+}
+
+.add-concern-toggle:hover {
+  background: #f3f4f6;
+}
+
+.add-concern-body {
+  padding: 14px 18px 18px;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+}
+
+.add-concern-body p {
+  margin: 0 0 10px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #4b5563;
+}
+
+.add-concern-body p strong {
+  color: #0D9488;
+}
+
+.add-concern-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.add-concern-actions .text-btn {
+  background: transparent;
+  color: #0D9488;
+  border: none;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.add-concern-actions .text-btn:hover {
+  background: #f0fdfa;
+}
+
+.add-concern-confirm-btn {
+  background: white;
+  color: #6b7280;
+  border: 1.5px solid #d1d5db;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.add-concern-confirm-btn:hover {
+  border-color: #6b7280;
+  color: #2d3748;
+}
+
 .new-this-week {
   margin-top: 14px;
   padding: 12px 14px;

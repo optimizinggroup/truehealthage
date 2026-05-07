@@ -42,6 +42,10 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onLo
   // user_protocols.promoted_additions column is a v1.1 follow-up.
   const [promotedSet, setPromotedSet] = useState(new Set())
   const [showStretches, setShowStretches] = useState(false)
+  // Add-another-area inline expansion. Defaults closed; opens to show
+  // the "master current first" coaching recommendation before letting
+  // the user route to retake the assessment for a new area.
+  const [showAddConcern, setShowAddConcern] = useState(false)
 
   useEffect(() => {
     loadDashboard()
@@ -361,10 +365,57 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onLo
           </button>
 
           {isGraduating && (
-            <p className="graduation-note">
-              You've completed your target weeks for this protocol. Check in
-              and we'll celebrate the win — then you can pick what to work on next.
-            </p>
+            <div className="graduation-block">
+              <h4>🎉 You've made it 8 weeks.</h4>
+              <p>
+                That's a real change — most people don't get this far. Time to reassess where your health stands now and see how far you've come. The numbers tell a story; let's look at them again together.
+              </p>
+              <button className="reassess-btn" onClick={onRetakeQuiz}>
+                Reassess my health →
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Add another area — Keith's coaching philosophy: recommend mastering
+          one area first, but never block. Defaults closed; expands to show
+          the recommendation + a clear "yes, add anyway" route. */}
+      {activeProtocol && (
+        <div className="add-concern-block">
+          <button
+            type="button"
+            className="add-concern-toggle"
+            onClick={() => setShowAddConcern(!showAddConcern)}
+          >
+            {showAddConcern ? '−' : '+'} Want to work on another area too?
+          </button>
+
+          {showAddConcern && (
+            <div className="add-concern-body">
+              <p>
+                <strong>Honest take from me:</strong> you're on week {activeProtocol.current_week} of {TARGET_WEEKS_PER_PROTOCOL} with {category?.name || 'your current focus'}. Real change happens when you build one habit until it becomes automatic — usually 6–8 weeks. Spreading yourself across two areas at once almost always means neither one sticks.
+              </p>
+              <p>
+                That said — your life, your call. If something else is feeling urgent, retake the assessment and we'll add it to your plan.
+              </p>
+              <div className="add-concern-actions">
+                <button
+                  type="button"
+                  className="text-btn"
+                  onClick={() => setShowAddConcern(false)}
+                >
+                  Stay focused on this one
+                </button>
+                <button
+                  type="button"
+                  className="add-concern-confirm-btn"
+                  onClick={onRetakeQuiz}
+                >
+                  Add another area anyway →
+                </button>
+              </div>
+            </div>
           )}
         </div>
       )}
