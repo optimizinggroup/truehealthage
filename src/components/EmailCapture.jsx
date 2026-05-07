@@ -25,6 +25,10 @@ export default function EmailCapture({
   const [subscribeNewsletter, setSubscribeNewsletter] = useState(true) // opt-out style
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  // If Supabase Auth has email-confirmation enabled, signUp returns a user
+  // but no session. We can't write to user_protocols (RLS blocks it) or load
+  // the dashboard — so instead show a "Check your email" intermediate screen.
+  const [needsEmailConfirmation, setNeedsEmailConfirmation] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -66,6 +70,15 @@ export default function EmailCapture({
       }
       if (!user) {
         setError('Failed to create account')
+        setLoading(false)
+        return
+      }
+
+      // If Supabase project requires email confirmation, signUp returns user
+      // but no session — bail out early and prompt the user to check their
+      // inbox instead of routing them to a dashboard that will reject them.
+      if (!session) {
+        setNeedsEmailConfirmation(true)
         setLoading(false)
         return
       }
@@ -165,6 +178,26 @@ export default function EmailCapture({
     } finally {
       setLoading(false)
     }
+  }
+
+  // Confirmation-required state: shown when Supabase Auth requires email
+  // verification before a session is created. Disable in Supabase project
+  // settings → Authentication → Providers → Email → Confirm email = OFF
+  // to skip this step entirely (recommended for low-friction onboarding).
+  if (needsEmailConfirmation) {
+    return (
+      <div className="email-capture">
+        <div className="email-capture-card">
+          <h2>Almost there.</h2>
+          <p style={{ marginBottom: '16px' }}>
+            I just sent a confirmation email to <strong>{email}</strong>. Click the link in that email and you'll be signed in. Once you're confirmed, come back here and I'll show you your results and your first coaching focus.
+          </p>
+          <p style={{ fontSize: '13px', color: '#6b7280' }}>
+            Don't see it? Check your spam folder. The first email from a new domain often gets flagged — click "Not Spam" and future ones land in your inbox.
+          </p>
+        </div>
+      </div>
+    )
   }
 
   return (
