@@ -32,35 +32,51 @@ export const PROTOCOL_MAPPING = {
   }
 }
 
+// Severity rank — Serious Concern always beats Moderate, regardless of years.
+// (A Serious can be triggered by one very bad question that another category
+// might match in total years via several small issues, but a single 5-year
+// red-flag still deserves to lead the recommendation list.)
+const STATUS_PRIORITY = {
+  'Serious Concern': 2,
+  'Moderate Concern': 1,
+}
+
 export function getRecommendedProtocols(categoryScores) {
-  // Get categories with concerns (not Great or Good)
+  // Filter to categories with active concerns AND sort by severity:
+  //   1) Serious before Moderate
+  //   2) Within each tier, more aging years first
+  // Original code took the first 3 in iteration order, which silently
+  // dropped Mental Health (last in categoryMap) even when it was the
+  // worst concern — that was the bug.
   const concernCategories = Object.entries(categoryScores || {})
-    .filter(([cat, scoreObj]) => {
-      const status = scoreObj.status
-      return status === 'Serious Concern' || status === 'Moderate Concern'
+    .filter(([_, s]) => s.status === 'Serious Concern' || s.status === 'Moderate Concern')
+    .sort((a, b) => {
+      const tierDiff = (STATUS_PRIORITY[b[1].status] || 0) - (STATUS_PRIORITY[a[1].status] || 0)
+      if (tierDiff !== 0) return tierDiff
+      return (b[1].years || 0) - (a[1].years || 0)
     })
     .map(([cat]) => cat)
 
-  // If no concerns, recommend based on what would improve overall health
+  // If no concerns, recommend three solid universally-helpful protocols
   if (concernCategories.length === 0) {
     return [
       PROTOCOL_MAPPING['Movement'],
       PROTOCOL_MAPPING['Sleep'],
-      PROTOCOL_MAPPING['Nutrition']
+      PROTOCOL_MAPPING['Nutrition'],
     ]
   }
 
-  // Get top 3 recommended protocols
+  // Top 3 by severity
   const recommended = concernCategories
     .slice(0, 3)
     .map(cat => PROTOCOL_MAPPING[cat])
     .filter(Boolean)
 
-  // If we don't have 3, fill in with other protocols
+  // Fill out to 3 with other categories if needed (keeps the page useful
+  // for users with only 1-2 active concerns)
   if (recommended.length < 3) {
-    const allProtocols = Object.values(PROTOCOL_MAPPING)
     const recommendedNames = new Set(recommended.map(p => p.protocol))
-    const additional = allProtocols
+    const additional = Object.values(PROTOCOL_MAPPING)
       .filter(p => !recommendedNames.has(p.protocol))
       .slice(0, 3 - recommended.length)
     recommended.push(...additional)
