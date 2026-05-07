@@ -201,6 +201,21 @@ export default function WeeklyCheckin({ userProtocol, onComplete, onCancel }) {
 
             <p className="branch-copy">{branchCopy()}</p>
 
+            {(() => {
+              // Preview next week's new addition if the protocol defines one.
+              // current_week here is THIS week's number (1, 2, ...). Next week
+              // is current_week + 1, indexed at current_week (since 0-indexed).
+              const additions = content.weekly_additions || []
+              const nextAddition = additions[userProtocol.current_week]
+              if (!nextAddition) return null
+              return (
+                <div className="next-week-preview">
+                  <h5>Next week, add this:</h5>
+                  <p>{nextAddition}</p>
+                </div>
+              )
+            })()}
+
             <div className="user-note">
               <label htmlFor="checkin-note">Want to add a note? (optional)</label>
               <textarea

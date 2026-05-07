@@ -256,6 +256,21 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onLo
                 </li>
               ))}
             </ul>
+
+            {/* Progressive overload: each week after week 1 layers in one new
+                behavior on top of the base 3. Some protocols have weekly_additions;
+                others don't (they stay at the same 3 every week). */}
+            {(() => {
+              const additions = activeProtocol.content.weekly_additions || []
+              const additionForWeek = additions[activeProtocol.current_week - 1]
+              if (!additionForWeek) return null
+              return (
+                <div className="new-this-week">
+                  <h5>New for this week</h5>
+                  <p>{additionForWeek}</p>
+                </div>
+              )
+            })()}
           </div>
 
           <button
