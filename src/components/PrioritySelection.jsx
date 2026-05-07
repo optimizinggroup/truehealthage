@@ -32,11 +32,37 @@ export default function PrioritySelection({ phase2Results, onActivated, onSkip }
   const [chosen, setChosen] = useState(null)  // the category+protocol bundle they picked
   const [error, setError] = useState(null)
   const [activating, setActivating] = useState(false)
+  // Categories the user already has an active protocol for — used to filter
+  // them out when this screen is shown via "add another area" flow. We don't
+  // want to recommend the same area they're already working on.
+  const [excludeCategories, setExcludeCategories] = useState(new Set())
 
   // Always scroll to top when this screen mounts or step changes
   useEffect(() => {
     if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'instant' })
   }, [step])
+
+  // On mount, fetch the user's active protocols. Their categories get excluded
+  // from the recommendation list — no point telling someone "your priority is
+  // Stress & Mental Health" if they're already on week 3 of that protocol.
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+        const { data: rows } = await supabase
+          .from('user_protocols')
+          .select('category, status')
+          .eq('user_id', user.id)
+          .eq('status', 'active')
+        if (cancelled) return
+        const cats = new Set((rows || []).map(r => r.category))
+        setExcludeCategories(cats)
+      } catch (_) { /* not fatal */ }
+    })()
+    return () => { cancelled = true }
+  }, [])
 
   // Build the actionable list: each category that has a triggered protocol AND
   // is not "Optimal". Top of the list is the worst-scoring (= most concerns).
@@ -56,8 +82,10 @@ export default function PrioritySelection({ phase2Results, onActivated, onSkip }
         topProtocol,
       }
     })
-    // Skip categories with no triggered protocol AND skip optimal categories
-    .filter(c => c.topProtocol && c.status?.level !== 'optimal')
+    // Skip categories with no triggered protocol, optimal-tier categories,
+    // and any category the user already has an active protocol for (so the
+    // "add another area" flow doesn't re-recommend their current focus).
+    .filter(c => c.topProtocol && c.status?.level !== 'optimal' && !excludeCategories.has(c.categoryId))
 
   // Empty state — nothing actionable triggered
   if (actionableCategories.length === 0) {
@@ -172,7 +200,7 @@ export default function PrioritySelection({ phase2Results, onActivated, onSkip }
             className="text-btn skip-btn"
             onClick={onSkip}
           >
-            Skip — go straight to dashboard
+            ← Skip and go to dashboard
           </button>
         </div>
       </div>

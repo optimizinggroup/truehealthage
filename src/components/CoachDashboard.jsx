@@ -29,7 +29,7 @@ const TARGET_WEEKS_PER_PROTOCOL = 8
  * a retake; a future revision will pull the user's prior assessment and
  * present the unstarted concerns.
  */
-export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onLogout }) {
+export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onAddAnotherArea, onLogout }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [activeProtocol, setActiveProtocol] = useState(null)
@@ -410,7 +410,7 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onLo
                 <button
                   type="button"
                   className="add-concern-confirm-btn"
-                  onClick={onRetakeQuiz}
+                  onClick={onAddAnotherArea || onRetakeQuiz}
                 >
                   Add another area anyway →
                 </button>

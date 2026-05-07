@@ -129,7 +129,29 @@ export default function Phase2Results({ phase1Results, phase2Data, selectedAreas
   // first chosen protocol gets activated. Coaching one thing at a time
   // is what makes this stick — assigning all 3 at once is the "list of
   // tips" pattern Keith specifically rejected.
+  //
+  // Also persist the full results to localStorage so the dashboard can
+  // offer "Add another area" later without forcing a full reassessment —
+  // we read these cached results to populate PrioritySelection again.
   const handleComplete = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user && typeof localStorage !== 'undefined') {
+        localStorage.setItem(
+          `tha_last_phase2_results_${user.id}`,
+          JSON.stringify({
+            categoryScores: results.categoryScores,
+            rankedCategories: results.rankedCategories,
+            protocols: results.protocols,
+            protocolsTop5: results.protocolsTop5,
+            topRiskTags: results.topRiskTags,
+            escalationFlags: results.escalationFlags,
+            cachedAt: Date.now(),
+          })
+        )
+      }
+    } catch (_) { /* private mode etc. */ }
+
     const resultData = {
       categoryScores: results.categoryScores,
       rankedCategories: results.rankedCategories,

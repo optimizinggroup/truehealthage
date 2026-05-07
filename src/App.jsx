@@ -110,6 +110,27 @@ export default function App() {
     setCurrentPhase('phase1')
   }
 
+  // "Add another area" flow — read the user's last cached Phase 2 results
+  // from localStorage and route to PrioritySelection so they can pick a
+  // second priority without retaking the entire assessment. If no cache
+  // is found (cleared storage, different device), we fall back to the
+  // full retake path.
+  const handleAddAnotherArea = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user && typeof localStorage !== 'undefined') {
+        const raw = localStorage.getItem(`tha_last_phase2_results_${user.id}`)
+        if (raw) {
+          const cached = JSON.parse(raw)
+          setPhase2Results(cached)
+          setCurrentPhase('priority_selection')
+          return
+        }
+      }
+    } catch (_) { /* fall through to retake */ }
+    handleRetakeQuiz()
+  }
+
   const handleLoginSuccess = (email, userId) => {
     setUserEmail(email)
     setUserId(userId)
@@ -287,6 +308,7 @@ export default function App() {
             userEmail={userEmail}
             userName={userEmail}
             onRetakeQuiz={handleRetakeQuiz}
+            onAddAnotherArea={handleAddAnotherArea}
             onLogout={handleLogout}
           />
         )}

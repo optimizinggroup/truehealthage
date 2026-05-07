@@ -281,11 +281,15 @@ export const PHASE2_QUESTIONS = {
       id: 'sr_q1',
       question: 'What is your primary sleep goal?',
       answer_type: 'single-select',
+      // Options reframed per Keith: focus on the sleep OUTCOME the user
+      // wants, not the schedule mechanic. "Get to bed earlier" / "Wake
+      // earlier" prescribed timing changes that don't fit early sleepers.
+      // The new options are universal — anyone can want any of these.
       options: [
-        { label: 'Improve sleep consistency', value: 'consistency', score: 0, risk_tags: [], protocol_triggers: ['SLEEP_SCHEDULE'] },
-        { label: 'Get to bed earlier', value: 'earlier_bedtime', score: 1, risk_tags: ['LATE_BEDTIME'], protocol_triggers: ['BEDTIME_PROTOCOL'] },
-        { label: 'Wake up earlier', value: 'earlier_wake', score: 1, risk_tags: ['LATE_WAKEUP'], protocol_triggers: ['CIRCADIAN_RESET'] },
-        { label: 'Align with natural rhythms', value: 'circadian', score: 0, risk_tags: [], protocol_triggers: ['CIRCADIAN_ALIGNMENT'] }
+        { label: 'Improve sleep consistency', value: 'consistency', score: 1, risk_tags: ['INCONSISTENT_SLEEP'], protocol_triggers: ['SLEEP_SCHEDULE'] },
+        { label: 'Fall asleep faster', value: 'fall_asleep_faster', score: 1, risk_tags: ['SLEEP_ONSET_DELAY'], protocol_triggers: ['BEDTIME_PROTOCOL', 'SLEEP_QUALITY'] },
+        { label: 'Stay asleep through the night', value: 'stay_asleep', score: 1, risk_tags: ['NIGHT_WAKING'], protocol_triggers: ['SLEEP_QUALITY', 'HYDRATION_SLEEP'] },
+        { label: 'Wake up feeling more rested', value: 'wake_rested', score: 1, risk_tags: ['POOR_RECOVERY'], protocol_triggers: ['SLEEP_QUALITY', 'CIRCADIAN_ALIGNMENT'] }
       ]
     },
     {
