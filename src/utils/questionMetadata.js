@@ -1,4 +1,14 @@
-// Question metadata with "Why It Matters" and improvement steps
+// Question metadata with "Why It Matters" and improvement steps.
+// Question IDs MUST match those defined in Phase1Quiz.jsx exactly.
+//
+// Canonical mapping (also reflected in quizLogic.js categoryMap):
+//   1-2   Baseline
+//   3-5   High-Impact Risks (smoking, alcohol, chronic disease)
+//   6-9   Body & Vitals (BMI, BP, RHR, self-rated health)
+//   10-12 Movement (exercise frequency, sitting, fitness)
+//   13-15 Sleep (duration, quality, apnea)
+//   16-18 Nutrition (eating style, fast food/sugar, protein/carb quality)
+//   19-20 Mental Health (stress, depression/mood)
 export const QUESTION_METADATA = {
   1: { // Age
     category: 'Baseline',
@@ -63,49 +73,55 @@ export const QUESTION_METADATA = {
     improvementSteps: 'Stand/walk every 30–60 min; use walking meetings; aim for 7–10k steps/day.',
     poorAnswers: ['8+']
   },
-  12: { // Sleep hours
+  12: { // Fitness self-rating  ← was missing; now correct
+    category: 'Movement',
+    whyItMatters: 'Self-rated fitness predicts cardiovascular capacity and long-term mobility — people who feel less fit than peers are more likely to develop functional decline.',
+    improvementSteps: 'Build cardio gradually (start with 10-minute walks 4 days/week); add 2 days of resistance training; reassess in 8 weeks.',
+    poorAnswers: ['Less fit']
+  },
+  13: { // Sleep hours  ← was Q12 in old metadata
     category: 'Sleep',
     whyItMatters: 'Short sleep is associated with obesity, diabetes, and cardiovascular disease.',
     improvementSteps: 'Aim for 7–8 hours; consistent schedule; reduce late caffeine/alcohol; dark, cool bedroom.',
     poorAnswers: ['Less than 6 hours', '6 to 7 hours']
   },
-  13: { // Sleep quality
+  14: { // Sleep quality  ← was Q13 in old metadata
     category: 'Sleep',
     whyItMatters: 'Sleep quality affects recovery, cognition, and metabolic health.',
     improvementSteps: 'Establish wind-down routine; limit screens before bed; manage stress; consider CBT-I if persistent.',
     poorAnswers: ['Poor']
   },
-  14: { // Sleep apnea
+  15: { // Sleep apnea  ← was Q14 in old metadata
     category: 'Sleep',
     whyItMatters: 'Untreated sleep apnea increases risk of hypertension, heart disease, and fatigue.',
     improvementSteps: 'Get a sleep study; consider CPAP or alternatives; maintain healthy weight.',
     poorAnswers: ['Yes (untreated)']
   },
-  15: { // Eating style
+  16: { // Eating style  ← was Q15 in old metadata
     category: 'Nutrition',
     whyItMatters: 'Overall diet quality drives inflammation and long-term disease risk.',
     improvementSteps: 'Shift toward whole foods; cook more meals; prioritize vegetables, lean proteins, whole grains.',
     poorAnswers: ['Mostly processed or fast foods']
   },
-  16: { // Fast food frequency
+  17: { // Fast food / sugary drinks  ← was Q16 in old metadata
     category: 'Nutrition',
     whyItMatters: 'Ultra-processed foods and added sugars are strongly linked to metabolic disease.',
     improvementSteps: 'Eliminate sugary drinks first; limit fast food to ≤1/week; replace snacks with nuts, fruit, yogurt.',
     poorAnswers: ['Daily', 'A few times/week']
   },
-  17: { // Protein/grain quality
+  18: { // Protein/grain quality  ← was Q17 in old metadata
     category: 'Nutrition',
     whyItMatters: 'Higher-quality carbs and proteins reduce inflammation and improve heart health.',
     improvementSteps: 'Follow Mediterranean-style eating; swap white grains for whole grains; eat fish 2x/week; include legumes.',
     poorAnswers: ['Rarely', 'Sometimes']
   },
-  18: { // Stress level
+  19: { // Stress level  ← was Q18 in old metadata
     category: 'Mental Health',
     whyItMatters: 'Chronic stress accelerates aging and increases disease risk.',
     improvementSteps: 'Daily stress management (walks, breathing, mindfulness); set boundaries; prioritize recovery time.',
     poorAnswers: ['High']
   },
-  19: { // Depression/mood
+  20: { // Depression/mood  ← was Q19 in old metadata
     category: 'Mental Health',
     whyItMatters: 'Depression impacts behavior, inflammation, and long-term health outcomes.',
     improvementSteps: 'Seek professional support; increase physical activity; maintain social connections; consider therapy or medical care.',

@@ -7,15 +7,21 @@ export function calculatePhase1Results(answers) {
   // Get user's chronological age (now in question ID 1)
   const chronoAge = parseInt(answers[1]?.text) || 40
 
-  // Define question categories - CORRECTED per questionMetadata.js
+  // Define question categories — must match the question IDs declared in
+  // Phase1Quiz.jsx exactly. Movement has 3 questions (10, 11, 12 — exercise,
+  // sitting, fitness). Sleep is 13-15 (duration, quality, apnea). Earlier
+  // versions had this off-by-one starting at Q12, which caused the fitness
+  // answer to be grouped under Sleep and the metadata strings to be pulled
+  // from the wrong question (the "untreated sleep apnea" text on a
+  // non-apnea Sleep result was the visible symptom).
   const categoryMap = {
     'Baseline': [1, 2],
     'High-Impact Risks': [3, 4, 5],
     'Body & Vitals': [6, 7, 8, 9],
-    'Movement': [10, 11],
-    'Sleep': [12, 13, 14],
-    'Nutrition': [15, 16, 17],
-    'Mental Health': [18, 19, 20]
+    'Movement': [10, 11, 12],
+    'Sleep': [13, 14, 15],
+    'Nutrition': [16, 17, 18],
+    'Mental Health': [19, 20],
   }
 
   // Sum all years adjustments from answers

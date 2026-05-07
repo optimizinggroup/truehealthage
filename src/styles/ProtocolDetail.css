@@ -22,7 +22,79 @@
 }
 
 .detail-section {
-  margin-bottom: 20px;
+  margin-bottom: 14px;
+}
+
+.coach-block {
+  margin-bottom: 12px;
+}
+
+.coach-intro {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--gray-800, #2d3748);
+}
+
+.this-week-text {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.coach-story-block {
+  background: #f8f7f3;
+  border-left: 3px solid #0D9488;
+  padding: 12px 14px;
+  border-radius: 6px;
+  margin: 10px 0;
+}
+
+.coach-story-text {
+  margin: 0;
+  font-style: italic;
+  white-space: pre-line;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.red-flags-block {
+  background: #fff5f5;
+  border-left: 3px solid #c62828;
+  padding: 10px 12px;
+  border-radius: 6px;
+  margin-top: 10px;
+}
+
+.red-flags-block h5 {
+  color: #c62828;
+  margin: 0 0 6px;
+}
+
+.show-more-btn,
+.show-less-btn {
+  width: 100%;
+  margin-top: 4px;
+  padding: 10px 14px;
+  background: transparent;
+  color: #0D9488;
+  border: 1px dashed #0D9488;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.show-more-btn:hover,
+.show-less-btn:hover {
+  background: rgba(13, 148, 136, 0.06);
+}
+
+.show-less-btn {
+  margin-top: 12px;
+  border-style: solid;
+  opacity: 0.7;
 }
 
 .detail-section h5 {

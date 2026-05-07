@@ -312,13 +312,17 @@ export const PHASE2_QUESTIONS = {
     },
     {
       id: 'sr_q4',
-      question: 'What time do you typically go to bed?',
+      question: 'If you had no commitments the next day, what time would you naturally go to bed?',
       answer_type: 'single-select',
+      // Reframed as chronotype rather than current behavior — surfaces natural
+      // bedtime preference, accommodates early sleepers (before 9 PM is healthy
+      // for early chronotypes) and decouples from shift workers (Q5).
       options: [
-        { label: '9:00 – 10:00 PM', value: '9_10pm', score: 0, risk_tags: [], protocol_triggers: [] },
-        { label: '10:00 – 11:00 PM', value: '10_11pm', score: 0, risk_tags: [], protocol_triggers: [] },
-        { label: '11:00 PM – 12:00 AM', value: '11pm_12am', score: 1, risk_tags: ['LATE_BEDTIME'], protocol_triggers: ['EARLIER_BEDTIME'] },
-        { label: 'After 12:00 AM', value: 'after_12am', score: 2, risk_tags: ['LATE_BEDTIME', 'SHORT_SLEEP'], protocol_triggers: ['SLEEP_EXTENSION'] }
+        { label: 'Before 9:00 PM', value: 'before_9pm', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: '9:00 – 11:00 PM', value: '9_11pm', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: '11:00 PM – 1:00 AM', value: '11pm_1am', score: 1, risk_tags: ['LATE_CHRONOTYPE'], protocol_triggers: ['EARLIER_BEDTIME'] },
+        { label: 'After 1:00 AM', value: 'after_1am', score: 2, risk_tags: ['LATE_CHRONOTYPE', 'SHORT_SLEEP'], protocol_triggers: ['SLEEP_EXTENSION', 'CIRCADIAN_RESET'] },
+        { label: 'My schedule is shifted (night shift / rotating)', value: 'shift_worker', score: 1, risk_tags: ['SHIFT_WORK'], protocol_triggers: ['SHIFT_PROTOCOL'] }
       ]
     },
     {
