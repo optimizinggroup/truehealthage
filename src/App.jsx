@@ -10,6 +10,7 @@ import ResetPasswordComponent from './components/ResetPasswordComponent'
 import AppHeader from './components/AppHeader'
 import CoachIntro from './components/CoachIntro'
 import CoachDashboard from './components/CoachDashboard'
+import PrioritySelection from './components/PrioritySelection'
 import './App.css'
 
 const COACH_INTRO_SEEN_KEY = 'tha_coach_intro_seen_v1'
@@ -19,7 +20,7 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export default function App() {
-  const [currentPhase, setCurrentPhase] = useState('landing') // landing | coach_intro | login | forgot_password | reset_password | phase1 | phase1_results | phase2 | email_capture | results | coach_dashboard
+  const [currentPhase, setCurrentPhase] = useState('landing') // landing | coach_intro | login | forgot_password | reset_password | phase1 | phase1_results | phase2 | email_capture | results | priority_selection | coach_dashboard
   const [userEmail, setUserEmail] = useState(null)
   const [userId, setUserId] = useState(null)
   const [phase1Results, setPhase1Results] = useState(null)
@@ -251,7 +252,19 @@ export default function App() {
             showPhase2Option={false}
             onRetakeQuiz={handleRetakeQuiz}
             onLogout={handleLogout}
-            onContinueCoaching={() => setCurrentPhase('coach_dashboard')}
+            // Route to PrioritySelection if they did Phase 2 (so they pick what
+            // to work on first); otherwise straight to the dashboard.
+            onContinueCoaching={() =>
+              setCurrentPhase(phase2Results ? 'priority_selection' : 'coach_dashboard')
+            }
+          />
+        )}
+
+        {currentPhase === 'priority_selection' && phase2Results && (
+          <PrioritySelection
+            phase2Results={phase2Results}
+            onActivated={() => setCurrentPhase('coach_dashboard')}
+            onSkip={() => setCurrentPhase('coach_dashboard')}
           />
         )}
 

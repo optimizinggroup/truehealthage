@@ -120,35 +120,13 @@ export default function Phase2Results({ phase1Results, phase2Data, selectedAreas
     )
   }
 
-  // Handler for complete button — passes calculated results back to parent
-  // AND persists the user's top protocols to user_protocols so they show up
-  // on the Coach Dashboard. Failures here are non-fatal (we still let the
-  // user see their results) but we log so it's visible in dev.
+  // Handler for complete button — passes calculated results back to parent.
+  // We DO NOT auto-assign protocols here anymore. The user picks their
+  // priority order on the next screen (PrioritySelection), and only the
+  // first chosen protocol gets activated. Coaching one thing at a time
+  // is what makes this stick — assigning all 3 at once is the "list of
+  // tips" pattern Keith specifically rejected.
   const handleComplete = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user && results.protocols.length > 0) {
-        // Top 3 protocols become assigned. More than 3 overwhelms.
-        const top = results.protocols.slice(0, 3)
-        const rows = top.map((p) => ({
-          user_id: user.id,
-          protocol_key: p.name, // p.name is the trigger key (e.g. SLEEP_QUALITY)
-          category: p.category,
-          current_week: 1,
-          status: 'active',
-          difficulty_tier: 'standard',
-        }))
-        // Best-effort upsert; if a row already exists for (user, protocol_key, status='active')
-        // the unique constraint will reject duplicates and we continue.
-        const { error: upsertError } = await supabase.from('user_protocols').insert(rows)
-        if (upsertError && upsertError.code !== '23505') { // 23505 = unique violation, expected on retake
-          console.warn('user_protocols insert failed:', upsertError)
-        }
-      }
-    } catch (err) {
-      console.warn('protocol assignment skipped:', err)
-    }
-
     const resultData = {
       categoryScores: results.categoryScores,
       rankedCategories: results.rankedCategories,
