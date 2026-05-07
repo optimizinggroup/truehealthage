@@ -249,6 +249,13 @@
   color: #2d3748;
 }
 
+.next-week-note {
+  margin-top: 6px !important;
+  font-size: 12px !important;
+  color: #92400e !important;
+  font-style: italic;
+}
+
 .user-note {
   margin: 16px 0;
 }

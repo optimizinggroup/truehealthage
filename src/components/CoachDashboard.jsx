@@ -37,6 +37,11 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onLo
   const [latestQuiz, setLatestQuiz] = useState(null)
   const [latestCheckin, setLatestCheckin] = useState(null)
   const [activeCheckin, setActiveCheckin] = useState(null)
+  // Promoted optional stretch goals — user has marked them "part of my routine."
+  // Stored in localStorage keyed by user_protocol id. Migrating to a real
+  // user_protocols.promoted_additions column is a v1.1 follow-up.
+  const [promotedSet, setPromotedSet] = useState(new Set())
+  const [showStretches, setShowStretches] = useState(false)
 
   useEffect(() => {
     loadDashboard()
@@ -100,8 +105,18 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onLo
           .limit(1)
           .maybeSingle()
         setLatestCheckin(checkin)
+
+        // Load promoted stretch goals from localStorage for this protocol
+        try {
+          const key = `tha_promoted_${active.id}`
+          const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(key) : null
+          setPromotedSet(new Set(raw ? JSON.parse(raw) : []))
+        } catch (_) {
+          setPromotedSet(new Set())
+        }
       } else {
         setLatestCheckin(null)
+        setPromotedSet(new Set())
       }
     } catch (err) {
       setError('Unexpected error: ' + (err.message || String(err)))
@@ -113,6 +128,18 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onLo
   const handleCheckinComplete = async () => {
     setActiveCheckin(null)
     await loadDashboard()
+  }
+
+  const handleTogglePromote = (idx) => {
+    if (!activeProtocol) return
+    const next = new Set(promotedSet)
+    if (next.has(idx)) next.delete(idx)
+    else next.add(idx)
+    setPromotedSet(next)
+    try {
+      const key = `tha_promoted_${activeProtocol.id}`
+      localStorage.setItem(key, JSON.stringify([...next]))
+    } catch (_) { /* private mode etc. */ }
   }
 
   const firstName = (userName || userEmail || '').split(/[\s@]/)[0] || 'there'
@@ -257,21 +284,74 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onLo
               ))}
             </ul>
 
-            {/* Progressive overload: each week after week 1 layers in one new
-                behavior on top of the base 3. Some protocols have weekly_additions;
-                others don't (they stay at the same 3 every week). */}
-            {(() => {
-              const additions = activeProtocol.content.weekly_additions || []
-              const additionForWeek = additions[activeProtocol.current_week - 1]
-              if (!additionForWeek) return null
-              return (
-                <div className="new-this-week">
-                  <h5>New for this week</h5>
-                  <p>{additionForWeek}</p>
-                </div>
-              )
-            })()}
           </div>
+
+          {/* Stretch goals — accumulate week over week. The 3 core habits above
+              are mandatory; these are bonus. User can promote any to "part of
+              my routine" with the star button — visual reward only for now,
+              localStorage-tracked. */}
+          {(() => {
+            const additions = activeProtocol.content.weekly_additions || []
+            // Show only additions unlocked through the user's current week.
+            // additions[i] unlocks when current_week >= i+1.
+            const unlocked = additions
+              .map((text, idx) => ({ text, idx }))
+              .filter(a => a.text && a.idx < activeProtocol.current_week)
+
+            if (unlocked.length === 0) return null
+            const promotedCount = unlocked.filter(a => promotedSet.has(a.idx)).length
+
+            return (
+              <div className="stretches-block">
+                <button
+                  type="button"
+                  className="stretches-header"
+                  onClick={() => setShowStretches(!showStretches)}
+                >
+                  <span className="stretches-title">
+                    Stretch Goals · <em>optional</em>
+                    {promotedCount > 0 && (
+                      <span className="stretches-promoted-count">
+                        {' '}🌟 {promotedCount} in your routine
+                      </span>
+                    )}
+                  </span>
+                  <span className="stretches-toggle">
+                    {showStretches ? '−' : `+ ${unlocked.length}`}
+                  </span>
+                </button>
+
+                {showStretches && (
+                  <>
+                    <p className="stretches-intro">
+                      Bonus habits I'd add if you've nailed the basics. Try them out — and if one becomes part of your daily routine, mark it. That's how stacking real change works.
+                    </p>
+                    <ul className="stretches-list">
+                      {unlocked.map(({ text, idx }) => {
+                        const isPromoted = promotedSet.has(idx)
+                        return (
+                          <li
+                            key={idx}
+                            className={`stretch-item ${isPromoted ? 'promoted' : ''}`}
+                          >
+                            <p className="stretch-text">{text}</p>
+                            <button
+                              type="button"
+                              className={`stretch-promote-btn ${isPromoted ? 'is-on' : ''}`}
+                              onClick={() => handleTogglePromote(idx)}
+                              aria-pressed={isPromoted}
+                            >
+                              {isPromoted ? '🌟 In my routine' : 'Add to my routine'}
+                            </button>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  </>
+                )}
+              </div>
+            )
+          })()}
 
           <button
             className="checkin-btn"
