@@ -10,19 +10,32 @@ const supabase = createClient(
   import.meta.env.VITE_SUPABASE_ANON_KEY
 )
 
+// Each protocol's "graduation" target — finish this many weeks consistently
+// and we suggest moving to the next priority. Tunable per protocol later.
+const TARGET_WEEKS_PER_PROTOCOL = 8
+
 /**
- * CoachDashboard — the "this is your coach" home screen.
+ * CoachDashboard — single-active-protocol coaching home.
  *
- * Loads the user's active assigned protocols from user_protocols, shows each as
- * a card with the current week, the "this week" micro-win, and a check-in CTA.
- * Tapping check-in opens the WeeklyCheckin modal which writes to protocol_checkins
- * and shows the adaptive branch.
+ * Shows ONE active protocol at a time (the user's chosen first priority).
+ * Two progress bars:
+ *   - Weekly: how the current week is going (avg days completed across the
+ *     3 weekly tasks / 7).
+ *   - Overall: weeks completed across all of the user's protocols, divided
+ *     by total target weeks across their plan.
+ *
+ * When current_week passes TARGET_WEEKS_PER_PROTOCOL the user is offered
+ * "Pick another area to work on next" — for now this just routes back to
+ * a retake; a future revision will pull the user's prior assessment and
+ * present the unstarted concerns.
  */
 export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onLogout }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [assignedProtocols, setAssignedProtocols] = useState([])
+  const [activeProtocol, setActiveProtocol] = useState(null)
+  const [allProtocols, setAllProtocols] = useState([])
   const [latestQuiz, setLatestQuiz] = useState(null)
+  const [latestCheckin, setLatestCheckin] = useState(null)
   const [activeCheckin, setActiveCheckin] = useState(null)
 
   useEffect(() => {
@@ -50,13 +63,12 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onLo
         .maybeSingle()
       setLatestQuiz(quizRow)
 
-      // Active assigned protocols
+      // All assigned protocols (active + graduated) for overall progress
       const { data: rows, error: rowsError } = await supabase
         .from('user_protocols')
         .select('id, protocol_key, category, current_week, status, difficulty_tier, assigned_at, updated_at')
         .eq('user_id', user.id)
-        .eq('status', 'active')
-        .order('assigned_at', { ascending: true })
+        .order('assigned_at', { ascending: false })
 
       if (rowsError) {
         setError('Could not load your protocols. ' + rowsError.message)
@@ -64,7 +76,6 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onLo
         return
       }
 
-      // Hydrate each row with its content from COACHING_PROTOCOLS
       const hydrated = (rows || [])
         .map((row) => {
           const content = COACHING_PROTOCOLS[row.protocol_key]
@@ -73,7 +84,25 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onLo
         })
         .filter(Boolean)
 
-      setAssignedProtocols(hydrated)
+      setAllProtocols(hydrated)
+
+      // Pick the single active protocol — most recently assigned active row
+      const active = hydrated.find(p => p.status === 'active') || null
+      setActiveProtocol(active)
+
+      // Latest check-in for the active protocol drives the weekly progress
+      if (active) {
+        const { data: checkin } = await supabase
+          .from('protocol_checkins')
+          .select('week_number, days_completed, goal_target, outcome')
+          .eq('user_protocol_id', active.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+        setLatestCheckin(checkin)
+      } else {
+        setLatestCheckin(null)
+      }
     } catch (err) {
       setError('Unexpected error: ' + (err.message || String(err)))
     } finally {
@@ -81,12 +110,41 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onLo
     }
   }
 
-  const handleCheckinComplete = async (userProtocolId) => {
+  const handleCheckinComplete = async () => {
     setActiveCheckin(null)
     await loadDashboard()
   }
 
   const firstName = (userName || userEmail || '').split(/[\s@]/)[0] || 'there'
+
+  // Weekly progress: based on the latest check-in's days_completed.
+  // If no check-in yet this week, show the in-progress state (0%) with helpful copy.
+  const weeklyProgress = (() => {
+    if (!activeProtocol || !latestCheckin) return { pct: 0, hasCheckin: false }
+    if (latestCheckin.week_number !== activeProtocol.current_week - 1) {
+      // Latest check-in is for a prior week — current week hasn't been checked in yet
+      return { pct: 0, hasCheckin: false }
+    }
+    const target = latestCheckin.goal_target || 7
+    const pct = Math.round(Math.min(100, (latestCheckin.days_completed / target) * 100))
+    return { pct, hasCheckin: true, days: latestCheckin.days_completed, target }
+  })()
+
+  // Overall progress: weeks completed across all protocols / total expected weeks.
+  // Each protocol contributes up to TARGET_WEEKS_PER_PROTOCOL weeks; once
+  // graduated, full credit. Active protocols contribute their current_week-1
+  // (since current_week is the week they're in, not yet completed).
+  const overallProgress = (() => {
+    if (allProtocols.length === 0) return { pct: 0, completed: 0, total: 0 }
+    const total = allProtocols.length * TARGET_WEEKS_PER_PROTOCOL
+    const completed = allProtocols.reduce((sum, p) => {
+      if (p.status === 'graduated') return sum + TARGET_WEEKS_PER_PROTOCOL
+      // current_week starts at 1, so weeks completed = current_week - 1
+      return sum + Math.max(0, p.current_week - 1)
+    }, 0)
+    const pct = total > 0 ? Math.round((completed / total) * 100) : 0
+    return { pct, completed, total }
+  })()
 
   if (loading) {
     return (
@@ -98,12 +156,37 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onLo
     )
   }
 
+  // No active protocol — empty state
+  if (!error && !activeProtocol) {
+    return (
+      <div className="coach-dashboard">
+        <div className="empty-state">
+          <h2>Ready when you are.</h2>
+          <p>
+            Take the assessment so I can see where you are, then pick the area
+            you want to work on first. We start with one thing — small wins,
+            repeated.
+          </p>
+          <button className="primary-btn" onClick={onRetakeQuiz}>
+            Start the assessment
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  const category = activeProtocol
+    ? PHASE2_CATEGORIES.find(c => c.id === activeProtocol.category)
+    : null
+
+  const isGraduating = activeProtocol && activeProtocol.current_week > TARGET_WEEKS_PER_PROTOCOL
+
   return (
     <div className="coach-dashboard">
       {activeCheckin && (
         <WeeklyCheckin
           userProtocol={activeCheckin}
-          onComplete={() => handleCheckinComplete(activeCheckin.id)}
+          onComplete={handleCheckinComplete}
           onCancel={() => setActiveCheckin(null)}
         />
       )}
@@ -127,81 +210,101 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onLo
       </div>
 
       {error && (
-        <div className="dashboard-error">
-          ⚠️ {error}
-        </div>
+        <div className="dashboard-error">⚠️ {error}</div>
       )}
 
-      {!error && assignedProtocols.length === 0 && (
-        <div className="empty-state">
-          <h2>No active protocols yet.</h2>
-          <p>Take the assessment and pick the areas you want to work on. I'll assign you protocols and we'll start building from there.</p>
-          <button className="primary-btn" onClick={onRetakeQuiz}>
-            Take the assessment
+      {/* Active protocol focus card — single, deep, no other distractions */}
+      {activeProtocol && (
+        <div className="active-protocol-card">
+          <div className="active-protocol-header">
+            <span className="category-icon">{category?.icon || '🎯'}</span>
+            <div>
+              <span className="active-label">This Week</span>
+              <h2>{activeProtocol.content.theme || activeProtocol.protocol_key.replace(/_/g, ' ').toLowerCase()}</h2>
+              <p className="active-meta">
+                Week {activeProtocol.current_week} of {TARGET_WEEKS_PER_PROTOCOL} · {category?.name || activeProtocol.category}
+              </p>
+            </div>
+          </div>
+
+          {/* Weekly progress bar */}
+          <div className="progress-block">
+            <div className="progress-label">
+              <span>This Week</span>
+              <span className="progress-value">
+                {weeklyProgress.hasCheckin
+                  ? `${weeklyProgress.days} of ${weeklyProgress.target} days`
+                  : 'Check in at end of week'}
+              </span>
+            </div>
+            <div className="progress-track">
+              <div
+                className="progress-fill weekly"
+                style={{ width: `${weeklyProgress.pct}%` }}
+              />
+            </div>
+          </div>
+
+          {/* This week's instruction */}
+          <div className="this-week-block">
+            <h4>What to do this week</h4>
+            <p className="this-week-text">{activeProtocol.content.this_week}</p>
+            <ul className="weekly-tasks">
+              {(activeProtocol.content.daily_micro_wins || []).map((task, idx) => (
+                <li key={idx}>
+                  <span className="task-num">{idx + 1}.</span> {task}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <button
+            className="checkin-btn"
+            onClick={() => setActiveCheckin(activeProtocol)}
+          >
+            {isGraduating ? 'Final Check-in →' : 'Weekly Check-in →'}
           </button>
+
+          {isGraduating && (
+            <p className="graduation-note">
+              You've completed your target weeks for this protocol. Check in
+              and we'll celebrate the win — then you can pick what to work on next.
+            </p>
+          )}
         </div>
       )}
 
-      {assignedProtocols.length > 0 && (
-        <>
-          <div className="dashboard-intro">
-            <p>
-              Here's what we're working on right now. Each protocol has a specific focus this week. When you're ready to check in, click the button at the bottom of the card. No judgment — just tell me what actually happened.
-            </p>
-          </div>
+      {/* Overall progress — softer, lower in the hierarchy */}
+      <div className="overall-progress-card">
+        <div className="progress-label">
+          <span>Overall Plan Progress</span>
+          <span className="progress-value">
+            {overallProgress.completed} of {overallProgress.total} weeks
+          </span>
+        </div>
+        <div className="progress-track">
+          <div
+            className="progress-fill overall"
+            style={{ width: `${overallProgress.pct}%` }}
+          />
+        </div>
+        <p className="progress-detail">
+          You're working on {allProtocols.filter(p => p.status === 'active').length} protocol
+          {allProtocols.filter(p => p.status === 'active').length === 1 ? '' : 's'}
+          {allProtocols.filter(p => p.status === 'graduated').length > 0
+            ? ` · ${allProtocols.filter(p => p.status === 'graduated').length} graduated`
+            : ''}.
+        </p>
+      </div>
 
-          <div className="protocols-list">
-            {assignedProtocols.map((p) => {
-              const category = PHASE2_CATEGORIES.find(c => c.id === p.category)
-              return (
-                <div key={p.id} className="dashboard-protocol-card">
-                  <div className="protocol-card-header">
-                    <span className="category-icon">{category?.icon || '🎯'}</span>
-                    <div>
-                      <h3>{(p.content.theme) || p.protocol_key.replace(/_/g, ' ').toLowerCase()}</h3>
-                      <p className="protocol-meta">
-                        Week {p.current_week} · {category?.name || p.category}
-                        {p.difficulty_tier === 'reduced' && <span className="tier-tag">scaled back</span>}
-                        {p.difficulty_tier === 'advanced' && <span className="tier-tag advanced">advanced</span>}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="this-week">
-                    <p className="this-week-label">This week:</p>
-                    <p className="this-week-text">{p.content.this_week}</p>
-                  </div>
-
-                  <div className="daily-actions">
-                    <p className="actions-label">Daily micro-wins:</p>
-                    <ul>
-                      {(p.content.daily_micro_wins || []).map((action, idx) => (
-                        <li key={idx}>{action}</li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <button
-                    className="checkin-btn"
-                    onClick={() => setActiveCheckin(p)}
-                  >
-                    Weekly Check-in →
-                  </button>
-                </div>
-              )
-            })}
-          </div>
-
-          <div className="dashboard-footer">
-            <button className="secondary-btn" onClick={onRetakeQuiz}>
-              Retake Assessment
-            </button>
-            <button className="text-btn" onClick={onLogout}>
-              Sign out
-            </button>
-          </div>
-        </>
-      )}
+      <div className="dashboard-footer">
+        <button className="secondary-btn" onClick={onRetakeQuiz}>
+          Retake Assessment
+        </button>
+        <button className="text-btn" onClick={onLogout}>
+          Sign out
+        </button>
+      </div>
     </div>
   )
 }

@@ -115,6 +115,172 @@
   margin: 0;
 }
 
+/* New: single-active-protocol focus card */
+.active-protocol-card {
+  background: white;
+  border: 2px solid #0D9488;
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 20px rgba(13, 148, 136, 0.10);
+}
+
+.active-protocol-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.active-protocol-header .category-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.active-label {
+  display: inline-block;
+  padding: 3px 8px;
+  background: #f0fdfa;
+  color: #0D9488;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 4px;
+}
+
+.active-protocol-header h2 {
+  margin: 4px 0;
+  font-size: 22px;
+  color: #2d3748;
+  text-transform: capitalize;
+  line-height: 1.25;
+}
+
+.active-meta {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.this-week-block {
+  margin: 20px 0;
+}
+
+.this-week-block h4 {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #0D9488;
+}
+
+.this-week-block .this-week-text {
+  margin: 0 0 14px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #2d3748;
+}
+
+.weekly-tasks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.weekly-tasks li {
+  background: #f8f7f3;
+  border-left: 3px solid #0D9488;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #2d3748;
+}
+
+.task-num {
+  font-weight: 700;
+  color: #0D9488;
+  margin-right: 4px;
+}
+
+.graduation-note {
+  margin: 12px 0 0;
+  padding: 10px 14px;
+  background: #ecfdf5;
+  border-left: 3px solid #10B981;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #065f46;
+  line-height: 1.5;
+}
+
+/* Progress bars */
+.progress-block,
+.overall-progress-card {
+  margin: 14px 0;
+}
+
+.overall-progress-card {
+  background: #f9fafb;
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-bottom: 20px;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.progress-label > span:first-child {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #4b5563;
+}
+
+.progress-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0D9488;
+}
+
+.progress-track {
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease-out;
+}
+
+.progress-fill.weekly {
+  background: linear-gradient(90deg, #0D9488 0%, #10B981 100%);
+}
+
+.progress-fill.overall {
+  background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+}
+
+.progress-detail {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #6b7280;
+}
+
 .protocols-list {
   display: flex;
   flex-direction: column;
