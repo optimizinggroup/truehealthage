@@ -147,13 +147,35 @@ function renderWelcomeEmail(opts: {
             actually stands — and that's the hard part.
           </p>
           <p style="font-size: 16px; line-height: 1.6;">
-            Here's what happens next: I'll send you a check-in in a few days with one small
-            action you can take this week. One. Not a list. We're going to build this slowly
-            on purpose — small wins compound, big plans collapse.
+            Here's what happens next: I'll send you a check-in at the end of your first week
+            with one small action — based on whichever area you chose to start with.
+            One. Not a list. Small wins compound, big plans collapse.
           </p>
           <p style="font-size: 16px; line-height: 1.6;">
             If you have questions, just reply to this email. It comes to me directly.
           </p>
+
+          <!-- Newsletter soft mention - users not opted-in already get this -->
+          <table width="100%" cellpadding="0" cellspacing="0" style="margin: 28px 0 8px; background: #f0fdfa; border-left: 3px solid #0D9488; border-radius: 6px;">
+            <tr><td style="padding: 14px 16px;">
+              <p style="margin: 0 0 8px; font-size: 14px; font-weight: 600; color: #0D9488;">
+                Want longevity content between check-ins?
+              </p>
+              <p style="margin: 0 0 10px; font-size: 14px; line-height: 1.55; color: #2d3748;">
+                I send the <strong>TrueHealth Protocols</strong> newsletter once or twice a week — the science behind what you're working on, in plain language. And later this year, the podcast launches under the same name.
+              </p>
+              <a href="https://truehealthprotocols.beehiiv.com/subscribe?utm_source=welcome_email&utm_medium=email&utm_campaign=onboarding"
+                 style="display: inline-block; padding: 8px 14px; background: #0D9488; color: white; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: 600;">
+                Subscribe — it's free
+              </a>
+            </td></tr>
+          </table>
+
+          <!-- Feedback prompt - powers podcast research pipeline -->
+          <p style="font-size: 14px; color: #4b5563; line-height: 1.55; margin: 20px 0 8px;">
+            <em>One question for you:</em> what topic are you hoping I cover most? Reply with one word — sleep, stress, nutrition, energy, anything. It helps me write what you actually need.
+          </p>
+
           <p style="font-size: 16px; line-height: 1.6; margin-top: 32px;">
             Talk soon,<br/>
             <strong>Coach K</strong>

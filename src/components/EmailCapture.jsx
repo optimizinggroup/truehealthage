@@ -7,9 +7,10 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Self-contained pipeline: signUp → insert users → insert quiz_results → invoke
-// Edge Function for welcome email. No Make. The Edge Function holds the Resend
-// API key and sends from truehealthage.com once the domain is verified in Resend.
+// Edge Function for welcome email + (optional) newsletter subscribe.
+// No Make. Edge Functions hold the Resend + Beehiiv keys.
 const WELCOME_EMAIL_FUNCTION = `${supabaseUrl}/functions/v1/send-welcome-email`
+const SUBSCRIBE_NEWSLETTER_FUNCTION = `${supabaseUrl}/functions/v1/subscribe-newsletter`
 
 const isDevSkipEnabled = import.meta.env.DEV
 
@@ -21,6 +22,7 @@ export default function EmailCapture({
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [subscribeNewsletter, setSubscribeNewsletter] = useState(true) // opt-out style
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
@@ -134,6 +136,28 @@ export default function EmailCapture({
         })
       }
 
+      // 5. (Optional) Subscribe to TrueHealth Protocols newsletter via Beehiiv.
+      // Non-blocking; if this fails the user still gets through signup.
+      if (subscribeNewsletter && session?.access_token) {
+        fetch(SUBSCRIBE_NEWSLETTER_FUNCTION, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+            'apikey': supabaseAnonKey,
+          },
+          body: JSON.stringify({
+            email,
+            user_id: user.id,
+            utm_source: 'truehealthage_app',
+            utm_medium: 'web',
+            utm_campaign: 'signup_optin',
+          }),
+        }).catch((err) => {
+          console.warn('Newsletter subscribe request failed (non-fatal):', err)
+        })
+      }
+
       onComplete(email)
     } catch (err) {
       console.error('Error:', err)
@@ -186,6 +210,18 @@ export default function EmailCapture({
             disabled={loading}
             required
           />
+
+          <label className="newsletter-optin">
+            <input
+              type="checkbox"
+              checked={subscribeNewsletter}
+              onChange={(e) => setSubscribeNewsletter(e.target.checked)}
+              disabled={loading}
+            />
+            <span>
+              <strong>Send me Coach K's newsletter</strong> — practical longevity coaching, 1-2x per week. You can unsubscribe anytime.
+            </span>
+          </label>
 
           {error && <div className="error-message">{error}</div>}
 

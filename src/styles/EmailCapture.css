@@ -9,6 +9,35 @@
   min-height: 60vh;
 }
 
+.newsletter-optin {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 4px 0 14px;
+  padding: 12px 14px;
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #2d3748;
+  cursor: pointer;
+}
+
+.newsletter-optin input[type="checkbox"] {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  accent-color: #0D9488;
+  cursor: pointer;
+}
+
+.newsletter-optin strong {
+  color: #0D9488;
+  font-weight: 600;
+}
+
 .email-capture-card {
   background: white;
   padding: 40px;
