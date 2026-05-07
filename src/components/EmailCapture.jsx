@@ -1,11 +1,17 @@
 import { useState } from 'react'
-import axios from 'axios'
 import { createClient } from '@supabase/supabase-js'
 import '../styles/EmailCapture.css'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+// Self-contained pipeline: signUp → insert users → insert quiz_results → invoke
+// Edge Function for welcome email. No Make. The Edge Function holds the Resend
+// API key and sends from truehealthage.com once the domain is verified in Resend.
+const WELCOME_EMAIL_FUNCTION = `${supabaseUrl}/functions/v1/send-welcome-email`
+
+const isDevSkipEnabled = import.meta.env.DEV
 
 export default function EmailCapture({
   phase1Results,
@@ -44,15 +50,11 @@ export default function EmailCapture({
         return
       }
 
-      // Create Supabase account
-      const { data: { user }, error: authError } = await supabase.auth.signUp({
-        email: email,
-        password: password,
-        options: {
-          data: {
-            full_name: fullName,
-          }
-        }
+      // 1. Create Supabase auth account
+      const { data: { user, session }, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { full_name: fullName } }
       })
 
       if (authError) {
@@ -60,39 +62,76 @@ export default function EmailCapture({
         setLoading(false)
         return
       }
-
       if (!user) {
         setError('Failed to create account')
         setLoading(false)
         return
       }
 
-      // Send results to Make webhook with user info
-      const payload = {
-        name: fullName,
-        email: email,
-        user_id: user.id,
-        chrono_age: phase1Results.chronoAge,
-        true_health_age: phase1Results.trueHealthAge,
-        age_diff: phase1Results.ageDiff,
-        grade: phase1Results.grade,
-        result_label: phase1Results.label,
-        top_3_aging: phase1Results.top3Aging,
-        top_3_protecting: phase1Results.top3Protecting,
-        phase2_selected: !!phase2Results,
-        ...(phase2Results && {
-          area_scores: phase2Results.areaScores,
-          recommendations: phase2Results.recommendations,
-        }),
-        utm_source: new URLSearchParams(window.location.search).get('utm_source') || null,
-        utm_medium: new URLSearchParams(window.location.search).get('utm_medium') || null,
-        utm_campaign: new URLSearchParams(window.location.search).get('utm_campaign') || null,
+      const params = new URLSearchParams(window.location.search)
+      const utm = {
+        utm_source: params.get('utm_source'),
+        utm_medium: params.get('utm_medium'),
+        utm_campaign: params.get('utm_campaign'),
       }
 
-      // Call Make webhook
-      const webhookUrl = import.meta.env.VITE_MAKE_WEBHOOK_PHASE1
-      if (webhookUrl) {
-        await axios.post(webhookUrl, payload)
+      // 2. Insert into public.users — RLS policy users_insert_self matches on
+      // auth.uid() = id. Upsert because the user may retake the quiz later.
+      const { error: usersError } = await supabase
+        .from('users')
+        .upsert({
+          id: user.id,
+          email: user.email,
+          name: fullName,
+          provider: 'email',
+          opted_in: true,
+          ...utm,
+        }, { onConflict: 'id' })
+
+      if (usersError) {
+        console.error('users insert failed:', usersError)
+      }
+
+      // 3. Insert quiz_results row (one row per completion — retakes add rows)
+      const { data: quizRow, error: quizError } = await supabase
+        .from('quiz_results')
+        .insert({
+          user_id: user.id,
+          chrono_age: phase1Results.chronoAge,
+          true_health_age: phase1Results.trueHealthAge,
+          age_diff: phase1Results.ageDiff,
+          grade: phase1Results.grade,
+          result_label: phase1Results.label,
+          answers: phase1Results.answers || {},
+          top_3_aging: phase1Results.top3Aging || null,
+          top_3_protecting: phase1Results.top3Protecting || null,
+          device_type: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+          user_agent: navigator.userAgent,
+        })
+        .select()
+        .single()
+
+      if (quizError) {
+        console.error('quiz_results insert failed:', quizError)
+      }
+
+      // 4. Fire welcome email (server-side via Edge Function; non-blocking).
+      // Failures here must NOT block the user — we still show their results.
+      if (session?.access_token) {
+        fetch(WELCOME_EMAIL_FUNCTION, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+            'apikey': supabaseAnonKey,
+          },
+          body: JSON.stringify({
+            user_id: user.id,
+            result_id: quizRow?.id || null,
+          }),
+        }).catch((err) => {
+          console.warn('Welcome email request failed (non-fatal):', err)
+        })
       }
 
       onComplete(email)
@@ -158,26 +197,27 @@ export default function EmailCapture({
             {loading ? 'Creating Account...' : 'See My Health Age'}
           </button>
 
-          <button
-            type="button"
-            onClick={() => onComplete('test@example.com')}
-            className="skip-btn"
-            style={{
-              width: '100%',
-              padding: '12px',
-              marginTop: '12px',
-              background: '#f5f5f5',
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              fontSize: '1rem',
-              cursor: 'pointer',
-              color: '#666',
-              fontWeight: '500',
-              transition: 'all 0.2s'
-            }}
-          >
-            Skip for Now (Testing)
-          </button>
+          {isDevSkipEnabled && (
+            <button
+              type="button"
+              onClick={() => onComplete('test@example.com')}
+              className="skip-btn"
+              style={{
+                width: '100%',
+                padding: '12px',
+                marginTop: '12px',
+                background: '#f5f5f5',
+                border: '1px solid #ddd',
+                borderRadius: '8px',
+                fontSize: '1rem',
+                cursor: 'pointer',
+                color: '#666',
+                fontWeight: '500'
+              }}
+            >
+              Skip for Now (Dev only)
+            </button>
+          )}
         </form>
 
         <p className="privacy-note">

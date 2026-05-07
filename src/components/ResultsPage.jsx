@@ -13,7 +13,8 @@ export default function ResultsPage({
   onPhase2Selection,
   onSkipPhase2,
   onRetakeQuiz,
-  onLogout
+  onLogout,
+  onContinueCoaching,
 }) {
   const [showShare, setShowShare] = useState(false)
 
@@ -230,6 +231,21 @@ export default function ResultsPage({
               grade={phase1Results.grade}
               resultId={resultId}
             />
+          )}
+
+          {onContinueCoaching && phase2Results && (
+            <button
+              className="retake-btn"
+              style={{
+                background: 'linear-gradient(135deg, #0D9488 0%, #10B981 100%)',
+                color: 'white',
+                marginRight: '12px',
+                fontWeight: 600,
+              }}
+              onClick={onContinueCoaching}
+            >
+              Open Your Coaching Dashboard →
+            </button>
           )}
 
           <button className="retake-btn" onClick={onRetakeQuiz}>

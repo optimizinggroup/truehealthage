@@ -1,6 +1,11 @@
 import { useState } from 'react'
-import axios from 'axios'
+import { createClient } from '@supabase/supabase-js'
 import '../styles/ShareComponent.css'
+
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+)
 
 export default function ShareComponent({ trueHealthAge, grade, resultId }) {
   const [shared, setShared] = useState({})
@@ -10,18 +15,16 @@ export default function ShareComponent({ trueHealthAge, grade, resultId }) {
 
   const handleShare = async (platform) => {
     try {
-      // Log share event
-      await axios.post(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/share_events`, {
+      // Log share event via Supabase JS client (uses session JWT for RLS)
+      const { data: { user } } = await supabase.auth.getUser()
+      const { error } = await supabase.from('share_events').insert({
+        user_id: user?.id || null,
         result_id: resultId,
-        platform: platform,
+        platform,
         true_health_age: trueHealthAge,
-        grade: grade,
-      }, {
-        headers: {
-          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-        }
+        grade,
       })
+      if (error) console.warn('share_event log failed:', error)
 
       setShared({ ...shared, [platform]: true })
 

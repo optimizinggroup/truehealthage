@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import axios from 'axios'
 import { calculatePhase1Results } from '../utils/quizLogic'
 import TrueHealthAgeLogo from '../assets/logos/truehealthage.png'
 import '../styles/Phase1Quiz.css'

@@ -8,14 +8,18 @@ import LoginComponent from './components/LoginComponent'
 import ForgotPasswordComponent from './components/ForgotPasswordComponent'
 import ResetPasswordComponent from './components/ResetPasswordComponent'
 import AppHeader from './components/AppHeader'
+import CoachIntro from './components/CoachIntro'
+import CoachDashboard from './components/CoachDashboard'
 import './App.css'
+
+const COACH_INTRO_SEEN_KEY = 'tha_coach_intro_seen_v1'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export default function App() {
-  const [currentPhase, setCurrentPhase] = useState('landing') // landing | login | forgot_password | reset_password | phase1 | phase1_results | phase2_gateway | phase2 | email_capture | results
+  const [currentPhase, setCurrentPhase] = useState('landing') // landing | coach_intro | login | forgot_password | reset_password | phase1 | phase1_results | phase2 | email_capture | results | coach_dashboard
   const [userEmail, setUserEmail] = useState(null)
   const [userId, setUserId] = useState(null)
   const [phase1Results, setPhase1Results] = useState(null)
@@ -71,20 +75,15 @@ export default function App() {
   }
 
   const handlePhase1ResultsComplete = () => {
-    setCurrentPhase('phase2_gateway')
+    setCurrentPhase('phase2')
   }
 
-  const handlePhase2GatewayComplete = (selectedAreas) => {
-    setSelectedAreas(selectedAreas)
-    if (selectedAreas.length > 0) {
-      setCurrentPhase('phase2')
-    } else {
-      setCurrentPhase('results')
-    }
-  }
-
-  const handlePhase2Complete = (results) => {
-    setPhase2Results(results.phase2Results)
+  // Phase2Selection self-orchestrates Gateway → Quiz → Results.
+  // It fires onComplete once at the very end with the full bundle.
+  // (User can also bail at the gateway with phase2Results=null.)
+  const handlePhase2Complete = (data) => {
+    setPhase2Results(data.phase2Results || null)
+    setSelectedAreas(data.selectedAreas || [])
     setCurrentPhase('results')
   }
 
@@ -99,9 +98,8 @@ export default function App() {
   const handleLoginSuccess = (email, userId) => {
     setUserEmail(email)
     setUserId(userId)
-    // TODO: Fetch previous results from database
-    // For now, redirect to new quiz
-    setCurrentPhase('phase1')
+    // Returning user goes to their coaching dashboard, not back to a new quiz
+    setCurrentPhase('coach_dashboard')
   }
 
   const handleLogout = () => {
@@ -138,18 +136,43 @@ export default function App() {
               <h2>Discover Your True Health Age</h2>
               <p>Take a personalized assessment to understand your biological age and get actionable health insights.</p>
               <div className="button-group">
-                <button
-                  className="primary-btn"
-                  onClick={() => setCurrentPhase('phase1')}
-                >
-                  Start New Assessment
-                </button>
-                <button
-                  className="secondary-btn"
-                  onClick={() => setCurrentPhase('login')}
-                >
-                  Sign In
-                </button>
+                {userEmail ? (
+                  <button
+                    className="primary-btn"
+                    onClick={() => setCurrentPhase('coach_dashboard')}
+                  >
+                    Continue Coaching →
+                  </button>
+                ) : (
+                  <button
+                    className="primary-btn"
+                    onClick={() => {
+                      const seen = typeof localStorage !== 'undefined' && localStorage.getItem(COACH_INTRO_SEEN_KEY)
+                      setCurrentPhase(seen ? 'phase1' : 'coach_intro')
+                    }}
+                  >
+                    Start New Assessment
+                  </button>
+                )}
+                {!userEmail && (
+                  <button
+                    className="secondary-btn"
+                    onClick={() => setCurrentPhase('login')}
+                  >
+                    Sign In
+                  </button>
+                )}
+                {userEmail && (
+                  <button
+                    className="secondary-btn"
+                    onClick={() => {
+                      const seen = typeof localStorage !== 'undefined' && localStorage.getItem(COACH_INTRO_SEEN_KEY)
+                      setCurrentPhase(seen ? 'phase1' : 'coach_intro')
+                    }}
+                  >
+                    Retake Assessment
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -172,6 +195,16 @@ export default function App() {
         {currentPhase === 'reset_password' && (
           <ResetPasswordComponent
             onResetSuccess={handleResetPasswordSuccess}
+          />
+        )}
+
+        {currentPhase === 'coach_intro' && (
+          <CoachIntro
+            onContinue={() => {
+              try { localStorage.setItem(COACH_INTRO_SEEN_KEY, '1') } catch (e) { /* private mode */ }
+              setCurrentPhase('phase1')
+            }}
+            onBack={() => setCurrentPhase('landing')}
           />
         )}
 
@@ -201,21 +234,10 @@ export default function App() {
           />
         )}
 
-        {currentPhase === 'phase2_gateway' && phase1Results && (
-          <Phase2Selection
-            phase1Results={phase1Results}
-            resultId={resultId}
-            showGateway={true}
-            onComplete={handlePhase2GatewayComplete}
-          />
-        )}
-
         {currentPhase === 'phase2' && phase1Results && (
           <Phase2Selection
             phase1Results={phase1Results}
             resultId={resultId}
-            selectedAreas={selectedAreas}
-            showGateway={false}
             onComplete={handlePhase2Complete}
           />
         )}
@@ -227,6 +249,16 @@ export default function App() {
             resultId={resultId}
             userEmail={userEmail}
             showPhase2Option={false}
+            onRetakeQuiz={handleRetakeQuiz}
+            onLogout={handleLogout}
+            onContinueCoaching={() => setCurrentPhase('coach_dashboard')}
+          />
+        )}
+
+        {currentPhase === 'coach_dashboard' && (
+          <CoachDashboard
+            userEmail={userEmail}
+            userName={userEmail}
             onRetakeQuiz={handleRetakeQuiz}
             onLogout={handleLogout}
           />

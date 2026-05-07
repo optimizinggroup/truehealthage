@@ -553,7 +553,14 @@ export const PHASE2_QUESTIONS = {
   ]
 }
 
-export const PROTOCOL_LIBRARY = {
+// Re-export the v2 coaching library so existing imports keep working.
+// The original 27 protocols below are kept as fallback for any trigger
+// not yet authored in the new library; the spread order means new entries
+// override old ones when keys collide.
+export { COACHING_PROTOCOLS } from './coachingProtocols.js'
+import { COACHING_PROTOCOLS as _COACHING_PROTOCOLS_V2 } from './coachingProtocols.js'
+
+const _LEGACY_PROTOCOL_LIBRARY = {
   // Energy & Fatigue Protocols
   ENERGY_DIP: {
     category: 'energy_fatigue',
@@ -999,6 +1006,13 @@ export const PROTOCOL_LIBRARY = {
     tracking_metric: 'Checklist completion %',
     review_days: 14
   }
+}
+
+// Merge: v2 coaching library overrides legacy entries when keys collide.
+// Triggers not yet authored in v2 fall back to the legacy protocol.
+export const PROTOCOL_LIBRARY = {
+  ..._LEGACY_PROTOCOL_LIBRARY,
+  ..._COACHING_PROTOCOLS_V2,
 }
 
 export const getScoreStatus = (score) => {

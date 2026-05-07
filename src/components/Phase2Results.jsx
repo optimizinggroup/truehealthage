@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { createClient } from '@supabase/supabase-js'
 import {
   PHASE2_CATEGORIES,
   PHASE2_QUESTIONS,
@@ -12,20 +13,24 @@ import ProtocolDetail from './ProtocolDetail'
 import '../styles/branding.css'
 import '../styles/Phase2Results.css'
 
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+)
+
 export default function Phase2Results({ phase1Results, phase2Data, selectedAreas, onComplete }) {
   const [expandedProtocol, setExpandedProtocol] = useState(null)
 
-  // Safety check - if data is missing, show loading/error
-  if (!phase2Data || !phase2Data.responses || !selectedAreas || selectedAreas.length === 0) {
-    return (
-      <div style={{ padding: '40px', textAlign: 'center', color: '#666' }}>
-        <p>Loading your results...</p>
-      </div>
-    )
-  }
+  const hasValidData = !!(phase2Data && phase2Data.responses && selectedAreas && selectedAreas.length > 0)
 
-  // Calculate category scores and generate protocols
+  // Calculate category scores and generate protocols.
+  // Hooks must run on every render in the same order, so we always call useMemo
+  // and short-circuit inside it when data is missing.
   const results = useMemo(() => {
+    if (!hasValidData) {
+      return { categoryScores: {}, rankedCategories: [], protocols: [], topRiskTags: [], escalationFlags: [] }
+    }
+
     const categoryScores = {}
     const allRiskTags = {}
     const triggeredProtocols = new Set()
@@ -35,17 +40,14 @@ export default function Phase2Results({ phase1Results, phase2Data, selectedAreas
       const categoryQuestions = PHASE2_QUESTIONS[categoryId] || []
       const responses = phase2Data.responses[categoryId] || {}
 
-      // Calculate score
       const score = calculateCategoryScore(responses, categoryQuestions)
       categoryScores[categoryId] = score
 
-      // Aggregate risk tags
       const riskTags = aggregateRiskTags(responses, categoryQuestions)
       riskTags.forEach(tag => {
         allRiskTags[tag] = (allRiskTags[tag] || 0) + 1
       })
 
-      // Collect triggered protocols
       Object.values(responses).forEach(response => {
         if (response.protocol_triggers) {
           response.protocol_triggers.forEach(trigger => {
@@ -54,14 +56,12 @@ export default function Phase2Results({ phase1Results, phase2Data, selectedAreas
         }
       })
 
-      // Check escalation flags
       const flags = checkEscalationFlags(responses, categoryQuestions)
       if (flags.length > 0) {
         escalationFlags = [...escalationFlags, ...flags.map(f => ({ categoryId, ...f }))]
       }
     })
 
-    // Rank categories by score (highest priority first)
     const rankedCategories = selectedAreas
       .map(categoryId => ({
         categoryId,
@@ -70,28 +70,34 @@ export default function Phase2Results({ phase1Results, phase2Data, selectedAreas
       }))
       .sort((a, b) => b.score - a.score)
 
-    // Get protocols for triggered triggers, ranked by impact
+    // Skip triggers without a protocol entry. Many trigger names referenced in
+    // questions (e.g. SLEEP_QUALITY, BALANCED_MEALS) are not yet authored in
+    // PROTOCOL_LIBRARY. Rather than crash, drop them and log so the gap is visible.
     const protocols = Array.from(triggeredProtocols)
       .map(triggerName => {
         const protocol = PROTOCOL_LIBRARY[triggerName]
+        if (!protocol) {
+          if (typeof console !== 'undefined') {
+            console.warn(`[Phase2Results] Missing PROTOCOL_LIBRARY entry: ${triggerName}`)
+          }
+          return null
+        }
         const categoryData = PHASE2_CATEGORIES.find(c => c.id === protocol.category)
         return {
           name: triggerName,
           ...protocol,
+          icon: categoryData?.icon,
           theme: categoryData?.protocol_theme || 'Daily Actions'
         }
       })
+      .filter(Boolean)
       .sort((a, b) => {
-        // Sort by category priority, then by impact
-        const aCategory = a.category
-        const bCategory = b.category
-        const aRank = rankedCategories.findIndex(c => c.categoryId === aCategory)
-        const bRank = rankedCategories.findIndex(c => c.categoryId === bCategory)
+        const aRank = rankedCategories.findIndex(c => c.categoryId === a.category)
+        const bRank = rankedCategories.findIndex(c => c.categoryId === b.category)
         return aRank - bRank
       })
-      .slice(0, 5) // Top 5 protocols
+      .slice(0, 5)
 
-    // Sort risk tags by frequency
     const topRiskTags = Object.entries(allRiskTags)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
@@ -104,10 +110,45 @@ export default function Phase2Results({ phase1Results, phase2Data, selectedAreas
       topRiskTags,
       escalationFlags
     }
-  }, [phase2Data, selectedAreas])
+  }, [phase2Data, selectedAreas, hasValidData])
 
-  // Handler for complete button - passes calculated results back to parent
-  const handleComplete = () => {
+  if (!hasValidData) {
+    return (
+      <div style={{ padding: '40px', textAlign: 'center', color: '#666' }}>
+        <p>Loading your results...</p>
+      </div>
+    )
+  }
+
+  // Handler for complete button — passes calculated results back to parent
+  // AND persists the user's top protocols to user_protocols so they show up
+  // on the Coach Dashboard. Failures here are non-fatal (we still let the
+  // user see their results) but we log so it's visible in dev.
+  const handleComplete = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user && results.protocols.length > 0) {
+        // Top 3 protocols become assigned. More than 3 overwhelms.
+        const top = results.protocols.slice(0, 3)
+        const rows = top.map((p) => ({
+          user_id: user.id,
+          protocol_key: p.name, // p.name is the trigger key (e.g. SLEEP_QUALITY)
+          category: p.category,
+          current_week: 1,
+          status: 'active',
+          difficulty_tier: 'standard',
+        }))
+        // Best-effort upsert; if a row already exists for (user, protocol_key, status='active')
+        // the unique constraint will reject duplicates and we continue.
+        const { error: upsertError } = await supabase.from('user_protocols').insert(rows)
+        if (upsertError && upsertError.code !== '23505') { // 23505 = unique violation, expected on retake
+          console.warn('user_protocols insert failed:', upsertError)
+        }
+      }
+    } catch (err) {
+      console.warn('protocol assignment skipped:', err)
+    }
+
     const resultData = {
       categoryScores: results.categoryScores,
       rankedCategories: results.rankedCategories,
@@ -116,7 +157,11 @@ export default function Phase2Results({ phase1Results, phase2Data, selectedAreas
       escalationFlags: results.escalationFlags,
       // Map to legacy format for compatibility with ResultsPage
       areaScores: results.categoryScores,
-      recommendations: results.protocols.map(p => `${p.icon} ${p.name}: ${p.description}`),
+      recommendations: results.protocols.map(p => {
+        const headline = p.theme || p.name
+        const firstAction = p.daily_micro_wins?.[0] || ''
+        return `${p.icon || ''} ${headline}${firstAction ? ': ' + firstAction : ''}`.trim()
+      }),
       priorityFactors: results.topRiskTags
     }
     onComplete(resultData)

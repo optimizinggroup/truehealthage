@@ -1,1 +1,49 @@
-.vercel
+# Build artifacts
+dist/
+build/
+
+# Dependencies
+node_modules/
+
+# Vercel
+.vercel/
+
+# Supabase CLI local
+.supabase/
+supabase/.branches/
+supabase/.temp/
+
+# Environment files (NEVER commit secrets)
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+deploy.log
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*.swo
+
+# iOS / Android (added when Capacitor lands)
+ios/App/Pods/
+ios/App/build/
+android/app/build/
+android/.gradle/
+android/build/
+android/captures/
+android/local.properties
+
+# Coverage / test
+coverage/
+*.lcov
