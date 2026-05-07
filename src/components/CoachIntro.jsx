@@ -37,6 +37,9 @@ export default function CoachIntro({ onContinue, onBack }) {
             On the medical side, I founded multiple companies that built FDA-cleared devices: balance and vestibular testing, autonomic nervous system testing (HRV), pain treatment, cognitive testing, hyperbaric chambers, supplement protocols. I've trained thousands of clinicians on how to use them.
           </p>
           <p>
+            I built this app by combining the best of <strong>modern AI</strong> with <strong>clinical science</strong> and my own coaching style — so the advice you get is grounded in evidence, but delivered in a way that actually moves you forward instead of making you feel worse.
+          </p>
+          <p>
             I'm not a doctor, and this app isn't medical advice. But what I've learned from 40 years on both sides of clinical practice and athletic coaching is what shapes every protocol you'll see here.
           </p>
         </>

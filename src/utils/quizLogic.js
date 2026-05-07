@@ -89,9 +89,25 @@ export function calculatePhase1Results(answers) {
     // Find if there's a single very bad question (>= 5 years)
     const veryBadQuestion = categoryFactors.find(f => f.years >= 5)
 
-    // Get "Why It Matters" for this category from the first question
-    const categoryQId = qIds.find(qId => qId > 2) // Get first non-baseline question
-    const categoryMetadata = QUESTION_METADATA[categoryQId]
+    // "Why It Matters" must come from the question actually driving the score —
+    // not the first question in the category. Otherwise a non-smoker who drinks
+    // heavily would see "smoking is the strongest predictor..." paired with
+    // alcohol-reduction steps, which is incoherent.
+    let primaryFactor = null
+    if (totalYears > 0) {
+      // Aging-direction: pick the worst contributor
+      primaryFactor = [...categoryFactors]
+        .filter(f => f.years > 0)
+        .sort((a, b) => b.years - a.years)[0]
+    } else if (totalYears < 0) {
+      // Protecting-direction: pick the most-protecting factor
+      primaryFactor = [...categoryFactors]
+        .filter(f => f.years < 0)
+        .sort((a, b) => a.years - b.years)[0]
+    }
+    // Fallback only when nothing contributed in either direction
+    const primaryQId = primaryFactor?.questionId ?? qIds.find(qId => qId > 2)
+    const categoryMetadata = QUESTION_METADATA[primaryQId]
     const whyItMatters = categoryMetadata?.whyItMatters || ''
 
     // Get improvement steps if there are concerns
