@@ -54,7 +54,31 @@
   font-size: 28px;
   font-weight: 700;
   color: #0D9488;
-  line-height: 1.2;
+  line-height: 1.25;
+}
+
+.coach-intro-list {
+  margin: 12px 0 16px;
+  padding-left: 22px;
+  list-style: none;
+  color: #2d3748;
+}
+
+.coach-intro-list li {
+  position: relative;
+  padding: 4px 0 4px 4px;
+  line-height: 1.55;
+}
+
+.coach-intro-list li::before {
+  content: '';
+  position: absolute;
+  left: -16px;
+  top: 14px;
+  width: 6px;
+  height: 6px;
+  background: #0D9488;
+  border-radius: 50%;
 }
 
 .coach-intro-body {

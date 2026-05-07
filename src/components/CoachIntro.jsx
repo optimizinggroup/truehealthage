@@ -14,65 +14,94 @@ export default function CoachIntro({ onContinue, onBack }) {
 
   const slides = [
     {
-      headline: "Hi, I'm Coach K.",
+      headline: (
+        <>
+          Living Longer Matters.<br />
+          Living Healthier Matters More.
+        </>
+      ),
       body: (
         <>
           <p>
-            I built TrueHealthAge because I was tired of watching people get either generic wellness advice that didn't apply to them — or clinical jargon that made them feel like a problem to be solved.
+            Most people don't just want to live longer. What most people really want is to <strong>stay healthy longer</strong>.
           </p>
           <p>
-            You deserve neither. You deserve a coach who understands where you are, knows the science, and gives you small things you can actually do.
+            They want more energy, clarity, strength, and independence.
+          </p>
+          <p>
+            TrueHealthAge helps you understand what may be accelerating your aging now — and what you can do to help you stay healthier longer.
+          </p>
+          <p>
+            <strong>No fear. No judgment.</strong> Just practical insights and small steps that can improve your future health.
           </p>
         </>
       ),
     },
     {
-      headline: "A bit about my background.",
+      headline: 'Why I Built This',
       body: (
         <>
           <p>
-            I've been coaching high school wrestlers for over <strong>40 years</strong> — that's where I learned how behavior change really works. It's not motivation. It's small wins, repeated.
+            I've spent over <strong>40 years</strong> coaching behavior change — first as a high school wrestling coach, and later working with clinicians and health innovators developing FDA-cleared technologies.
+          </p>
+          <p>My work has included:</p>
+          <ul className="coach-intro-list">
+            <li>HRV &amp; autonomic nervous system testing</li>
+            <li>Balance &amp; cognitive assessment</li>
+            <li>Pain treatment &amp; recovery optimization</li>
+            <li>Building supplement protocols based on health conditions</li>
+            <li>Health programs focused on long-term resilience and performance</li>
+          </ul>
+          <p>What I learned is this:</p>
+          <p>
+            Most people already know they should eat better, exercise more, and reduce stress. But <em>information alone rarely creates lasting change</em>.
           </p>
           <p>
-            On the medical side, I founded multiple companies that built FDA-cleared devices: balance and vestibular testing, autonomic nervous system testing (HRV), pain treatment, cognitive testing, hyperbaric chambers, supplement protocols. I've trained thousands of clinicians on how to use them.
+            Real progress comes from <strong>small wins that actually stick</strong>.
           </p>
           <p>
-            I built this app by combining the best of <strong>modern AI</strong> with <strong>clinical science</strong> and my own coaching style — so the advice you get is grounded in evidence, but delivered in a way that actually moves you forward instead of making you feel worse.
-          </p>
-          <p>
-            I'm not a doctor, and this app isn't medical advice. But what I've learned from 40 years on both sides of clinical practice and athletic coaching is what shapes every protocol you'll see here.
+            TrueHealthAge combines AI, clinical science, and decades of coaching experience into practical guidance designed to help you improve your health one step at a time.
           </p>
         </>
       ),
     },
     {
-      headline: "How this works.",
+      headline: 'How It Works',
       body: (
         <>
           <p>
-            <strong>First</strong> — you'll answer 20 questions. About 5 minutes. You'll get your True Health Age, plus the top factors aging you and protecting you.
+            <strong>Answer 20 questions.</strong> It takes about 5 minutes.
+          </p>
+          <p>You'll discover:</p>
+          <ul className="coach-intro-list">
+            <li>Your True Health Age</li>
+            <li>What may be aging you faster</li>
+            <li>What's helping protect your health</li>
+          </ul>
+          <p>
+            Then you'll get personalized guidance with simple, realistic actions you can actually follow.
           </p>
           <p>
-            <strong>Then</strong> — you can pick the areas you want to work on, and I'll give you protocols. Not a list of tips. Real coaching: one small action this week, a check-in next week, and we adjust based on how it went.
-          </p>
-          <p>
-            <strong>The whole thing only works if you're honest.</strong> No one sees your answers but you. Tell the truth — even the parts you'd rather not.
+            <strong>Be honest with your answers.</strong> The more accurate your input, the more valuable your results.
           </p>
         </>
       ),
     },
     {
-      headline: "One promise.",
+      headline: 'One Promise',
       body: (
         <>
           <p>
-            I'll never shame you for missing a week. I'll never pile on more rules when one is already too many. I'll never sell you a supplement you don't need.
+            I'll never shame you for where you are.
           </p>
           <p>
-            What I will do: meet you where you are, give you the smallest next step, and stick with you week after week until things start to click.
+            I'll help you focus on the next small step — not perfection.
+          </p>
+          <p>
+            Because lasting health isn't built in one day. It's built through <strong>consistent choices over time</strong>.
           </p>
           <p style={{ marginTop: '24px', fontWeight: '600' }}>
-            That's the work. Let's start.
+            Let's start improving your future health — together.
           </p>
         </>
       ),
