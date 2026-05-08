@@ -20,14 +20,22 @@ const supabase = createClient(
  * Stores per-task days in protocol_checkins.metadata (JSONB) so we can
  * surface "you nailed Task 2 but missed Task 1" content later.
  */
-export default function WeeklyCheckin({ userProtocol, onComplete, onCancel }) {
+export default function WeeklyCheckin({ userProtocol, tasksOverride, onComplete, onCancel }) {
   const [step, setStep] = useState('tasks') // tasks | response | saving | done
   const [taskDays, setTaskDays] = useState([null, null, null])
   const [userNote, setUserNote] = useState('')
   const [error, setError] = useState(null)
 
   const content = userProtocol.content
-  const tasks = (content.daily_micro_wins || []).slice(0, 3)
+  // Prefer the exact tasks the dashboard rendered for the user this week
+  // (which may be picked from the personalized 700-tip bank). Falls back to
+  // the protocol's static daily_micro_wins. Without this, the check-in
+  // shows the static tasks while the dashboard showed personalized ones —
+  // a mismatch the user notices immediately.
+  const tasks = ((tasksOverride && tasksOverride.length > 0)
+    ? tasksOverride
+    : (content.daily_micro_wins || [])
+  ).slice(0, 3)
   const taskCount = tasks.length || 1
 
   const allTasksAnswered = taskDays.slice(0, taskCount).every(d => d !== null)

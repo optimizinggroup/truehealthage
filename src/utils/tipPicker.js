@@ -127,23 +127,46 @@ export function pickTipsForUser(category, currentWeek = 1, profile = {}) {
 
   if (candidates.length === 0) return []
 
-  // Theme-diverse top 3: take the top-scoring tip, then walk down picking
-  // tips whose theme hasn't been used yet.
+  // Theme-diverse top 3: walk top-scoring candidates, accept only the first
+  // tip per theme. We REQUIRE three distinct themes — partial diversity is
+  // worse than the static daily_micro_wins which are deliberately curated
+  // for cross-domain coverage (e.g. water + protein + movement on the same
+  // week). If we can't get 3 distinct themes from the candidate pool,
+  // return empty so the dashboard falls back to static actions.
+  //
+  // The candidate pool already includes tips from weeks <= currentWeek
+  // (future tips were excluded earlier), so we naturally pull from
+  // multiple weeks looking for theme variety.
   const picked = []
   const usedThemes = new Set()
+  const usedCores = new Set()
   for (const { tip } of candidates) {
     if (picked.length >= 3) break
     if (usedThemes.has(tip.theme)) continue
+    // Bonus: also avoid same Core Component if possible — broader diversity
+    if (picked.length > 0 && usedCores.has(tip.core)) continue
     picked.push(tip)
     usedThemes.add(tip.theme)
+    usedCores.add(tip.core)
   }
-  // If theme-diversity left us with <3, backfill from highest-scoring remaining
+
+  // Second pass with relaxed core constraint: if we got <3 distinct themes,
+  // try again allowing same core (just different theme).
   if (picked.length < 3) {
+    const themesAlready = new Set(picked.map(p => p.theme))
     for (const { tip } of candidates) {
       if (picked.length >= 3) break
-      if (!picked.includes(tip)) picked.push(tip)
+      if (themesAlready.has(tip.theme)) continue
+      picked.push(tip)
+      themesAlready.add(tip.theme)
     }
   }
+
+  // If we still don't have 3 distinct THEMES (the candidate pool was
+  // theme-clustered), return empty. Caller falls back to static
+  // daily_micro_wins which guarantee thematic diversity by design.
+  if (picked.length < 3) return []
+
   return picked
 }
 

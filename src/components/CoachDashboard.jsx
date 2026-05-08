@@ -268,6 +268,7 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onAd
       {activeCheckin && (
         <WeeklyCheckin
           userProtocol={activeCheckin}
+          tasksOverride={displayTasks}
           onComplete={handleCheckinComplete}
           onCancel={() => setActiveCheckin(null)}
         />
