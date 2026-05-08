@@ -51,6 +51,60 @@ const THEME_RISK_MAP = {
   SOCIAL_ISOLATION:      ['connection', 'support', 'community'],
 }
 
+// Each weekly habit should hit a different LEVER:
+//   physical    → body movement (walk, stretch, lift, cardio, posture)
+//   nutrition   → food/drink (protein, fiber, water, sugar, meal timing)
+//   behavioral  → mental/emotional/sleep/connection/tracking
+// Coach K's rule: every week the user gets one of each. This is stronger
+// than "different themes" — three sleep tips can have three different
+// themes but they're all behavioral. Three water tips are all nutrition.
+// We classify each tip by keyword match on its text + theme + core.
+const MODE_KEYWORDS = {
+  physical: [
+    'walk', 'walking', 'step', 'cardio', 'aerobic', 'run', 'jog', 'sprint',
+    'hiit', 'interval', 'exercise', 'stretch', 'mobility', 'strength',
+    'lift', 'lifting', 'push-up', 'pushup', 'squat', 'plank', 'movement',
+    'stand', 'standing', 'sit-to-stand', 'posture', 'gym', 'sweat',
+    'yoga', 'pilates', 'bike', 'cycling', 'swim', 'hike', 'dance',
+    'workout', 'training', 'reps', 'set ', 'core ',
+  ],
+  nutrition: [
+    'protein', 'fiber', 'water', 'hydrat', 'drink ', 'eat', 'meal',
+    'snack', 'sugar', 'carb', 'vegetable', 'veg ', 'fruit', 'nut ',
+    ' fat ', 'breakfast', 'lunch', 'dinner', 'plate', 'sodium',
+    'caffeine', 'alcohol', 'calorie', 'mediterranean', 'diet ', 'omega',
+    'fish', 'whole grain', 'fermented', 'serving', 'oz ', 'food',
+    'glass of', 'cup of', 'bottle',
+  ],
+  behavioral: [
+    'stress', 'breath', 'meditat', 'mindful', 'journal', 'gratitude',
+    'reflect', 'sleep', 'bedtime', 'wind-down', 'wind down', 'recovery',
+    'rest ', 'boundary', 'screen', 'social', 'connection', 'community',
+    'support', 'mood', 'downshift', 'cognitive', 'brain', 'learning',
+    'read', 'reading', 'plan ', 'schedule', 'routine', 'tracking',
+    'log ', 'diary', 'photo', 'check-in', 'check in', 'reminder',
+    'goal', 'reflection', 'gratitude', 'circadian', 'light exposure',
+  ],
+}
+
+function classifyTipMode(tip) {
+  const text = [
+    tip.tip || '',
+    tip.theme || '',
+    tip.core || '',
+  ].join(' ').toLowerCase()
+  let best = 'unknown'
+  let bestHits = 0
+  for (const mode of ['physical', 'nutrition', 'behavioral']) {
+    let hits = 0
+    for (const kw of MODE_KEYWORDS[mode]) {
+      if (text.includes(kw)) hits++
+    }
+    if (hits > bestHits) { bestHits = hits; best = mode }
+  }
+  return best
+}
+
 // Themes / cores that match a risk tag — case-insensitive substring match
 function tipMatchesRiskTags(tip, riskTags) {
   if (!riskTags || riskTags.length === 0) return 0
@@ -127,45 +181,48 @@ export function pickTipsForUser(category, currentWeek = 1, profile = {}) {
 
   if (candidates.length === 0) return []
 
-  // Theme-diverse top 3: walk top-scoring candidates, accept only the first
-  // tip per theme. We REQUIRE three distinct themes — partial diversity is
-  // worse than the static daily_micro_wins which are deliberately curated
-  // for cross-domain coverage (e.g. water + protein + movement on the same
-  // week). If we can't get 3 distinct themes from the candidate pool,
-  // return empty so the dashboard falls back to static actions.
+  // Mode-diverse top 3: bucket candidates by lever (physical / nutrition /
+  // behavioral) and pick the highest-scoring tip from EACH bucket. This is
+  // Coach K's rule: every week should give the user one movement habit,
+  // one food/drink habit, and one mind/behavior habit.
   //
-  // The candidate pool already includes tips from weeks <= currentWeek
-  // (future tips were excluded earlier), so we naturally pull from
-  // multiple weeks looking for theme variety.
+  // If any bucket is empty (e.g. Energy & Fatigue early weeks where most
+  // tips are hydration-clustered), return [] so the dashboard falls back
+  // to the static daily_micro_wins. Static actions are authored per protocol
+  // and are the safety net for thin tip-bank coverage.
+  //
+  // Within a bucket we also try to avoid duplicate themes — picking the
+  // top-scoring tip whose theme isn't already used by another bucket's pick.
+  const byMode = { physical: [], nutrition: [], behavioral: [] }
+  for (const c of candidates) {
+    const mode = classifyTipMode(c.tip)
+    if (byMode[mode]) byMode[mode].push(c)
+  }
+  if (byMode.physical.length === 0
+      || byMode.nutrition.length === 0
+      || byMode.behavioral.length === 0) {
+    return []
+  }
+
   const picked = []
   const usedThemes = new Set()
-  const usedCores = new Set()
-  for (const { tip } of candidates) {
-    if (picked.length >= 3) break
-    if (usedThemes.has(tip.theme)) continue
-    // Bonus: also avoid same Core Component if possible — broader diversity
-    if (picked.length > 0 && usedCores.has(tip.core)) continue
-    picked.push(tip)
-    usedThemes.add(tip.theme)
-    usedCores.add(tip.core)
+  // Order: pick nutrition first (largest bucket usually), then physical,
+  // then behavioral. Within each, prefer a candidate whose theme hasn't
+  // been claimed yet by an earlier pick.
+  for (const mode of ['nutrition', 'physical', 'behavioral']) {
+    const bucket = byMode[mode]
+    let chosen = bucket.find(c => !usedThemes.has(c.tip.theme))
+    if (!chosen) chosen = bucket[0]
+    picked.push(chosen.tip)
+    usedThemes.add(chosen.tip.theme)
   }
 
-  // Second pass with relaxed core constraint: if we got <3 distinct themes,
-  // try again allowing same core (just different theme).
-  if (picked.length < 3) {
-    const themesAlready = new Set(picked.map(p => p.theme))
-    for (const { tip } of candidates) {
-      if (picked.length >= 3) break
-      if (themesAlready.has(tip.theme)) continue
-      picked.push(tip)
-      themesAlready.add(tip.theme)
-    }
-  }
-
-  // If we still don't have 3 distinct THEMES (the candidate pool was
-  // theme-clustered), return empty. Caller falls back to static
-  // daily_micro_wins which guarantee thematic diversity by design.
-  if (picked.length < 3) return []
+  // Restore the natural sort order (highest score first) for display
+  picked.sort((a, b) => {
+    const sa = candidates.find(c => c.tip === a)?.s ?? 0
+    const sb = candidates.find(c => c.tip === b)?.s ?? 0
+    return sb - sa
+  })
 
   return picked
 }
