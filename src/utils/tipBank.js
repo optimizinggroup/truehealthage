@@ -658,7 +658,7 @@ export const TIP_BANK = [
     framing: "I’m not asking for perfect. I’m asking for one honest rep today: Use boring breathing, not problem-solving.",
     tracking: "Nights completed / sleep quality 1–10",
     safety: "Escalate loud snoring, gasping, insomnia >3 weeks, severe daytime sleepiness, or drowsy driving.",
-    mode: "behavioral",
+    mode: "physical",
   },
   {
     category: "sleep_recovery",
@@ -691,7 +691,7 @@ export const TIP_BANK = [
     framing: "I’m not asking for perfect. I’m asking for one honest rep today: Ask a bed partner whether you snore, gasp, or pause breathing.",
     tracking: "Nights completed / sleep quality 1–10",
     safety: "Escalate loud snoring, gasping, insomnia >3 weeks, severe daytime sleepiness, or drowsy driving.",
-    mode: "behavioral",
+    mode: "physical",
   },
   {
     category: "sleep_recovery",
@@ -922,7 +922,7 @@ export const TIP_BANK = [
     framing: "I’m not asking for perfect. I’m asking for one honest rep today: Use 5 slow breaths before bed.",
     tracking: "Nights completed / sleep quality 1–10",
     safety: "Escalate loud snoring, gasping, insomnia >3 weeks, severe daytime sleepiness, or drowsy driving.",
-    mode: "behavioral",
+    mode: "physical",
   },
   {
     category: "sleep_recovery",
@@ -933,7 +933,7 @@ export const TIP_BANK = [
     framing: "I’m not asking for perfect. I’m asking for one honest rep today: Relax jaw and shoulders when you get into bed.",
     tracking: "Nights completed / sleep quality 1–10",
     safety: "Escalate loud snoring, gasping, insomnia >3 weeks, severe daytime sleepiness, or drowsy driving.",
-    mode: "behavioral",
+    mode: "physical",
   },
   {
     category: "sleep_recovery",
@@ -2011,7 +2011,7 @@ export const TIP_BANK = [
     framing: "I’m not asking for perfect. I’m asking for one honest rep today: Use 2 minutes of breathing before stress snacking.",
     tracking: "Food-log days / walks / weight trend",
     safety: "Escalate pregnancy, eating-disorder history, diabetes meds, rapid weight change, or BMI/medical concerns.",
-    mode: "nutrition",
+    mode: "physical",
   },
   {
     category: "weight_metabolism",
@@ -3023,7 +3023,7 @@ export const TIP_BANK = [
     framing: "I’m not asking for perfect. I’m asking for one honest rep today: Stop if breathlessness is out of proportion to effort.",
     tracking: "Minutes, steps, RPE, symptoms",
     safety: "Stop for chest pain, fainting, new severe shortness of breath, or neurologic symptoms.",
-    mode: "behavioral",
+    mode: "physical",
   },
   {
     category: "heart_fitness",
@@ -3331,7 +3331,7 @@ export const TIP_BANK = [
     framing: "I’m not asking for perfect. I’m asking for one honest rep today: Take 5 slow breaths before responding to stress.",
     tracking: "Stress 1–10 / recovery blocks / support action",
     safety: "Escalate self-harm thoughts, inability to function, severe depression/panic, or substance crisis.",
-    mode: "behavioral",
+    mode: "physical",
   },
   {
     category: "stress_mental",
@@ -3342,7 +3342,7 @@ export const TIP_BANK = [
     framing: "I’m not asking for perfect. I’m asking for one honest rep today: Do two physiological sighs.",
     tracking: "Stress 1–10 / recovery blocks / support action",
     safety: "Escalate self-harm thoughts, inability to function, severe depression/panic, or substance crisis.",
-    mode: "behavioral",
+    mode: "physical",
   },
   {
     category: "stress_mental",
@@ -3353,7 +3353,7 @@ export const TIP_BANK = [
     framing: "I’m not asking for perfect. I’m asking for one honest rep today: Relax jaw and shoulders three times today.",
     tracking: "Stress 1–10 / recovery blocks / support action",
     safety: "Escalate self-harm thoughts, inability to function, severe depression/panic, or substance crisis.",
-    mode: "behavioral",
+    mode: "physical",
   },
   {
     category: "stress_mental",
@@ -3364,7 +3364,7 @@ export const TIP_BANK = [
     framing: "I’m not asking for perfect. I’m asking for one honest rep today: Put both feet on the floor and name 5 things you see.",
     tracking: "Stress 1–10 / recovery blocks / support action",
     safety: "Escalate self-harm thoughts, inability to function, severe depression/panic, or substance crisis.",
-    mode: "behavioral",
+    mode: "physical",
   },
   {
     category: "stress_mental",
@@ -3375,7 +3375,7 @@ export const TIP_BANK = [
     framing: "I’m not asking for perfect. I’m asking for one honest rep today: Use a 2-minute breathing timer before bed.",
     tracking: "Stress 1–10 / recovery blocks / support action",
     safety: "Escalate self-harm thoughts, inability to function, severe depression/panic, or substance crisis.",
-    mode: "behavioral",
+    mode: "physical",
   },
   {
     category: "stress_mental",
@@ -4024,7 +4024,7 @@ export const TIP_BANK = [
     framing: "I’m not asking for perfect. I’m asking for one honest rep today: Do one transition breath between work and home.",
     tracking: "Stress 1–10 / recovery blocks / support action",
     safety: "Escalate self-harm thoughts, inability to function, severe depression/panic, or substance crisis.",
-    mode: "behavioral",
+    mode: "physical",
   },
   {
     category: "stress_mental",
@@ -4101,7 +4101,7 @@ export const TIP_BANK = [
     framing: "I’m not asking for perfect. I’m asking for one honest rep today: Try 4-second inhale, 6-second exhale for 2 minutes.",
     tracking: "Stress 1–10 / recovery blocks / support action",
     safety: "Escalate self-harm thoughts, inability to function, severe depression/panic, or substance crisis.",
-    mode: "behavioral",
+    mode: "physical",
   },
   {
     category: "stress_mental",
@@ -4112,7 +4112,7 @@ export const TIP_BANK = [
     framing: "I’m not asking for perfect. I’m asking for one honest rep today: Use box breathing for one stressful moment.",
     tracking: "Stress 1–10 / recovery blocks / support action",
     safety: "Escalate self-harm thoughts, inability to function, severe depression/panic, or substance crisis.",
-    mode: "behavioral",
+    mode: "physical",
   },
   {
     category: "stress_mental",
@@ -4123,7 +4123,7 @@ export const TIP_BANK = [
     framing: "I’m not asking for perfect. I’m asking for one honest rep today: Exhale longer than inhale before a difficult conversation.",
     tracking: "Stress 1–10 / recovery blocks / support action",
     safety: "Escalate self-harm thoughts, inability to function, severe depression/panic, or substance crisis.",
-    mode: "behavioral",
+    mode: "physical",
   },
   {
     category: "stress_mental",
@@ -4134,7 +4134,7 @@ export const TIP_BANK = [
     framing: "I’m not asking for perfect. I’m asking for one honest rep today: Pair breathing with walking if sitting still is hard.",
     tracking: "Stress 1–10 / recovery blocks / support action",
     safety: "Escalate self-harm thoughts, inability to function, severe depression/panic, or substance crisis.",
-    mode: "behavioral",
+    mode: "physical",
   },
   {
     category: "stress_mental",
@@ -4145,7 +4145,7 @@ export const TIP_BANK = [
     framing: "I’m not asking for perfect. I’m asking for one honest rep today: Stop if breathing practice makes panic worse and use grounding instead.",
     tracking: "Stress 1–10 / recovery blocks / support action",
     safety: "Escalate self-harm thoughts, inability to function, severe depression/panic, or substance crisis.",
-    mode: "behavioral",
+    mode: "physical",
   },
   {
     category: "stress_mental",
@@ -4321,7 +4321,7 @@ export const TIP_BANK = [
     framing: "I’m not asking for perfect. I’m asking for one honest rep today: Choose the smallest action for bad days: breathe, walk, eat, sleep.",
     tracking: "Stress 1–10 / recovery blocks / support action",
     safety: "Escalate self-harm thoughts, inability to function, severe depression/panic, or substance crisis.",
-    mode: "behavioral",
+    mode: "physical",
   },
   {
     category: "stress_mental",
@@ -5058,7 +5058,7 @@ export const TIP_BANK = [
     framing: "I’m not asking for perfect. I’m asking for one honest rep today: Practice 2 minutes of slow breathing.",
     tracking: "Energy 1–10 / sleep / meals / caffeine cutoff",
     safety: "Escalate severe fatigue, weight change, shortness of breath, chest pain, fainting, or persistent fatigue >3–4 weeks.",
-    mode: "behavioral",
+    mode: "physical",
   },
   {
     category: "energy_fatigue",
@@ -5355,7 +5355,7 @@ export const TIP_BANK = [
     framing: "I’m not asking for perfect. I’m asking for one honest rep today: Seek care for persistent fever, shortness of breath, chest pain, or worsening symptoms.",
     tracking: "Energy 1–10 / sleep / meals / caffeine cutoff",
     safety: "Escalate severe fatigue, weight change, shortness of breath, chest pain, fainting, or persistent fatigue >3–4 weeks.",
-    mode: "behavioral",
+    mode: "physical",
   },
   {
     category: "energy_fatigue",
@@ -6422,7 +6422,7 @@ export const TIP_BANK = [
     framing: "I’m not asking for perfect. I’m asking for one honest rep today: Walk or breathe before forcing focus when stressed.",
     tracking: "Focus block completed / distraction count",
     safety: "Escalate sudden confusion, weakness, speech/vision changes, head injury, or rapid cognitive change.",
-    mode: "behavioral",
+    mode: "physical",
   },
   {
     category: "brain_performance",

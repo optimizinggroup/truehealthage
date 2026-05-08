@@ -79,6 +79,123 @@ function tipMatchesRiskTags(tip, riskTags) {
   return hits
 }
 
+// Universal tips — habits that apply to ANY category. Coach K's principle:
+// every week should give the user one movement habit, one food/drink habit,
+// and one mind/behavior habit. Some category banks are mode-clustered
+// (Stress & Mental is 86 behavioral / 13 physical / 1 nutrition across all
+// weeks), so without universal fallbacks the picker would always fall back
+// to static daily_micro_wins for those categories. These universals are
+// only used when the category bank has no tip in a given mode.
+//
+// week: 1 makes them eligible from week 1 onward.
+const UNIVERSAL_PHYSICAL_TIPS = [
+  {
+    category: 'any',
+    week: 1,
+    theme: 'Walking',
+    core: 'Daily movement',
+    tip: 'Take a 10-minute walk today — after a meal, on a break, or just outside.',
+    framing: "I'm not asking for perfect. I'm asking for one honest rep today: a 10-minute walk.",
+    tracking: 'Days walked / minutes walked',
+    safety: 'Stop and rest if you feel chest pain, dizziness, or shortness of breath. Build up gradually if sedentary.',
+    mode: 'physical',
+  },
+  {
+    category: 'any',
+    week: 1,
+    theme: 'Breathing',
+    core: 'Nervous system regulation',
+    tip: 'Do 5 slow belly breaths — inhale through the nose for 4, exhale through the mouth for 6.',
+    framing: "I'm not asking for perfect. I'm asking for one honest rep today: 5 slow belly breaths.",
+    tracking: 'Times practiced today',
+    safety: 'If you feel lightheaded, return to normal breathing. Pause for medical conditions affecting breathing.',
+    mode: 'physical',
+  },
+  {
+    category: 'any',
+    week: 1,
+    theme: 'Stretching',
+    core: 'Mobility and tension release',
+    tip: 'Stretch your neck, shoulders, and hips for 5 minutes — wherever you are.',
+    framing: "I'm not asking for perfect. I'm asking for one honest rep today: 5 minutes of stretching.",
+    tracking: 'Days stretched',
+    safety: 'Stretch to comfortable tension, never to pain. Avoid bouncing and forcing range of motion.',
+    mode: 'physical',
+  },
+]
+
+const UNIVERSAL_NUTRITION_TIPS = [
+  {
+    category: 'any',
+    week: 1,
+    theme: 'Hydration',
+    core: 'Daily nutrition basics',
+    tip: 'Drink a glass of water 15 minutes before each meal — your gut and your appetite both benefit.',
+    framing: "I'm not asking for perfect. I'm asking for one honest rep today: water before every meal. Gut bacteria, satiety, and hydration all start there.",
+    tracking: 'Meals preceded by a glass of water',
+    safety: 'Adjust if you have a fluid-restriction medical condition.',
+    mode: 'nutrition',
+  },
+  {
+    category: 'any',
+    week: 1,
+    theme: 'Vegetables and fruit',
+    core: 'Plant intake',
+    tip: 'Add one fruit or vegetable to one meal today.',
+    framing: "I'm not asking for perfect. I'm asking for one honest rep today: one fruit or vegetable on the plate.",
+    tracking: 'Servings of produce',
+    safety: 'No safety concerns for typical adults.',
+    mode: 'nutrition',
+  },
+  {
+    category: 'any',
+    week: 1,
+    theme: 'Protein anchor',
+    core: 'Daily nutrition basics',
+    tip: 'Include a protein source — eggs, fish, poultry, beans, tofu, Greek yogurt — at one meal.',
+    framing: "I'm not asking for perfect. I'm asking for one honest rep today: protein in one meal.",
+    tracking: 'Meals with protein',
+    safety: 'Adapt for kidney disease or specific dietary needs as advised by your clinician.',
+    mode: 'nutrition',
+  },
+]
+
+const UNIVERSAL_BEHAVIORAL_TIPS = [
+  {
+    category: 'any',
+    week: 1,
+    theme: 'Sleep priority',
+    core: 'Recovery foundation',
+    tip: 'Pick a consistent bedtime tonight and aim to be in bed within 30 minutes of it.',
+    framing: "I'm not asking for perfect. I'm asking for one honest rep today: hit a bedtime within 30 minutes.",
+    tracking: 'Nights bedtime hit',
+    safety: 'See a clinician for chronic insomnia, loud snoring, or daytime sleepiness.',
+    mode: 'behavioral',
+  },
+  {
+    category: 'any',
+    week: 1,
+    theme: 'Gratitude reflection',
+    core: 'Mind regulation',
+    tip: 'Write down one thing you appreciated about today before bed.',
+    framing: "I'm not asking for perfect. I'm asking for one honest rep today: one line of gratitude.",
+    tracking: 'Days journaled',
+    safety: 'Pause if reflection becomes rumination — talk to a clinician if so.',
+    mode: 'behavioral',
+  },
+  {
+    category: 'any',
+    week: 1,
+    theme: 'Screen wind-down',
+    core: 'Evening routine',
+    tip: 'Put your phone down 30 minutes before bed tonight.',
+    framing: "I'm not asking for perfect. I'm asking for one honest rep today: 30 minutes phone-free before bed.",
+    tracking: 'Nights phone-free wind-down',
+    safety: 'Keep the phone reachable if you are on-call for emergencies.',
+    mode: 'behavioral',
+  },
+]
+
 function score(tip, currentWeek, profile) {
   let s = 0
   // Week alignment — exact match best, recent past acceptable, future skipped
@@ -128,43 +245,49 @@ function score(tip, currentWeek, profile) {
  * what's available — caller should fall back to static daily_micro_wins.
  */
 export function pickTipsForUser(category, currentWeek = 1, profile = {}) {
-  const candidates = TIP_BANK
-    .filter(t => t.category === category)
-    .map(t => ({ tip: t, s: score(t, currentWeek, profile) }))
-    .filter(x => x.s >= 0)
-    .sort((a, b) => b.s - a.s)
+  const scoreTip = (t) => ({ tip: t, s: score(t, currentWeek, profile) })
+  const sortByScore = (arr) => arr.filter(x => x.s >= 0).sort((a, b) => b.s - a.s)
 
-  if (candidates.length === 0) return []
+  // 1) Score the category-specific bank.
+  const categoryCandidates = sortByScore(
+    TIP_BANK.filter(t => t.category === category).map(scoreTip)
+  )
 
-  // Mode-diverse top 3: bucket candidates by lever (physical / nutrition /
-  // behavioral) and pick the highest-scoring tip from EACH bucket. This is
-  // Coach K's rule: every week should give the user one movement habit,
-  // one food/drink habit, and one mind/behavior habit.
-  //
-  // If any bucket is empty (e.g. Stress & Mental tips are nearly all
-  // behavioral, so the picker would have no physical or nutrition tip
-  // for that category), return [] so the dashboard falls back to the
-  // static daily_micro_wins. Static actions are authored per protocol
-  // and are the safety net for thin tip-bank coverage.
-  //
-  // Mode is read from tip.mode (baked in by scripts/classify_tips.mjs).
-  // Within a bucket we also try to avoid duplicate themes across picks.
+  // 2) Bucket category candidates by mode.
   const byMode = { physical: [], nutrition: [], behavioral: [] }
-  for (const c of candidates) {
-    const mode = c.tip.mode
-    if (byMode[mode]) byMode[mode].push(c)
+  for (const c of categoryCandidates) {
+    if (byMode[c.tip.mode]) byMode[c.tip.mode].push(c)
   }
+
+  // 3) For any mode the category bank can't cover, fall back to universal
+  // tips. Coach K's rule: every week needs one physical, one nutrition,
+  // one behavioral. Walking/breathing/stretching apply to ANY protocol;
+  // water/produce/protein and sleep/gratitude/screen wind-down are the
+  // same across categories. Universals only fire when category is empty
+  // — when the category has its own tips for that mode, those win.
+  if (byMode.physical.length === 0) {
+    byMode.physical = sortByScore(UNIVERSAL_PHYSICAL_TIPS.map(scoreTip))
+  }
+  if (byMode.nutrition.length === 0) {
+    byMode.nutrition = sortByScore(UNIVERSAL_NUTRITION_TIPS.map(scoreTip))
+  }
+  if (byMode.behavioral.length === 0) {
+    byMode.behavioral = sortByScore(UNIVERSAL_BEHAVIORAL_TIPS.map(scoreTip))
+  }
+
+  // 4) If even universals didn't fill a bucket (shouldn't happen — they're
+  // week:1 and survive any score), give up and let the caller fall back
+  // to the protocol's static daily_micro_wins.
   if (byMode.physical.length === 0
       || byMode.nutrition.length === 0
       || byMode.behavioral.length === 0) {
     return []
   }
 
+  // 5) Pick the top-scoring tip from each bucket, avoiding duplicate themes
+  // across buckets where possible.
   const picked = []
   const usedThemes = new Set()
-  // Order: pick nutrition first (largest bucket usually), then physical,
-  // then behavioral. Within each, prefer a candidate whose theme hasn't
-  // been claimed yet by an earlier pick.
   for (const mode of ['nutrition', 'physical', 'behavioral']) {
     const bucket = byMode[mode]
     let chosen = bucket.find(c => !usedThemes.has(c.tip.theme))
@@ -173,10 +296,12 @@ export function pickTipsForUser(category, currentWeek = 1, profile = {}) {
     usedThemes.add(chosen.tip.theme)
   }
 
-  // Restore the natural sort order (highest score first) for display
+  // Display order: highest-scoring first (matches the user's strongest
+  // signal — risk tag relevance, week alignment, etc.).
   picked.sort((a, b) => {
-    const sa = candidates.find(c => c.tip === a)?.s ?? 0
-    const sb = candidates.find(c => c.tip === b)?.s ?? 0
+    const all = [...categoryCandidates, ...byMode.physical, ...byMode.nutrition, ...byMode.behavioral]
+    const sa = all.find(c => c.tip === a)?.s ?? 0
+    const sb = all.find(c => c.tip === b)?.s ?? 0
     return sb - sa
   })
 

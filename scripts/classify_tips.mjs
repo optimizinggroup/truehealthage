@@ -86,6 +86,14 @@ const FORCE_PHYSICAL = [
   'brisk walk', 'walking break', 'stretch break', 'mobility break',
   'stand up', 'sit-to-stand', 'stairs ', 'climb stairs',
   'do squats', 'do push-ups', 'do pushups',
+  // Breathing engages the diaphragm + autonomic nervous system —
+  // it's a physical action, not "thinking about breathing."
+  'breath', 'breathing', 'breathe', 'physiological sigh',
+  'box breath', '4-7-8', 'slow breath', 'deep breath', 'exhale',
+  'inhale', 'long exhale',
+  // Body-grounding / somatic regulation
+  'relax jaw', 'unclench', 'shoulders down', 'feet on the floor',
+  'progressive muscle', 'pmr ', 'body scan', 'shake out',
 ]
 
 function classify(tip) {
