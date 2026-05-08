@@ -55,55 +55,10 @@ const THEME_RISK_MAP = {
 //   physical    → body movement (walk, stretch, lift, cardio, posture)
 //   nutrition   → food/drink (protein, fiber, water, sugar, meal timing)
 //   behavioral  → mental/emotional/sleep/connection/tracking
-// Coach K's rule: every week the user gets one of each. This is stronger
-// than "different themes" — three sleep tips can have three different
-// themes but they're all behavioral. Three water tips are all nutrition.
-// We classify each tip by keyword match on its text + theme + core.
-const MODE_KEYWORDS = {
-  physical: [
-    'walk', 'walking', 'step', 'cardio', 'aerobic', 'run', 'jog', 'sprint',
-    'hiit', 'interval', 'exercise', 'stretch', 'mobility', 'strength',
-    'lift', 'lifting', 'push-up', 'pushup', 'squat', 'plank', 'movement',
-    'stand', 'standing', 'sit-to-stand', 'posture', 'gym', 'sweat',
-    'yoga', 'pilates', 'bike', 'cycling', 'swim', 'hike', 'dance',
-    'workout', 'training', 'reps', 'set ', 'core ',
-  ],
-  nutrition: [
-    'protein', 'fiber', 'water', 'hydrat', 'drink ', 'eat', 'meal',
-    'snack', 'sugar', 'carb', 'vegetable', 'veg ', 'fruit', 'nut ',
-    ' fat ', 'breakfast', 'lunch', 'dinner', 'plate', 'sodium',
-    'caffeine', 'alcohol', 'calorie', 'mediterranean', 'diet ', 'omega',
-    'fish', 'whole grain', 'fermented', 'serving', 'oz ', 'food',
-    'glass of', 'cup of', 'bottle',
-  ],
-  behavioral: [
-    'stress', 'breath', 'meditat', 'mindful', 'journal', 'gratitude',
-    'reflect', 'sleep', 'bedtime', 'wind-down', 'wind down', 'recovery',
-    'rest ', 'boundary', 'screen', 'social', 'connection', 'community',
-    'support', 'mood', 'downshift', 'cognitive', 'brain', 'learning',
-    'read', 'reading', 'plan ', 'schedule', 'routine', 'tracking',
-    'log ', 'diary', 'photo', 'check-in', 'check in', 'reminder',
-    'goal', 'reflection', 'gratitude', 'circadian', 'light exposure',
-  ],
-}
-
-function classifyTipMode(tip) {
-  const text = [
-    tip.tip || '',
-    tip.theme || '',
-    tip.core || '',
-  ].join(' ').toLowerCase()
-  let best = 'unknown'
-  let bestHits = 0
-  for (const mode of ['physical', 'nutrition', 'behavioral']) {
-    let hits = 0
-    for (const kw of MODE_KEYWORDS[mode]) {
-      if (text.includes(kw)) hits++
-    }
-    if (hits > bestHits) { bestHits = hits; best = mode }
-  }
-  return best
-}
+// Coach K's rule: every week the user gets one of each. The mode is now
+// stored as an explicit field on every tip (see scripts/classify_tips.mjs)
+// — no runtime keyword guessing here. Hand-edit tipBank.js if a tip is
+// in the wrong bucket.
 
 // Themes / cores that match a risk tag — case-insensitive substring match
 function tipMatchesRiskTags(tip, riskTags) {
@@ -186,16 +141,17 @@ export function pickTipsForUser(category, currentWeek = 1, profile = {}) {
   // Coach K's rule: every week should give the user one movement habit,
   // one food/drink habit, and one mind/behavior habit.
   //
-  // If any bucket is empty (e.g. Energy & Fatigue early weeks where most
-  // tips are hydration-clustered), return [] so the dashboard falls back
-  // to the static daily_micro_wins. Static actions are authored per protocol
+  // If any bucket is empty (e.g. Stress & Mental tips are nearly all
+  // behavioral, so the picker would have no physical or nutrition tip
+  // for that category), return [] so the dashboard falls back to the
+  // static daily_micro_wins. Static actions are authored per protocol
   // and are the safety net for thin tip-bank coverage.
   //
-  // Within a bucket we also try to avoid duplicate themes — picking the
-  // top-scoring tip whose theme isn't already used by another bucket's pick.
+  // Mode is read from tip.mode (baked in by scripts/classify_tips.mjs).
+  // Within a bucket we also try to avoid duplicate themes across picks.
   const byMode = { physical: [], nutrition: [], behavioral: [] }
   for (const c of candidates) {
-    const mode = classifyTipMode(c.tip)
+    const mode = c.tip.mode
     if (byMode[mode]) byMode[mode].push(c)
   }
   if (byMode.physical.length === 0
