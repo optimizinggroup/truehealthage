@@ -111,7 +111,14 @@ export default function Phase2Results({ phase1Results, phase2Data, selectedAreas
       protocols,           // full list, used by PrioritySelection
       protocolsTop5,       // top-5 only, used by legacy ResultsPage display
       topRiskTags,
-      escalationFlags
+      // Full risk-tag list (not sliced) — used by tipPicker to personalize
+      // weekly actions on the dashboard. We keep topRiskTags too for the
+      // legacy "Priority Areas" display that only wants the top 5.
+      allRiskTags: Object.keys(allRiskTags),
+      escalationFlags,
+      // Phase 2 raw responses, needed for chronotype detection (sr_q4) and
+      // any future per-question signal extraction in tipPicker.
+      phase2Responses: phase2Data?.responses || {},
     }
   }, [phase2Data, selectedAreas, hasValidData])
 
@@ -145,6 +152,8 @@ export default function Phase2Results({ phase1Results, phase2Data, selectedAreas
             protocols: results.protocols,
             protocolsTop5: results.protocolsTop5,
             topRiskTags: results.topRiskTags,
+            allRiskTags: results.allRiskTags,
+            phase2Responses: results.phase2Responses,
             escalationFlags: results.escalationFlags,
             cachedAt: Date.now(),
           })

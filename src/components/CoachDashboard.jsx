@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { COACHING_PROTOCOLS } from '../utils/coachingProtocols.js'
 import { PHASE2_CATEGORIES } from '../utils/phase2Data'
+import { pickTipsForUser, buildProfileFromUser } from '../utils/tipPicker.js'
 import WeeklyCheckin from './WeeklyCheckin'
 import '../styles/CoachDashboard.css'
 
@@ -43,6 +44,12 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onAd
   // user_protocols.promoted_additions column is a v1.1 follow-up.
   const [promotedSet, setPromotedSet] = useState(new Set())
   const [showStretches, setShowStretches] = useState(false)
+  // Cached Phase 2 results (risk tags, raw responses, severity) used by the
+  // tip picker to personalize daily actions per user. Loaded from localStorage.
+  const [cachedPhase2, setCachedPhase2] = useState(null)
+  // Phase 1 answers from latest quiz_results — used for chronotype/fitness
+  // signals in the picker profile.
+  const [phase1Answers, setPhase1Answers] = useState(null)
   // Add-another-area inline expansion. Defaults closed; opens to show
   // the "master current first" coaching recommendation before letting
   // the user route to retake the assessment for a new area.
@@ -63,15 +70,26 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onAd
         return
       }
 
-      // Latest quiz result for the True Health Age display
+      // Latest quiz result for the True Health Age display + raw answers
+      // (used for chronotype/fitness signals in the tip picker profile)
       const { data: quizRow } = await supabase
         .from('quiz_results')
-        .select('true_health_age, chrono_age, age_diff, grade, result_label, created_at')
+        .select('true_health_age, chrono_age, age_diff, grade, result_label, answers, created_at')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle()
       setLatestQuiz(quizRow)
+      setPhase1Answers(quizRow?.answers || null)
+
+      // Pull cached Phase 2 results (risk tags, severity, raw responses) for
+      // the picker. Falls back gracefully if the cache is missing.
+      try {
+        const raw = typeof localStorage !== 'undefined'
+          ? localStorage.getItem(`tha_last_phase2_results_${user.id}`)
+          : null
+        setCachedPhase2(raw ? JSON.parse(raw) : null)
+      } catch (_) { setCachedPhase2(null) }
 
       // All assigned protocols (active + graduated) for overall progress
       const { data: rows, error: rowsError } = await supabase
@@ -220,6 +238,31 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onAd
 
   const isGraduating = activeProtocol && activeProtocol.current_week > TARGET_WEEKS_PER_PROTOCOL
 
+  // ── Personalized tip selection ─────────────────────────────────────────
+  // For the active protocol, build a profile from cached Phase 2 + latest
+  // Phase 1 answers, then ask the picker for 3 tips matching this user. If
+  // none qualify (sparse profile, no week match, etc.), fall back to the
+  // protocol's static daily_micro_wins.
+  const personalizedTasks = (() => {
+    if (!activeProtocol) return null
+    if (!cachedPhase2) return null
+    const promotedTipsArr = [...promotedSet] // not used for tip exclusion (different namespace)
+    const profile = buildProfileFromUser({
+      phase1Answers,
+      phase2Answers: cachedPhase2.phase2Responses,
+      rankedCategories: cachedPhase2.rankedCategories,
+      activeCategoryId: activeProtocol.category,
+      promotedTips: [], // tip-bank promotion is a v1.1 feature; static stretches use a separate set
+    })
+    const picks = pickTipsForUser(activeProtocol.category, activeProtocol.current_week, profile)
+    return picks.length >= 3 ? picks : null
+  })()
+
+  const displayTasks = personalizedTasks
+    ? personalizedTasks.map(p => p.tip)
+    : (activeProtocol?.content?.daily_micro_wins || [])
+  const tasksAreFromTipBank = !!personalizedTasks
+
   return (
     <div className="coach-dashboard">
       {activeCheckin && (
@@ -313,10 +356,17 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onAd
 
           {/* This week's instruction */}
           <div className="this-week-block">
-            <h4>What to do this week</h4>
+            <h4>
+              What to do this week
+              {tasksAreFromTipBank && (
+                <span className="personalized-badge" title="These actions are picked from the 700-tip library based on your profile">
+                  · personalized for you
+                </span>
+              )}
+            </h4>
             <p className="this-week-text">{activeProtocol.content.this_week}</p>
             <ul className="weekly-tasks">
-              {(activeProtocol.content.daily_micro_wins || []).map((task, idx) => (
+              {displayTasks.map((task, idx) => (
                 <li key={idx}>
                   <span className="task-num">{idx + 1}.</span> {task}
                 </li>
