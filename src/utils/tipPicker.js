@@ -206,6 +206,15 @@ function score(tip, currentWeek, profile) {
   else if (weekDiff <= 6) s += 2              // older but still in scope
   else s += 0                                 // way past — neutral
 
+  // Foundation boost — universal tips (walk/breath/stretch, water before
+  // meals, sleep priority/gratitude/wind-down) get a steady score lift so
+  // they keep appearing across the user's program week after week. They
+  // still lose to category-specific tips that have strong risk-tag
+  // relevance (which gives +4 per match), so personalization wins when
+  // it matters — but generic category tips no longer crowd out the
+  // foundation pillars Keith built into the program.
+  if (tip.category === 'any') s += 5
+
   // Risk-tag relevance (biggest personalization signal)
   s += tipMatchesRiskTags(tip, profile.riskTags) * 4
 
@@ -248,36 +257,26 @@ export function pickTipsForUser(category, currentWeek = 1, profile = {}) {
   const scoreTip = (t) => ({ tip: t, s: score(t, currentWeek, profile) })
   const sortByScore = (arr) => arr.filter(x => x.s >= 0).sort((a, b) => b.s - a.s)
 
-  // 1) Score the category-specific bank.
-  const categoryCandidates = sortByScore(
-    TIP_BANK.filter(t => t.category === category).map(scoreTip)
-  )
+  // Universals (category 'any') and category tips compete in the same pool.
+  // Universals carry a +5 foundation boost so they win against generic
+  // category tips, but lose to category tips with risk-tag matches —
+  // personalization beats foundation when the user has a strong signal,
+  // foundation prevails the rest of the time.
+  const allEligible = [
+    ...TIP_BANK.filter(t => t.category === category),
+    ...UNIVERSAL_PHYSICAL_TIPS,
+    ...UNIVERSAL_NUTRITION_TIPS,
+    ...UNIVERSAL_BEHAVIORAL_TIPS,
+  ]
+  const candidates = sortByScore(allEligible.map(scoreTip))
 
-  // 2) Bucket category candidates by mode.
   const byMode = { physical: [], nutrition: [], behavioral: [] }
-  for (const c of categoryCandidates) {
+  for (const c of candidates) {
     if (byMode[c.tip.mode]) byMode[c.tip.mode].push(c)
   }
 
-  // 3) For any mode the category bank can't cover, fall back to universal
-  // tips. Coach K's rule: every week needs one physical, one nutrition,
-  // one behavioral. Walking/breathing/stretching apply to ANY protocol;
-  // water/produce/protein and sleep/gratitude/screen wind-down are the
-  // same across categories. Universals only fire when category is empty
-  // — when the category has its own tips for that mode, those win.
-  if (byMode.physical.length === 0) {
-    byMode.physical = sortByScore(UNIVERSAL_PHYSICAL_TIPS.map(scoreTip))
-  }
-  if (byMode.nutrition.length === 0) {
-    byMode.nutrition = sortByScore(UNIVERSAL_NUTRITION_TIPS.map(scoreTip))
-  }
-  if (byMode.behavioral.length === 0) {
-    byMode.behavioral = sortByScore(UNIVERSAL_BEHAVIORAL_TIPS.map(scoreTip))
-  }
-
-  // 4) If even universals didn't fill a bucket (shouldn't happen — they're
-  // week:1 and survive any score), give up and let the caller fall back
-  // to the protocol's static daily_micro_wins.
+  // Should never happen now (universals are week:1, always score >= 0)
+  // but guard anyway so the caller can fall back if something goes wrong.
   if (byMode.physical.length === 0
       || byMode.nutrition.length === 0
       || byMode.behavioral.length === 0) {
@@ -299,13 +298,75 @@ export function pickTipsForUser(category, currentWeek = 1, profile = {}) {
   // Display order: highest-scoring first (matches the user's strongest
   // signal — risk tag relevance, week alignment, etc.).
   picked.sort((a, b) => {
-    const all = [...categoryCandidates, ...byMode.physical, ...byMode.nutrition, ...byMode.behavioral]
-    const sa = all.find(c => c.tip === a)?.s ?? 0
-    const sb = all.find(c => c.tip === b)?.s ?? 0
+    const sa = candidates.find(c => c.tip === a)?.s ?? 0
+    const sb = candidates.find(c => c.tip === b)?.s ?? 0
     return sb - sa
   })
 
   return picked
+}
+
+// Runtime mode classifier for plain task strings (used by the static
+// fallback path in the dashboard — those tasks are strings without a
+// baked-in mode field). Mirrors the logic in scripts/classify_tips.mjs
+// so behavior is consistent. Returns 'physical' | 'nutrition' | 'behavioral'.
+const RUNTIME_FORCE_BEHAVIORAL = [
+  'take a photo', 'photo of', 'log ', 'logging', 'tracking', 'track ',
+  'write down', 'journal', 'diary', 'review your', 'rate your', 'rating',
+  'mindful eating', 'plan your', 'schedule ', 'reflect',
+  'outside for', 'sunlight', 'morning light', 'no screens', 'screen-free',
+  'phone-free',
+]
+const RUNTIME_FORCE_PHYSICAL = [
+  'walk', 'breath', 'stretch', 'mobility', 'sit-to-stand', 'stairs',
+  'push-up', 'pushup', 'squat', 'plank', 'yoga', 'pilates', 'cardio',
+  'run ', 'jog', 'cycling', 'swim', 'hike', 'physiological sigh',
+  'box breath', 'slow breath', 'deep breath',
+]
+const RUNTIME_FORCE_NUTRITION = [
+  'protein', 'fiber', 'water', 'hydrat', 'drink ', 'eat ', 'meal',
+  'snack', 'sugar', 'carb', 'vegetable', 'fruit', 'breakfast', 'lunch',
+  'dinner', 'plate', 'sodium', 'caffeine', 'alcohol', 'calorie',
+  'serving',
+]
+
+export function classifyTaskString(taskText) {
+  const t = String(taskText || '').toLowerCase()
+  for (const p of RUNTIME_FORCE_BEHAVIORAL) if (t.includes(p)) return 'behavioral'
+  for (const p of RUNTIME_FORCE_PHYSICAL) if (t.includes(p)) return 'physical'
+  for (const p of RUNTIME_FORCE_NUTRITION) if (t.includes(p)) return 'nutrition'
+  return 'behavioral' // sensible default — most authored tasks are mind/habit prescriptions
+}
+
+/**
+ * balanceTasksByMode — enforce the 1-physical / 1-nutrition / 1-behavioral
+ * rule on a list of plain task strings. Used by the dashboard's static
+ * fallback path so the protocol's daily_micro_wins still follow Coach K's
+ * rule even when they were authored before the rule existed.
+ *
+ * Algorithm:
+ *  1. Classify each task into a mode.
+ *  2. Keep at most one task per mode (highest-priority order: physical,
+ *     nutrition, behavioral — matches what the picker returns).
+ *  3. For any missing mode, append the universal foundation tip.
+ *  4. Return up to 3 task strings.
+ */
+export function balanceTasksByMode(tasks) {
+  const byMode = { physical: null, nutrition: null, behavioral: null }
+  for (const t of (tasks || [])) {
+    const mode = classifyTaskString(t)
+    if (!byMode[mode]) byMode[mode] = t
+  }
+  const fallback = {
+    physical: UNIVERSAL_PHYSICAL_TIPS[0].tip,    // 10-minute walk
+    nutrition: UNIVERSAL_NUTRITION_TIPS[0].tip,  // water before meals
+    behavioral: UNIVERSAL_BEHAVIORAL_TIPS[0].tip, // bedtime anchor
+  }
+  return [
+    byMode.nutrition || fallback.nutrition,
+    byMode.physical || fallback.physical,
+    byMode.behavioral || fallback.behavioral,
+  ]
 }
 
 /**

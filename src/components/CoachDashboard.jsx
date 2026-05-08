@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { COACHING_PROTOCOLS } from '../utils/coachingProtocols.js'
 import { PHASE2_CATEGORIES } from '../utils/phase2Data'
-import { pickTipsForUser, buildProfileFromUser } from '../utils/tipPicker.js'
+import { pickTipsForUser, buildProfileFromUser, balanceTasksByMode } from '../utils/tipPicker.js'
 import WeeklyCheckin from './WeeklyCheckin'
 import '../styles/CoachDashboard.css'
 
@@ -238,29 +238,34 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onAd
 
   const isGraduating = activeProtocol && activeProtocol.current_week > TARGET_WEEKS_PER_PROTOCOL
 
-  // ── Personalized tip selection ─────────────────────────────────────────
-  // For the active protocol, build a profile from cached Phase 2 + latest
-  // Phase 1 answers, then ask the picker for 3 tips matching this user. If
-  // none qualify (sparse profile, no week match, etc.), fall back to the
-  // protocol's static daily_micro_wins.
+  // ── Weekly tip selection ───────────────────────────────────────────────
+  // Always run the picker — it handles missing-profile cases gracefully and
+  // returns 3 mode-diverse tips (1 physical / 1 nutrition / 1 behavioral)
+  // anchored on Coach K's foundation universals (walking/breathing, water
+  // before meals, sleep priority). Profile data, when present, biases
+  // category-specific tips up via risk-tag / chronotype / fitness signals.
+  //
+  // Static fallback (the protocol's daily_micro_wins) only fires if the
+  // picker returns nothing — and even then we run them through
+  // balanceTasksByMode to enforce the same 1-of-each rule.
   const personalizedTasks = (() => {
     if (!activeProtocol) return null
-    if (!cachedPhase2) return null
-    const promotedTipsArr = [...promotedSet] // not used for tip exclusion (different namespace)
-    const profile = buildProfileFromUser({
-      phase1Answers,
-      phase2Answers: cachedPhase2.phase2Responses,
-      rankedCategories: cachedPhase2.rankedCategories,
-      activeCategoryId: activeProtocol.category,
-      promotedTips: [], // tip-bank promotion is a v1.1 feature; static stretches use a separate set
-    })
+    const profile = cachedPhase2
+      ? buildProfileFromUser({
+          phase1Answers,
+          phase2Answers: cachedPhase2.phase2Responses,
+          rankedCategories: cachedPhase2.rankedCategories,
+          activeCategoryId: activeProtocol.category,
+          promotedTips: [],
+        })
+      : {}
     const picks = pickTipsForUser(activeProtocol.category, activeProtocol.current_week, profile)
     return picks.length >= 3 ? picks : null
   })()
 
   const displayTasks = personalizedTasks
     ? personalizedTasks.map(p => p.tip)
-    : (activeProtocol?.content?.daily_micro_wins || [])
+    : balanceTasksByMode(activeProtocol?.content?.daily_micro_wins || [])
   const tasksAreFromTipBank = !!personalizedTasks
 
   return (
