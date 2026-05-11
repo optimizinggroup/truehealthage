@@ -31,6 +31,7 @@ export const OPTIONAL_ADDONS = {
     ],
     supplements: [
       { name: "Collagen peptides", action: "Consider collagen peptides only after protein and SPF habits are consistent.", safety_note: "Allergies, kidney concerns, and product quality vary — discuss with your clinician.", tier: "Optional" },
+      { name: "Biotin (food-first)", action: "Eat eggs, salmon, nuts, seeds, and sweet potatoes — they cover most biotin needs without a pill. Supplementing can support hair, nails, and skin if intake is low.", safety_note: "High-dose biotin (>5,000 mcg) can interfere with thyroid, troponin, and other lab tests — tell your clinician before any blood work.", tier: "Optional" },
       { name: "Omega-3 (food first, then supplement)", action: "Eat fatty fish or chia/flax/walnut foods first. Supplement only if dietary intake is low and your clinician agrees.", safety_note: "Blood thinner caution — discuss with your clinician before supplementing.", tier: "Optional after food-first" },
       { name: "Vitamin D if labs are low", action: "Test before supplementing. Dose only with clinician guidance.", safety_note: "High-dose vitamin D can be harmful. Do not guess.", tier: "Test-first" },
       { name: "Topical retinoid discussion", action: "Discuss prescription or OTC retinoids with a dermatologist for fine lines and texture.", safety_note: "Avoid during pregnancy or trying to conceive unless cleared. Severe sensitivity, rosacea, or eczema flares need clinician input.", tier: "Discuss with clinician" },
@@ -211,20 +212,20 @@ export const OPTIONAL_ADDONS = {
       { name: "Magnesium", action: "May be discussed for sleep, muscle cramps, or constipation — clinician-reviewed.", safety_note: "Kidney disease and medication interactions need clinician input.", tier: "Discuss" },
       { name: "Omega-3 (food first)", action: "Eat fatty fish or omega-3 plant foods first; supplement only with clinician input.", safety_note: "Blood-thinner caution.", tier: "Optional after food-first" },
       { name: "Creatine monohydrate", action: "May support strength and muscle when paired with resistance training.", safety_note: "Kidney disease, complex medical issues, or pregnancy — clinician first.", tier: "Optional with strength" },
-      { name: "Ashwagandha (men / stress context)", action: "Mentioned for stress and sleep; evidence is limited for testosterone markers.", safety_note: "Avoid in pregnancy, breastfeeding, thyroid or autoimmune conditions, liver concerns, prostate cancer risk, or with medication conflicts unless cleared.", tier: "Discuss with clinician" },
-      { name: "Black cohosh (menopause context)", action: "Sometimes used for menopause symptoms; evidence and quality vary.", safety_note: "Liver-related safety concerns. Discuss with clinician before use.", tier: "Discuss with clinician" },
-      { name: "Soy isoflavones / phytoestrogens", action: "Diet-first; food sources are reasonable for most users.", safety_note: "Users with hormone-sensitive cancer history or medication concerns must discuss with a clinician.", tier: "Discuss with clinician" },
+      { name: "Ashwagandha", action: "Mentioned for stress and sleep; evidence is limited for testosterone markers.", safety_note: "Avoid in pregnancy, breastfeeding, thyroid or autoimmune conditions, liver concerns, prostate cancer risk, or with medication conflicts unless cleared.", tier: "Discuss with clinician", requires_sex: 'male' },
+      { name: "Black cohosh", action: "Sometimes used for menopause symptoms; evidence and quality vary.", safety_note: "Liver-related safety concerns. Discuss with clinician before use.", tier: "Discuss with clinician", requires_sex: 'female' },
+      { name: "Soy isoflavones / phytoestrogens", action: "Diet-first; food sources are reasonable for most users. Most relevant for menopause-symptom support.", safety_note: "Users with hormone-sensitive cancer history or medication concerns must discuss with a clinician.", tier: "Discuss with clinician", requires_sex: 'female' },
       { name: "DHEA / Pregnenolone", action: "Not casual supplements — these are steroid-hormone precursors.", safety_note: "Do not use without clinician supervision. Affect androgen and estrogen pathways.", tier: "Clinician only" },
       { name: "Avoid 'hormone booster' stacks", action: "Skip products with undisclosed ingredients, anabolic agents, or 'testosterone booster' claims.", safety_note: "Often unregulated. Many contain ingredients with real medication interactions.", tier: "Block" },
     ],
     therapies: [
       { name: "Pelvic floor physical therapy", tier: "Tier 2 — clinician-led", action: "For pelvic pain, urinary urgency, painful intimacy, or post-prostate symptoms — pelvic floor PT is often the missing piece.", safety_note: "Find a licensed pelvic floor PT; ask your clinician for a referral." },
-      { name: "Menopause-informed clinician visit", tier: "Tier 1 — foundational", action: "Hot flashes, night sweats, mood changes, brain fog, joint aches, urogenital discomfort, intimate function — a menopause-informed clinician knows the full toolkit.", safety_note: "The Menopause Society's directory of certified menopause practitioners is a good starting point." },
-      { name: "Urology / men's health visit", tier: "Tier 1 — foundational", action: "Urinary symptoms, prostate concerns, possible low testosterone, intimate-function changes — start with a urologist or men's health clinician.", safety_note: "Do not self-diagnose testosterone deficiency from symptoms alone." },
-      { name: "Vaginal moisturizers / lubricants", tier: "Tier 1 — over-the-counter", action: "Nonhormonal vaginal moisturizers or lubricants for urogenital comfort — first-line for many users.", safety_note: "Choose products without irritants. Persistent symptoms warrant clinician-guided options." },
-      { name: "Low-dose vaginal estrogen / vaginal DHEA / ospemifene", tier: "Tier 3 — clinician-guided", action: "Prescription options for persistent urogenital menopause symptoms. Discuss with a menopause-informed clinician.", safety_note: "Hormone-sensitive cancer history requires oncology + gynecology coordination." },
+      { name: "Menopause-informed clinician visit", tier: "Tier 1 — foundational", action: "Hot flashes, night sweats, mood changes, brain fog, joint aches, urogenital discomfort, intimate function — a menopause-informed clinician knows the full toolkit.", safety_note: "The Menopause Society's directory of certified menopause practitioners is a good starting point.", requires_sex: 'female' },
+      { name: "Urology / men's health visit", tier: "Tier 1 — foundational", action: "Urinary symptoms, prostate concerns, possible low testosterone, intimate-function changes — start with a urologist or men's health clinician.", safety_note: "Do not self-diagnose testosterone deficiency from symptoms alone.", requires_sex: 'male' },
+      { name: "Vaginal moisturizers / lubricants", tier: "Tier 1 — over-the-counter", action: "Nonhormonal vaginal moisturizers or lubricants for urogenital comfort — first-line for many users.", safety_note: "Choose products without irritants. Persistent symptoms warrant clinician-guided options.", requires_sex: 'female' },
+      { name: "Low-dose vaginal estrogen / vaginal DHEA / ospemifene", tier: "Tier 3 — clinician-guided", action: "Prescription options for persistent urogenital menopause symptoms. Discuss with a menopause-informed clinician.", safety_note: "Hormone-sensitive cancer history requires oncology + gynecology coordination.", requires_sex: 'female' },
       { name: "Hormone therapy (estrogen / progesterone / testosterone)", tier: "Tier 4 — clinician-managed prescription", action: "Individualized medical decision based on symptoms, life stage, risk profile, route, and monitoring.", safety_note: "Not an app recommendation. Educational only. Avoid compounded hormones without clinician explanation. Saliva-test-only decisions are not supported." },
-      { name: "Erectile function / sexual medicine consult", tier: "Tier 3 — clinician treatment", action: "New or worsening intimate-function changes may be early vascular signals — worth a clinician evaluation.", safety_note: "Avoid online products with undisclosed ingredients." },
+      { name: "Erectile function / sexual medicine consult", tier: "Tier 3 — clinician treatment", action: "New or worsening intimate-function changes may be early vascular signals — worth a clinician evaluation.", safety_note: "Avoid online products with undisclosed ingredients.", requires_sex: 'male' },
     ],
     peptide_note: "Peptides marketed for hormone effects (GLP-1/GIP not prescribed and monitored, BPC-157, CJC-1295, ipamorelin, Melanotan, MOTs-C, epitalon) are NOT app-recommended. Many are unapproved, marketed online with safety risks, and are medical decisions only. Approved GLP-1 / GIP medications for obesity or diabetes belong in a conversation with your physician — never DIY-dosed.",
     red_flags: "Unexplained vaginal bleeding, blood in urine, breast changes, chest pain, sudden neurologic symptoms, severe depression or self-harm thoughts, active or suspected hormone-sensitive cancer, recent heart attack or stroke, or pregnancy with new symptoms — seek direct medical care. These are not coached.",
@@ -253,4 +254,25 @@ export const OPTIONAL_ADDONS = {
 // Helper: get the add-on bundle for a given category id (returns null if none)
 export function getAddOnsForCategory(categoryId) {
   return OPTIONAL_ADDONS[categoryId] || null
+}
+
+// Normalize biological-sex text (from Phase 1 Q2: "Male", "Female", "Other")
+// into the lower-case tag we use on requires_sex fields.
+export function normalizeSex(raw) {
+  if (!raw) return null
+  const s = String(raw).toLowerCase().trim()
+  if (s.startsWith('male') || s === 'm') return 'male'
+  if (s.startsWith('female') || s === 'f') return 'female'
+  return null  // 'Other', 'Prefer not to answer', unknown — show everything
+}
+
+// Filter helper used by OptionalAddOns and Phase2Quiz. Returns true if the
+// item should be shown given the user's biological sex.
+//   - If item has no requires_sex tag: always show.
+//   - If user sex is unknown / 'Other': always show (be inclusive).
+//   - If user sex matches the tag: show.
+export function matchesSex(item, userSex) {
+  if (!item?.requires_sex) return true
+  if (!userSex) return true
+  return item.requires_sex === userSex
 }

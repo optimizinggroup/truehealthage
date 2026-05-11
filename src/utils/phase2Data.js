@@ -818,10 +818,10 @@ export const PHASE2_QUESTIONS = {
       answer_type: 'single-select',
       options: [
         { label: 'General hormone-health interest', value: 'general', score: 0, risk_tags: [], protocol_triggers: [] },
-        { label: 'Perimenopause or cycle changes', value: 'peri', score: 2, risk_tags: ['MENOPAUSE_CONTEXT'], protocol_triggers: ['HORMONE_PROTOCOL'] },
-        { label: 'Menopause or postmenopause', value: 'meno', score: 2, risk_tags: ['MENOPAUSE_CONTEXT'], protocol_triggers: ['HORMONE_PROTOCOL'] },
-        { label: 'Possible low testosterone / male hormone concerns', value: 'low_t', score: 2, risk_tags: ['TESTOSTERONE_CONTEXT'], protocol_triggers: ['HORMONE_PROTOCOL'] },
-        { label: 'Prostate or urinary-health concerns', value: 'prostate', score: 2, risk_tags: ['PROSTATE_CONTEXT'], protocol_triggers: ['HORMONE_PROTOCOL'] },
+        { label: 'Perimenopause or cycle changes', value: 'peri', score: 2, risk_tags: ['MENOPAUSE_CONTEXT'], protocol_triggers: ['HORMONE_PROTOCOL'], requires_sex: 'female' },
+        { label: 'Menopause or postmenopause', value: 'meno', score: 2, risk_tags: ['MENOPAUSE_CONTEXT'], protocol_triggers: ['HORMONE_PROTOCOL'], requires_sex: 'female' },
+        { label: 'Possible low testosterone / male hormone concerns', value: 'low_t', score: 2, risk_tags: ['TESTOSTERONE_CONTEXT'], protocol_triggers: ['HORMONE_PROTOCOL'], requires_sex: 'male' },
+        { label: 'Prostate or urinary-health concerns', value: 'prostate', score: 2, risk_tags: ['PROSTATE_CONTEXT'], protocol_triggers: ['HORMONE_PROTOCOL'], requires_sex: 'male' },
         { label: 'History of hormone-sensitive cancer', value: 'cancer_hx', score: 3, risk_tags: ['HORMONE_CANCER_HISTORY'], protocol_triggers: ['HORMONE_PROTOCOL'], escalation_flag: true },
         { label: 'Prefer not to answer', value: 'skip', score: 0, risk_tags: [], protocol_triggers: [] }
       ]
@@ -839,6 +839,10 @@ export const PHASE2_QUESTIONS = {
     },
     {
       id: 'hm_q3',
+      // Vasomotor symptoms are a well-documented menopause-transition pattern.
+      // Men can have night sweats too — driven by other causes — so we keep
+      // the question available to all sexes but route the female version
+      // explicitly to menopause context.
       question: 'Are hot flashes, night sweats, or temperature changes disrupting your sleep or daily comfort?',
       answer_type: 'single-select',
       options: [
@@ -850,13 +854,13 @@ export const PHASE2_QUESTIONS = {
     },
     {
       id: 'hm_q4',
-      question: 'Are urinary, pelvic, or urogenital-comfort concerns affecting you?',
+      question: 'Are you having any bladder-control issues — leaks, urgency, frequent nighttime trips to the bathroom, or pelvic discomfort?',
       answer_type: 'single-select',
       options: [
-        { label: 'No', value: 'no', score: 0, risk_tags: [], protocol_triggers: [] },
-        { label: 'Mild — occasional discomfort', value: 'mild', score: 1, risk_tags: ['UROGENITAL_COMFORT'], protocol_triggers: ['HORMONE_PROTOCOL'] },
-        { label: 'Moderate — affects daily life', value: 'moderate', score: 2, risk_tags: ['UROGENITAL_COMFORT'], protocol_triggers: ['HORMONE_PROTOCOL'] },
-        { label: 'Severe, or includes blood in urine / unexplained bleeding', value: 'severe', score: 3, risk_tags: ['UROGENITAL_RED_FLAG'], protocol_triggers: ['HORMONE_PROTOCOL'], escalation_flag: true }
+        { label: 'No, none of these', value: 'no', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: 'Occasional leaks, urgency, or nighttime trips', value: 'mild', score: 1, risk_tags: ['BLADDER_CONTROL'], protocol_triggers: ['HORMONE_PROTOCOL'] },
+        { label: 'Frequent leaks, urgency, or pelvic discomfort — affecting daily life', value: 'moderate', score: 2, risk_tags: ['BLADDER_CONTROL'], protocol_triggers: ['HORMONE_PROTOCOL'] },
+        { label: 'Blood in urine, or unexplained bleeding', value: 'red_flag', score: 3, risk_tags: ['UROGENITAL_RED_FLAG'], protocol_triggers: ['HORMONE_PROTOCOL'], escalation_flag: true }
       ]
     },
     {

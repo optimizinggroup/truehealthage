@@ -203,6 +203,9 @@ export function calculatePhase1Results(answers) {
     top3Aging,
     top3Protecting,
     categoryScores,
+    // Preserve raw answers so downstream screens (Phase 2 question filtering,
+    // OptionalAddOns sex-based filtering) can look up biological sex etc.
+    answers,
   }
 }
 

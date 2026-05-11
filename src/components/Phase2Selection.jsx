@@ -7,6 +7,7 @@ import '../styles/Phase2Selection.css'
 export default function Phase2Selection({
   phase1Results,
   resultId,
+  userSex = null,
   onComplete
 }) {
   const [stage, setStage] = useState('gateway') // gateway, quiz, results
@@ -57,6 +58,7 @@ export default function Phase2Selection({
     return (
       <Phase2Quiz
         selectedAreas={selectedAreas}
+        userSex={userSex}
         onComplete={handleQuizComplete}
       />
     )

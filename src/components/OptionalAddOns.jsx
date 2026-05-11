@@ -1,4 +1,4 @@
-import { getAddOnsForCategory, ADDON_DISCLAIMER } from '../utils/optionalAddOns'
+import { getAddOnsForCategory, ADDON_DISCLAIMER, matchesSex } from '../utils/optionalAddOns'
 import '../styles/OptionalAddOns.css'
 
 /**
@@ -8,12 +8,24 @@ import '../styles/OptionalAddOns.css'
  * Users were missing the content entirely. Show it directly with a clear
  * disclaimer banner up top — same legal protection, much better discoverability.
  *
+ * Sex-based filtering: hides items tagged requires_sex when the user's
+ * biological sex (from Phase 1 Q2) doesn't match — e.g. don't show vaginal
+ * estrogen options to male users, don't show ashwagandha-for-testosterone to
+ * female users. Items with no tag are always shown.
+ *
  * Tiered display: Food-first → Supplements → Therapies/devices.
  * Every entry carries its own safety note. Peptides are educational-only.
  */
-export default function OptionalAddOns({ categoryId }) {
-  const data = getAddOnsForCategory(categoryId)
-  if (!data) return null
+export default function OptionalAddOns({ categoryId, userSex }) {
+  const raw = getAddOnsForCategory(categoryId)
+  if (!raw) return null
+
+  const data = {
+    ...raw,
+    food_first: (raw.food_first || []).filter(i => matchesSex(i, userSex)),
+    supplements: (raw.supplements || []).filter(i => matchesSex(i, userSex)),
+    therapies: (raw.therapies || []).filter(i => matchesSex(i, userSex)),
+  }
 
   return (
     <div className="addons-block">

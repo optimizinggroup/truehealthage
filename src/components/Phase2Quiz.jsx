@@ -1,19 +1,23 @@
 import { useState, useEffect } from 'react'
 import { PHASE2_CATEGORIES, PHASE2_QUESTIONS } from '../utils/phase2Data'
+import { matchesSex } from '../utils/optionalAddOns'
 import '../styles/branding.css'
 import '../styles/Phase2Quiz.css'
 
-export default function Phase2Quiz({ selectedAreas = [], onComplete }) {
+export default function Phase2Quiz({ selectedAreas = [], userSex = null, onComplete }) {
   const [currentAreaIndex, setCurrentAreaIndex] = useState(0)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [responses, setResponses] = useState({})
 
-  // Build flat list of all questions across selected areas
+  // Build flat list of all questions across selected areas. Sex-filter each
+  // question's options so e.g. menopause options don't appear for users who
+  // told us they're male in Phase 1. Items with no requires_sex tag are kept.
   const questionList = []
   selectedAreas.forEach(areaId => {
     const questions = PHASE2_QUESTIONS[areaId] || []
     questions.forEach(q => {
-      questionList.push({ ...q, categoryId: areaId })
+      const filteredOptions = (q.options || []).filter(opt => matchesSex(opt, userSex))
+      questionList.push({ ...q, options: filteredOptions, categoryId: areaId })
     })
   })
 

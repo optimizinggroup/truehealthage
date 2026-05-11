@@ -11,6 +11,7 @@ import AppHeader from './components/AppHeader'
 import CoachIntro from './components/CoachIntro'
 import CoachDashboard from './components/CoachDashboard'
 import PrioritySelection from './components/PrioritySelection'
+import { normalizeSex } from './utils/optionalAddOns'
 import './App.css'
 
 const COACH_INTRO_SEEN_KEY = 'tha_coach_intro_seen_v1'
@@ -308,6 +309,7 @@ export default function App() {
           <Phase2Selection
             phase1Results={phase1Results}
             resultId={resultId}
+            userSex={normalizeSex(phase1Results?.answers?.[2]?.text)}
             onComplete={handlePhase2Complete}
           />
         )}

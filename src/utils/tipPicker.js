@@ -283,14 +283,19 @@ export function pickTipsForUser(category, currentWeek = 1, profile = {}) {
     return []
   }
 
-  // 5) Pick the top-scoring tip from each bucket, avoiding duplicate themes
-  // across buckets where possible.
+  // 5) Pick the top-scoring tip from each bucket, avoiding duplicate themes.
+  // Within each mode we PREFER category-specific tips over the universal
+  // fallbacks — otherwise the same three universals (10-min walk / water /
+  // bedtime) show up on every category's dashboard, defeating the point of
+  // having category-specific tip banks. Universals only fire as fallback
+  // when the category has no tip in that mode.
   const picked = []
   const usedThemes = new Set()
   for (const mode of ['nutrition', 'physical', 'behavioral']) {
     const bucket = byMode[mode]
-    let chosen = bucket.find(c => !usedThemes.has(c.tip.theme))
-    if (!chosen) chosen = bucket[0]
+    const categoryFirst = bucket.find(c => c.tip.category !== 'any' && !usedThemes.has(c.tip.theme))
+    const anyTheme = bucket.find(c => !usedThemes.has(c.tip.theme))
+    const chosen = categoryFirst || anyTheme || bucket[0]
     picked.push(chosen.tip)
     usedThemes.add(chosen.tip.theme)
   }
