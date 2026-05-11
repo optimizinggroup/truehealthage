@@ -3435,6 +3435,44 @@ export const COACHING_PROTOCOLS = {
   //  DIGESTIVE HEALTH & MICROBIOME (added May 2026)
   // ─────────────────────────────────────────────────────────────────────────
 
+  // ─────────────────────────────────────────────────────────────────────────
+  //  HORMONE HEALTH & VITALITY (added May 2026)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  HORMONE_PROTOCOL: {
+    category: 'hormone_health_vitality',
+    theme: 'Prepare for a Clinician Conversation',
+    difficulty: "moderate",
+    time_per_day: "10 min",
+    coach_intro: "Hormone health is a full-body topic — sleep, stress, body composition, vascular health, medications, and labs all play in. We don't diagnose hormone problems from a quiz. What we do is help you track patterns and prepare a better conversation with a qualified clinician. The lifestyle work below is safe, useful, and almost always overlaps with what the clinician will recommend first.",
+    this_week: "Start a 14-day symptom log: sleep, energy, mood, temperature changes, urinary comfort, intimate-function changes, and anything else that feels off. Pair it with the three daily actions below. Bring the log to a menopause-informed or hormone-informed clinician.",
+    daily_micro_wins: [
+      "Resistance training movement today — even 10 minutes of squats, push-ups, bands, or bodyweight work.",
+      "Eat a palm-sized protein at every meal to support muscle, recovery, and metabolic health.",
+      "Track one symptom today: sleep hours, hot flashes, energy 1–10, mood 1–10, or intimate-function notes.",
+    ],
+    weekly_additions: [
+      null,
+      "Set a consistent sleep window — bedtime within 30 minutes of the same time every night.",
+      "Take a 20-minute walk after one meal a day to support circulation and metabolic health.",
+      "Add one strength session (2 total this week) — focus on legs, back, and grip.",
+      "Reduce evening alcohol if hot flashes, night sweats, sleep, or urinary symptoms are present.",
+      "Schedule a clinician conversation using the questions below as your prep.",
+      "Check waist measurement and grip strength — practical markers of healthy aging.",
+      "Review your supplement and medication list with a pharmacist or clinician.",
+    ],
+    weekly_check_in: "Days you logged symptoms and hit your strength + protein targets.",
+    if_did_well: "That's exactly what a good clinician wants to see — real data, not a feeling. Next week, book the appointment. Bring the log.",
+    if_did_partial: "Even 5 days of data is useful. Same target next week. Don't try to fix everything before the clinician sees the pattern.",
+    if_did_zero: "No judgment. Pick one thing — write down how you slept tonight. That's the whole assignment.",
+    what_youll_notice: "Week 1: you'll start to see patterns. Week 2-3: you'll have data to bring to a clinician. Week 4+: the lifestyle pieces (sleep, strength, protein) start moving the needle for most people.",
+    avoid: "Online testosterone boosters with undisclosed ingredients. Compounded hormones without clinician oversight. Saliva-test-only treatment decisions. Crash diets that worsen fatigue and mood. Adjusting prescribed hormone therapy without your clinician.",
+    red_flags: "Unexplained vaginal bleeding, blood in urine, breast changes, chest pain, severe shortness of breath, sudden neurologic symptoms, severe depression or self-harm thoughts, or active hormone-sensitive cancer — seek medical care directly. Do not self-coach these.",
+    tracking_metric: "Days logged / symptoms tracked / clinician conversation booked",
+    review_days: 7,
+    escalation: "If you have a history of hormone-sensitive cancer, are pregnant or breastfeeding, trying to conceive, or have unexplained bleeding — speak with your clinician before starting any supplement, peptide, or hormone-adjacent therapy.",
+  },
+
   DIGESTIVE_PROTOCOL: {
     category: 'digestive_microbiome',
     theme: 'Support Your Gut',

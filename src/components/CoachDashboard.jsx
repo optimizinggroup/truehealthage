@@ -361,17 +361,26 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onAd
             </div>
           </div>
 
-          {/* This week's instruction */}
+          {/* This week's instruction — the headline assignment from Coach K.
+              Designed to be the visual focal point of the dashboard so users
+              read it before the numbered tasks underneath. */}
           <div className="this-week-block">
-            <h4>
-              What to do this week
+            <div className="coach-callout">
+              <div className="coach-callout-label">
+                <span className="coach-callout-icon">🎯</span>
+                <span>This week's assignment from Coach K</span>
+              </div>
+              <p className="this-week-text">{activeProtocol.content.this_week}</p>
+            </div>
+
+            <h4 className="weekly-tasks-heading">
+              Daily actions to support this
               {tasksAreFromTipBank && (
                 <span className="personalized-badge" title="These actions are picked from the 700-tip library based on your profile">
                   · personalized for you
                 </span>
               )}
             </h4>
-            <p className="this-week-text">{activeProtocol.content.this_week}</p>
             <ul className="weekly-tasks">
               {displayTasks.map((task, idx) => (
                 <li key={idx}>

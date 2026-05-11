@@ -92,6 +92,14 @@ export const PHASE2_CATEGORIES = [
     icon: '🌿',
     max_score: 18,
     protocol_theme: 'Support Your Gut'
+  },
+  {
+    id: 'hormone_health_vitality',
+    name: 'Hormone Health & Vitality',
+    description: 'Menopause, andropause, urogenital comfort, and intimate function',
+    icon: '🔄',
+    max_score: 18,
+    protocol_theme: 'Prepare for a Clinician Conversation'
   }
 ]
 
@@ -793,6 +801,85 @@ export const PHASE2_QUESTIONS = {
         { label: 'Reduce bloating', value: 'bloating', score: 1, risk_tags: ['DIGESTIVE_DISCOMFORT'], protocol_triggers: ['DIGESTIVE_PROTOCOL'] },
         { label: 'Support microbiome diversity', value: 'microbiome', score: 1, risk_tags: [], protocol_triggers: ['DIGESTIVE_PROTOCOL'] },
         { label: 'Reduce reflux triggers', value: 'reflux', score: 1, risk_tags: ['DIGESTIVE_DISCOMFORT'], protocol_triggers: ['DIGESTIVE_PROTOCOL'] }
+      ]
+    }
+  ],
+
+  // ─── Hormone Health & Vitality (added May 2026) ────────────────────────────
+  // Spec: UPDATE-PROTOCOLS FROM OPEN AI/update for hormones/
+  //       truehealth_age_hormone_health_category_addendum.md
+  // Adapted to the existing 6-question / 0-3 score / single-select engine.
+  // Clinical, non-graphic wording per spec §2. Red-flag answers (e.g. severe
+  // impact + high-risk history) trigger escalation flags.
+  hormone_health_vitality: [
+    {
+      id: 'hm_q1',
+      question: 'Which life stage or clinical context best fits you right now?',
+      answer_type: 'single-select',
+      options: [
+        { label: 'General hormone-health interest', value: 'general', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: 'Perimenopause or cycle changes', value: 'peri', score: 2, risk_tags: ['MENOPAUSE_CONTEXT'], protocol_triggers: ['HORMONE_PROTOCOL'] },
+        { label: 'Menopause or postmenopause', value: 'meno', score: 2, risk_tags: ['MENOPAUSE_CONTEXT'], protocol_triggers: ['HORMONE_PROTOCOL'] },
+        { label: 'Possible low testosterone / male hormone concerns', value: 'low_t', score: 2, risk_tags: ['TESTOSTERONE_CONTEXT'], protocol_triggers: ['HORMONE_PROTOCOL'] },
+        { label: 'Prostate or urinary-health concerns', value: 'prostate', score: 2, risk_tags: ['PROSTATE_CONTEXT'], protocol_triggers: ['HORMONE_PROTOCOL'] },
+        { label: 'History of hormone-sensitive cancer', value: 'cancer_hx', score: 3, risk_tags: ['HORMONE_CANCER_HISTORY'], protocol_triggers: ['HORMONE_PROTOCOL'], escalation_flag: true },
+        { label: 'Prefer not to answer', value: 'skip', score: 0, risk_tags: [], protocol_triggers: [] }
+      ]
+    },
+    {
+      id: 'hm_q2',
+      question: 'How are sleep, energy, mood, or body composition affected day to day?',
+      answer_type: 'single-select',
+      options: [
+        { label: 'Not really affected', value: 'none', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: 'Mildly affected — I notice some changes', value: 'mild', score: 1, risk_tags: ['HORMONE_SYMPTOMS'], protocol_triggers: ['HORMONE_PROTOCOL'] },
+        { label: 'Moderately affected — daily routine disrupted', value: 'moderate', score: 2, risk_tags: ['HORMONE_SYMPTOMS'], protocol_triggers: ['HORMONE_PROTOCOL'] },
+        { label: 'Strongly or severely affected', value: 'severe', score: 3, risk_tags: ['HORMONE_SYMPTOMS', 'QOL_IMPACT'], protocol_triggers: ['HORMONE_PROTOCOL'] }
+      ]
+    },
+    {
+      id: 'hm_q3',
+      question: 'Are hot flashes, night sweats, or temperature changes disrupting your sleep or daily comfort?',
+      answer_type: 'single-select',
+      options: [
+        { label: 'No', value: 'no', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: 'Occasionally', value: 'occasional', score: 1, risk_tags: ['VASOMOTOR_SYMPTOMS'], protocol_triggers: ['HORMONE_PROTOCOL'] },
+        { label: 'Several times a week', value: 'frequent', score: 2, risk_tags: ['VASOMOTOR_SYMPTOMS'], protocol_triggers: ['HORMONE_PROTOCOL'] },
+        { label: 'Daily, disrupting sleep', value: 'daily', score: 3, risk_tags: ['VASOMOTOR_SYMPTOMS'], protocol_triggers: ['HORMONE_PROTOCOL'] }
+      ]
+    },
+    {
+      id: 'hm_q4',
+      question: 'Are urinary, pelvic, or urogenital-comfort concerns affecting you?',
+      answer_type: 'single-select',
+      options: [
+        { label: 'No', value: 'no', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: 'Mild — occasional discomfort', value: 'mild', score: 1, risk_tags: ['UROGENITAL_COMFORT'], protocol_triggers: ['HORMONE_PROTOCOL'] },
+        { label: 'Moderate — affects daily life', value: 'moderate', score: 2, risk_tags: ['UROGENITAL_COMFORT'], protocol_triggers: ['HORMONE_PROTOCOL'] },
+        { label: 'Severe, or includes blood in urine / unexplained bleeding', value: 'severe', score: 3, risk_tags: ['UROGENITAL_RED_FLAG'], protocol_triggers: ['HORMONE_PROTOCOL'], escalation_flag: true }
+      ]
+    },
+    {
+      id: 'hm_q5',
+      question: 'Are intimate-function concerns (desire, arousal, comfort, or performance) something you want support around?',
+      answer_type: 'single-select',
+      options: [
+        { label: 'No', value: 'no', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: 'Yes — mild changes', value: 'mild', score: 1, risk_tags: ['INTIMATE_FUNCTION'], protocol_triggers: ['HORMONE_PROTOCOL'] },
+        { label: 'Yes — moderate changes', value: 'moderate', score: 2, risk_tags: ['INTIMATE_FUNCTION'], protocol_triggers: ['HORMONE_PROTOCOL'] },
+        { label: 'Yes — significant changes I want to address', value: 'significant', score: 3, risk_tags: ['INTIMATE_FUNCTION'], protocol_triggers: ['HORMONE_PROTOCOL'] },
+        { label: 'Prefer not to answer', value: 'skip', score: 0, risk_tags: [], protocol_triggers: [] }
+      ]
+    },
+    {
+      id: 'hm_q6',
+      question: 'What kind of support would you like from this section?',
+      answer_type: 'single-select',
+      options: [
+        { label: 'Lifestyle foundations first — low-risk tips only', value: 'lifestyle', score: 0, risk_tags: [], protocol_triggers: ['HORMONE_PROTOCOL'] },
+        { label: 'Questions and topics to bring to my clinician', value: 'clinician', score: 1, risk_tags: [], protocol_triggers: ['HORMONE_PROTOCOL'] },
+        { label: 'Menopause / andropause education', value: 'education', score: 1, risk_tags: [], protocol_triggers: ['HORMONE_PROTOCOL'] },
+        { label: 'Supplement & therapy considerations to discuss', value: 'supplements', score: 1, risk_tags: ['SUPPLEMENT_INTEREST'], protocol_triggers: ['HORMONE_PROTOCOL'] }
       ]
     }
   ]

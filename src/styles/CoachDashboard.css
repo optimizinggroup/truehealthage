@@ -232,13 +232,48 @@
   margin: 20px 0;
 }
 
-.this-week-block h4 {
-  margin: 0 0 8px;
+/* Coach K's weekly assignment — the visual focal point of the dashboard.
+   Designed so users read this BEFORE the numbered daily actions. */
+.coach-callout {
+  margin: 0 0 22px;
+  padding: 20px 22px;
+  background: linear-gradient(135deg, #0D9488 0%, #10B981 100%);
+  color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(13, 148, 136, 0.18);
+}
+
+.coach-callout-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.coach-callout-icon {
+  font-size: 16px;
+}
+
+.coach-callout .this-week-text {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.55;
+  font-weight: 500;
+  color: white;
+}
+
+.weekly-tasks-heading {
+  margin: 0 0 10px;
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #0D9488;
+  color: #6b7280;
 }
 
 .personalized-badge {
@@ -250,13 +285,6 @@
   text-transform: none;
   letter-spacing: 0;
   font-style: italic;
-}
-
-.this-week-block .this-week-text {
-  margin: 0 0 14px;
-  font-size: 15px;
-  line-height: 1.6;
-  color: #2d3748;
 }
 
 .weekly-tasks {

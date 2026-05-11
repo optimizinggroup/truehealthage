@@ -198,6 +198,38 @@ export const OPTIONAL_ADDONS = {
     red_flags: "New confusion, sudden memory change, neurologic symptoms, or medication changes — medical care, not supplements.",
   },
 
+  hormone_health_vitality: {
+    coach_intro: "Hormone health is full-body work — sleep, strength, vascular health, body composition, labs, and medications all matter before any hormone-adjacent product. The app educates; it never prescribes. Take these into a conversation with a qualified clinician.",
+    food_first: [
+      { name: "Protein at every meal", action: "Palm-sized protein at each meal supports muscle, satiety, and metabolic health — all hormone-adjacent.", note: "Food before any supplement." },
+      { name: "Resistance training 2-4x/week", action: "Squats, push-ups, bands, dumbbells, bodyweight — any consistent loading.", note: "Muscle mass and strength are practical hormone-health markers." },
+      { name: "Sleep window + alcohol audit", action: "Consistent bedtime; reduce evening alcohol if hot flashes, night sweats, urinary symptoms, or intimate-function changes are present.", note: "Sleep disruption worsens almost every hormone symptom." },
+      { name: "Symptom log", action: "Track sleep, energy, mood, temperature changes, urinary comfort, and intimate-function changes for 14 days.", note: "A pattern beats a guess every time." },
+    ],
+    supplements: [
+      { name: "Vitamin D — test first", action: "Check vitamin D with a clinician before supplementing; correct deficiency rather than guessing dose.", safety_note: "High-dose vitamin D can be harmful. Pregnancy, kidney disease, and medication interactions require clinician guidance.", tier: "Test-first" },
+      { name: "Magnesium", action: "May be discussed for sleep, muscle cramps, or constipation — clinician-reviewed.", safety_note: "Kidney disease and medication interactions need clinician input.", tier: "Discuss" },
+      { name: "Omega-3 (food first)", action: "Eat fatty fish or omega-3 plant foods first; supplement only with clinician input.", safety_note: "Blood-thinner caution.", tier: "Optional after food-first" },
+      { name: "Creatine monohydrate", action: "May support strength and muscle when paired with resistance training.", safety_note: "Kidney disease, complex medical issues, or pregnancy — clinician first.", tier: "Optional with strength" },
+      { name: "Ashwagandha (men / stress context)", action: "Mentioned for stress and sleep; evidence is limited for testosterone markers.", safety_note: "Avoid in pregnancy, breastfeeding, thyroid or autoimmune conditions, liver concerns, prostate cancer risk, or with medication conflicts unless cleared.", tier: "Discuss with clinician" },
+      { name: "Black cohosh (menopause context)", action: "Sometimes used for menopause symptoms; evidence and quality vary.", safety_note: "Liver-related safety concerns. Discuss with clinician before use.", tier: "Discuss with clinician" },
+      { name: "Soy isoflavones / phytoestrogens", action: "Diet-first; food sources are reasonable for most users.", safety_note: "Users with hormone-sensitive cancer history or medication concerns must discuss with a clinician.", tier: "Discuss with clinician" },
+      { name: "DHEA / Pregnenolone", action: "Not casual supplements — these are steroid-hormone precursors.", safety_note: "Do not use without clinician supervision. Affect androgen and estrogen pathways.", tier: "Clinician only" },
+      { name: "Avoid 'hormone booster' stacks", action: "Skip products with undisclosed ingredients, anabolic agents, or 'testosterone booster' claims.", safety_note: "Often unregulated. Many contain ingredients with real medication interactions.", tier: "Block" },
+    ],
+    therapies: [
+      { name: "Pelvic floor physical therapy", tier: "Tier 2 — clinician-led", action: "For pelvic pain, urinary urgency, painful intimacy, or post-prostate symptoms — pelvic floor PT is often the missing piece.", safety_note: "Find a licensed pelvic floor PT; ask your clinician for a referral." },
+      { name: "Menopause-informed clinician visit", tier: "Tier 1 — foundational", action: "Hot flashes, night sweats, mood changes, brain fog, joint aches, urogenital discomfort, intimate function — a menopause-informed clinician knows the full toolkit.", safety_note: "The Menopause Society's directory of certified menopause practitioners is a good starting point." },
+      { name: "Urology / men's health visit", tier: "Tier 1 — foundational", action: "Urinary symptoms, prostate concerns, possible low testosterone, intimate-function changes — start with a urologist or men's health clinician.", safety_note: "Do not self-diagnose testosterone deficiency from symptoms alone." },
+      { name: "Vaginal moisturizers / lubricants", tier: "Tier 1 — over-the-counter", action: "Nonhormonal vaginal moisturizers or lubricants for urogenital comfort — first-line for many users.", safety_note: "Choose products without irritants. Persistent symptoms warrant clinician-guided options." },
+      { name: "Low-dose vaginal estrogen / vaginal DHEA / ospemifene", tier: "Tier 3 — clinician-guided", action: "Prescription options for persistent urogenital menopause symptoms. Discuss with a menopause-informed clinician.", safety_note: "Hormone-sensitive cancer history requires oncology + gynecology coordination." },
+      { name: "Hormone therapy (estrogen / progesterone / testosterone)", tier: "Tier 4 — clinician-managed prescription", action: "Individualized medical decision based on symptoms, life stage, risk profile, route, and monitoring.", safety_note: "Not an app recommendation. Educational only. Avoid compounded hormones without clinician explanation. Saliva-test-only decisions are not supported." },
+      { name: "Erectile function / sexual medicine consult", tier: "Tier 3 — clinician treatment", action: "New or worsening intimate-function changes may be early vascular signals — worth a clinician evaluation.", safety_note: "Avoid online products with undisclosed ingredients." },
+    ],
+    peptide_note: "Peptides marketed for hormone effects (GLP-1/GIP not prescribed and monitored, BPC-157, CJC-1295, ipamorelin, Melanotan, MOTs-C, epitalon) are NOT app-recommended. Many are unapproved, marketed online with safety risks, and are medical decisions only. Approved GLP-1 / GIP medications for obesity or diabetes belong in a conversation with your physician — never DIY-dosed.",
+    red_flags: "Unexplained vaginal bleeding, blood in urine, breast changes, chest pain, sudden neurologic symptoms, severe depression or self-harm thoughts, active or suspected hormone-sensitive cancer, recent heart attack or stroke, or pregnancy with new symptoms — seek direct medical care. These are not coached.",
+  },
+
   longevity_prevention: {
     coach_intro: "Longevity is not magic. It is boring things done early enough and consistently enough.",
     food_first: [
