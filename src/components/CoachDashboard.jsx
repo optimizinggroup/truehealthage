@@ -4,6 +4,7 @@ import { COACHING_PROTOCOLS } from '../utils/coachingProtocols.js'
 import { PHASE2_CATEGORIES } from '../utils/phase2Data'
 import { pickTipsForUser, buildProfileFromUser, balanceTasksByMode } from '../utils/tipPicker.js'
 import WeeklyCheckin from './WeeklyCheckin'
+import OptionalAddOns from './OptionalAddOns'
 import '../styles/CoachDashboard.css'
 
 const supabase = createClient(
@@ -454,6 +455,8 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onAd
           >
             {isGraduating ? 'Final Check-in →' : 'Weekly Check-in →'}
           </button>
+
+          <OptionalAddOns categoryId={activeProtocol.category} />
 
           {isGraduating && (
             <div className="graduation-block">

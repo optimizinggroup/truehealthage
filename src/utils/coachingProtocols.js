@@ -3357,6 +3357,117 @@ export const COACHING_PROTOCOLS = {
     escalation: "If you're having symptoms that could indicate heart attack, stroke, or other emergency — call 911 immediately. Don't drive yourself.",
   },
 
+  // ─────────────────────────────────────────────────────────────────────────
+  //  SKIN HEALTH & HEALTHY AGING (added May 2026)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  SKIN_PROTOCOL: {
+    category: 'skin_health',
+    theme: 'Protect & Repair Your Skin',
+    difficulty: "easy",
+    time_per_day: "3-5 min",
+    coach_intro: "Skin health isn't vanity. The sun damage you take today is what shows up — wrinkled, spotted, sometimes cancerous — twenty years from now. The good news: the basics are simple and they actually work. We protect first, repair second, and we always check the spots that worry us.",
+    this_week: "Daily SPF 30+ on face, neck, ears, and hands before you leave the house. Move your sunscreen to your bathroom counter next to your toothbrush. If you have a spot that's new, changing, bleeding, or not healing — take a photo this week and book a dermatologist.",
+    daily_micro_wins: [
+      "Apply broad-spectrum SPF 30+ to face, neck, ears, and hands.",
+      "Moisturize after washing while skin is still slightly damp.",
+      "Drink water steadily through the day — hydration shows up in your skin.",
+    ],
+    weekly_additions: [
+      null,
+      "Do a 5-minute skin self-check using the ABCDE rule (asymmetry, border, color, diameter, evolving).",
+      "Add fatty fish or omega-3 plant foods twice this week.",
+      "Wear a hat and sunglasses for any outdoor time over 30 minutes.",
+      "Photograph any spot you're watching so you can compare it later.",
+      "Add a colorful plant food (berries, greens, peppers) to one meal a day.",
+      "Try a fragrance-free moisturizer if your skin has been dry or irritated.",
+      "Book a dermatology check if anything has changed or won't heal.",
+    ],
+    weekly_check_in: "Days you wore SPF, and any spots you noticed or photographed.",
+    if_did_well: "Good. Sunscreen is the boring thing that beats every expensive serum. Keep it visible — that's how it stays a habit.",
+    if_did_partial: "Skin habits are sneaky — easy to skip on cloudy days. Stack SPF onto something you already do every morning. Brush teeth, then SPF. Don't overthink it.",
+    if_did_zero: "No judgment. Sunscreen feels optional until you see the damage. Pick one trigger — leaving the house, going outside, getting in the car — and do it once this week.",
+    what_youll_notice: "Week 1: it becomes automatic. Week 4: dryness and irritation start to settle. Long term: this is the single best thing you can do for how your skin ages.",
+    avoid: "Tanning beds. Treating a worrying spot with cosmetic products before it's evaluated. Stacking five new serums in one week — your skin doesn't like chaos.",
+    red_flags: "A spot that's new, changing, asymmetric, multi-colored, larger than a pencil eraser, bleeding, itching, or not healing needs a dermatologist — not a guess. Same for any non-healing sore.",
+    tracking_metric: "Days SPF applied / spots photographed",
+    review_days: 7,
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  //  STRENGTH, MUSCLE & FUNCTION (added May 2026)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  STRENGTH_PROTOCOL: {
+    category: 'strength_function',
+    theme: 'Stay Strong as You Age',
+    difficulty: "moderate",
+    time_per_day: "10-15 min",
+    coach_intro: "Strength isn't about looking strong. It's about being able to do your life — get up off the floor, carry the groceries, climb the stairs, play with the grandkids. Muscle is the organ of longevity. We build it slowly, with real loads, and we eat enough protein to keep it.",
+    this_week: "Two sit-to-stand sessions: 10 reps from a sturdy chair, no hands if you can, hands if you need them. Add a palm-sized protein at breakfast every day. That's the assignment.",
+    daily_micro_wins: [
+      "Eat a palm-sized protein serving at breakfast.",
+      "Do 10 sit-to-stand reps from a chair (no hands if you can).",
+      "Walk for 10 continuous minutes — pace doesn't matter yet.",
+    ],
+    weekly_additions: [
+      null,
+      "Add one more sit-to-stand session this week (now 3 total).",
+      "Carry a heavy bag or two grocery bags for 1-2 minutes a day.",
+      "Practice single-leg balance near a counter for 30 seconds each side.",
+      "Add a second strength session this week — bands, dumbbells, or bodyweight.",
+      "Train grip: hang from a sturdy bar or squeeze a tennis ball for 30 seconds.",
+      "Stretch hips, calves, chest, and shoulders for 5 minutes after walks.",
+      "Increase one exercise by 1-2 reps or a slightly heavier load.",
+    ],
+    weekly_check_in: "Strength sessions completed, and how protein hit at each meal.",
+    if_did_well: "Real progress. Strength is built one rep, one meal at a time — and you just stacked seven days. Next week we add one new pattern: carry, balance, or grip.",
+    if_did_partial: "That's still movement. Same target next week. Tell me what got in the way — usually it's the chair you used, the time of day, or just not having the protein in the house.",
+    if_did_zero: "No judgment. The plan was too big. This week: 5 sit-to-stands, once. That's the whole assignment.",
+    what_youll_notice: "Week 2: easier getting up from chairs. Week 4: stairs feel less like a stair-climb. Week 8: you'll notice you're carrying things without thinking about it.",
+    avoid: "Skipping protein. Testosterone boosters, SARMs, hormone stacks, extreme pre-workouts. Training through chest pain, dizziness, or sharp joint pain.",
+    red_flags: "Chest pain, severe shortness of breath, dizziness, fainting, or sharp joint pain during exercise — stop and seek care. Recurrent falls or sudden weakness on one side need urgent evaluation.",
+    tracking_metric: "Strength sessions per week / protein meals hit",
+    review_days: 7,
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  //  DIGESTIVE HEALTH & MICROBIOME (added May 2026)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  DIGESTIVE_PROTOCOL: {
+    category: 'digestive_microbiome',
+    theme: 'Support Your Gut',
+    difficulty: "easy",
+    time_per_day: "5 min",
+    coach_intro: "Your gut likes rhythm. Same meals around the same times, real fiber, real water, and time to actually digest before bed. We add slowly so we can tell what's helping and what isn't — your gut doesn't reward overhauls.",
+    this_week: "Add one fiber food at breakfast — oats, berries, chia, beans, or a tablespoon of psyllium in water. Drink water with it. Stop eating 2-3 hours before bed. That's the week.",
+    daily_micro_wins: [
+      "Add one fiber-rich food to a meal (oats, beans, berries, chia, flax, vegetables).",
+      "Drink a full glass of water with each meal.",
+      "Eat slowly — chew well, no screens at the table.",
+    ],
+    weekly_additions: [
+      null,
+      "Stop eating 2-3 hours before bedtime to reduce reflux risk.",
+      "Add one new plant food to your week (different beans, vegetable, or grain).",
+      "Try one fermented food (yogurt, kefir, sauerkraut, kimchi) if it agrees with you.",
+      "Track digestive symptoms for 3 days — what you ate, what you felt.",
+      "Walk for 10 minutes after one meal a day.",
+      "Add psyllium with a full glass of water if constipation persists.",
+      "Try a 5-minute breathing practice before your largest meal.",
+    ],
+    weekly_check_in: "Days with fiber, water with meals, and how your symptoms felt 1–10.",
+    if_did_well: "That's how the gut wants to be treated — slow, rhythmic, generous with plants. Next week we add diversity. Different beans, different fibers, different colors.",
+    if_did_partial: "Fiber takes time. Same target — and add water with it. If you're getting more bloating, you ramped too fast. Slow down, don't quit.",
+    if_did_zero: "No judgment. The win this week is one piece of fruit at breakfast. That's it.",
+    what_youll_notice: "Week 1: more regular. Week 2-3: less bloating after meals. Week 4+: real differences in energy and digestion.",
+    avoid: "Random probiotic stacks. Aggressive cleanses or colon detoxes. Ramping fiber too fast without water. Self-coaching red-flag symptoms.",
+    red_flags: "Blood in stool, black stools, unexplained weight loss, trouble swallowing, persistent vomiting, severe abdominal pain, persistent diarrhea, or a major change in bowel habits — get medical care. These are not coached, they are evaluated.",
+    tracking_metric: "Days with fiber + water at meals / symptom score 1–10",
+    review_days: 7,
+  },
+
 }
 
 // Re-export under the old name for backward compat with the existing

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { calculatePhase1Results } from '../utils/quizLogic'
 import TrueHealthAgeLogo from '../assets/logos/truehealthage.png'
 import '../styles/Phase1Quiz.css'
@@ -277,6 +277,35 @@ export default function Phase1Quiz({ onComplete }) {
 
   const currentQ = PHASE1_QUESTIONS[currentQuestion]
 
+  // When the user navigates back to a previously-answered number question
+  // (age), repopulate the input so they see their prior answer and can
+  // edit it instead of starting from a blank field.
+  useEffect(() => {
+    if (currentQ.type === 'number') {
+      setNumberInput(answers[currentQ.id]?.text || '')
+    }
+    // BMI fields are uncontrolled (id-based DOM reads); rehydrate them
+    // after the question renders.
+    if (currentQ.type === 'bmi') {
+      const prior = answers[currentQ.id]
+      // Stored as "Healthy weight (BMI 22.4)" — we can't recover the
+      // original feet/inches/lbs from that string. Pull them from a
+      // sibling field we store on the answer if present; otherwise
+      // leave the inputs blank for re-entry.
+      const f = document.getElementById('feet')
+      const i = document.getElementById('inches')
+      const w = document.getElementById('weight')
+      if (f) f.value = prior?.feet ?? ''
+      if (i) i.value = prior?.inches ?? ''
+      if (w) w.value = prior?.weight ?? ''
+    }
+  }, [currentQuestion])
+
+  const handleBack = () => {
+    if (currentQuestion === 0) return
+    setCurrentQuestion(currentQuestion - 1)
+  }
+
   const handleAnswer = (optionIndex) => {
     const qId = currentQ.id
     const selectedOption = currentQ.options[optionIndex]
@@ -401,7 +430,10 @@ export default function Phase1Quiz({ onComplete }) {
       [qId]: {
         text: bmiCategory,
         years: bmiYears,
-        bmi: bmi
+        bmi: bmi,
+        feet: feetInput,
+        inches: inchesInput,
+        weight: weightInput,
       }
     })
 
@@ -444,7 +476,7 @@ export default function Phase1Quiz({ onComplete }) {
         <div className="progress-fill" style={{ width: `${progress}%` }}></div>
       </div>
       <div className="progress-text">
-        {currentQ.module} • Question {currentQuestion + 1} of {PHASE1_QUESTIONS.length}
+        {currentQ.category} • Question {currentQuestion + 1} of {PHASE1_QUESTIONS.length}
       </div>
 
       <div className="question-container">
@@ -549,6 +581,17 @@ export default function Phase1Quiz({ onComplete }) {
             Next Question →
           </button>
         )}
+
+        <div className="quiz-nav">
+          <button
+            type="button"
+            className="back-btn"
+            onClick={handleBack}
+            disabled={currentQuestion === 0}
+          >
+            ← Back
+          </button>
+        </div>
       </div>
 
       {canSubmit && (

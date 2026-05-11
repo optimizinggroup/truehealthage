@@ -12,10 +12,10 @@ export default function Phase2Gateway({ phase1Results, onStart, onSkip }) {
     if (selectedAreas.includes(categoryId)) {
       setSelectedAreas(selectedAreas.filter(id => id !== categoryId))
     } else {
-      if (mode === 'quick' && selectedAreas.length >= 3) {
-        // Max 3 for quick plan
-        return
-      }
+      // Per the May 2026 spec: users may select any number of areas. The
+      // top-3 limit on Quick Plan was removed so users can pick what
+      // actually matters to them. PrioritySelection still asks them to
+      // start with one area at a time.
       setSelectedAreas([...selectedAreas, categoryId])
     }
   }
@@ -81,8 +81,8 @@ export default function Phase2Gateway({ phase1Results, onStart, onSkip }) {
             }}
           >
             <h3>Quick Plan</h3>
-            <p>Choose up to 3 areas you want to focus on</p>
-            <small>~5 min assessment</small>
+            <p>Choose the areas you want to focus on</p>
+            <small>~5 min per area</small>
           </div>
 
           <div
@@ -93,8 +93,8 @@ export default function Phase2Gateway({ phase1Results, onStart, onSkip }) {
             }}
           >
             <h3>Full Assessment</h3>
-            <p>Complete evaluation across all 7 areas</p>
-            <small>~15 min assessment</small>
+            <p>Complete evaluation across all health areas</p>
+            <small>~5 min per area</small>
           </div>
         </div>
 
@@ -103,7 +103,7 @@ export default function Phase2Gateway({ phase1Results, onStart, onSkip }) {
           <div className="quick-mode">
             <h2>Select focus areas</h2>
             <p className="mode-instruction">
-              Choose up to 3 areas where you'd like to start making changes:
+              Choose any areas you want to work on. You can pick one, a few, or all of them — we'll help you focus on one at a time.
             </p>
             <div className="categories-grid">
               {PHASE2_CATEGORIES.map(category => (
@@ -122,7 +122,9 @@ export default function Phase2Gateway({ phase1Results, onStart, onSkip }) {
               ))}
             </div>
             <p className="selection-count">
-              {selectedAreas.length === 0 ? 'Select at least 1 area' : `${selectedAreas.length} of 3 areas selected`}
+              {selectedAreas.length === 0
+                ? 'Select at least 1 area'
+                : `${selectedAreas.length} ${selectedAreas.length === 1 ? 'area' : 'areas'} selected`}
             </p>
           </div>
         )}
@@ -132,7 +134,7 @@ export default function Phase2Gateway({ phase1Results, onStart, onSkip }) {
           <div className="full-mode">
             <h2>Full Assessment</h2>
             <p className="mode-instruction">
-              We'll ask 6 questions in each of these 7 areas to create a personalized plan:
+              We'll ask 6 questions in each of these areas to create a personalized plan:
             </p>
             <div className="categories-list">
               {PHASE2_CATEGORIES.map(category => (

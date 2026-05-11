@@ -65,6 +65,33 @@ export const PHASE2_CATEGORIES = [
     icon: '🎯',
     max_score: 18,
     protocol_theme: 'Build Sustainable Habits'
+  },
+  // ─── Added May 2026: three new quality-of-life domains driven by Keith's
+  // expert review. Spec: UPDATE-PROTOCOLS FROM OPEN AI/truehealth_age_protocols
+  // _developer_update_handoff.md §3.
+  {
+    id: 'skin_health',
+    name: 'Skin Health & Healthy Aging',
+    description: 'Sun protection, hydration, and skin awareness',
+    icon: '🌞',
+    max_score: 18,
+    protocol_theme: 'Protect & Repair Your Skin'
+  },
+  {
+    id: 'strength_function',
+    name: 'Strength, Muscle & Function',
+    description: 'Strength, balance, and daily independence',
+    icon: '💪',
+    max_score: 18,
+    protocol_theme: 'Stay Strong as You Age'
+  },
+  {
+    id: 'digestive_microbiome',
+    name: 'Digestive Health & Microbiome',
+    description: 'Regularity, fiber, and gut comfort',
+    icon: '🌿',
+    max_score: 18,
+    protocol_theme: 'Support Your Gut'
   }
 ]
 
@@ -556,6 +583,216 @@ export const PHASE2_QUESTIONS = {
         { label: 'Weekly goals', value: 'weekly', score: 0, risk_tags: [], protocol_triggers: ['WEEKLY_PLAN'] },
         { label: 'Coaching/accountability', value: 'coaching', score: 0, risk_tags: [], protocol_triggers: ['ACCOUNTABILITY_PLAN'] },
         { label: 'Detailed data-driven plan', value: 'detailed', score: 0, risk_tags: [], protocol_triggers: ['DETAILED_PLAN'] }
+      ]
+    }
+  ],
+
+  // ─── Skin Health & Healthy Aging (added May 2026) ──────────────────────────
+  skin_health: [
+    {
+      id: 'sk_q1',
+      question: 'How concerned are you about visible skin aging — wrinkles, age spots, dryness, or loss of firmness?',
+      answer_type: 'single-select',
+      options: [
+        { label: 'Not concerned', value: 'none', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: 'Slightly concerned', value: 'slight', score: 1, risk_tags: ['SKIN_AGING'], protocol_triggers: ['SKIN_PROTOCOL'] },
+        { label: 'Moderately concerned', value: 'moderate', score: 2, risk_tags: ['SKIN_AGING'], protocol_triggers: ['SKIN_PROTOCOL'] },
+        { label: 'Very or extremely concerned', value: 'high', score: 3, risk_tags: ['SKIN_AGING'], protocol_triggers: ['SKIN_PROTOCOL'] }
+      ]
+    },
+    {
+      id: 'sk_q2',
+      question: 'How often do you protect your skin from sun exposure (sunscreen, hat, shade, protective clothing)?',
+      answer_type: 'single-select',
+      options: [
+        { label: 'Daily', value: 'daily', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: 'Most days', value: 'most', score: 1, risk_tags: ['SUN_EXPOSURE'], protocol_triggers: ['SKIN_PROTOCOL'] },
+        { label: 'Occasionally', value: 'occasional', score: 2, risk_tags: ['SUN_EXPOSURE'], protocol_triggers: ['SKIN_PROTOCOL'] },
+        { label: 'Rarely or never', value: 'rare', score: 3, risk_tags: ['SUN_EXPOSURE', 'SKIN_CANCER_RISK'], protocol_triggers: ['SKIN_PROTOCOL'] }
+      ]
+    },
+    {
+      id: 'sk_q3',
+      question: 'Have you noticed any new, changing, bleeding, or non-healing spots, moles, or lesions on your skin?',
+      answer_type: 'single-select',
+      options: [
+        { label: 'No', value: 'no', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: 'Yes, but I haven\'t checked them', value: 'unchecked', score: 3, risk_tags: ['SKIN_CANCER_RISK'], protocol_triggers: ['SKIN_PROTOCOL'], escalation_flag: true },
+        { label: 'Yes, and I plan to check them', value: 'planned', score: 2, risk_tags: ['SKIN_CANCER_RISK'], protocol_triggers: ['SKIN_PROTOCOL'] },
+        { label: 'Yes, and I\'m already seeing a professional', value: 'in_care', score: 0, risk_tags: [], protocol_triggers: [] }
+      ]
+    },
+    {
+      id: 'sk_q4',
+      question: 'How would you describe your daily skincare routine?',
+      answer_type: 'single-select',
+      options: [
+        { label: 'Consistent cleanser + moisturizer + SPF', value: 'full', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: 'Basic — soap and water', value: 'basic', score: 1, risk_tags: ['SKIN_BARRIER'], protocol_triggers: ['SKIN_PROTOCOL'] },
+        { label: 'Inconsistent / changes often', value: 'inconsistent', score: 2, risk_tags: ['SKIN_BARRIER'], protocol_triggers: ['SKIN_PROTOCOL'] },
+        { label: 'Almost none', value: 'none', score: 3, risk_tags: ['SKIN_BARRIER'], protocol_triggers: ['SKIN_PROTOCOL'] }
+      ]
+    },
+    {
+      id: 'sk_q5',
+      question: 'How is your skin hydration and dryness day to day?',
+      answer_type: 'single-select',
+      options: [
+        { label: 'Comfortable, rarely dry', value: 'good', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: 'Occasionally dry or tight', value: 'occasional', score: 1, risk_tags: ['SKIN_BARRIER'], protocol_triggers: ['SKIN_PROTOCOL'] },
+        { label: 'Frequently dry or itchy', value: 'frequent', score: 2, risk_tags: ['SKIN_BARRIER'], protocol_triggers: ['SKIN_PROTOCOL'] },
+        { label: 'Cracked, flaky, or painful', value: 'severe', score: 3, risk_tags: ['SKIN_BARRIER'], protocol_triggers: ['SKIN_PROTOCOL'] }
+      ]
+    },
+    {
+      id: 'sk_q6',
+      question: 'Which skin-related goal matters most to you right now?',
+      answer_type: 'single-select',
+      options: [
+        { label: 'Prevent sun damage and skin cancer', value: 'protect', score: 0, risk_tags: [], protocol_triggers: ['SKIN_PROTOCOL'] },
+        { label: 'Reduce visible aging and improve texture', value: 'aging', score: 1, risk_tags: ['SKIN_AGING'], protocol_triggers: ['SKIN_PROTOCOL'] },
+        { label: 'Improve hydration and barrier comfort', value: 'hydration', score: 1, risk_tags: ['SKIN_BARRIER'], protocol_triggers: ['SKIN_PROTOCOL'] },
+        { label: 'Learn when to see a dermatologist', value: 'medical', score: 1, risk_tags: ['SKIN_CANCER_RISK'], protocol_triggers: ['SKIN_PROTOCOL'] }
+      ]
+    }
+  ],
+
+  // ─── Strength, Muscle & Function (added May 2026) ──────────────────────────
+  strength_function: [
+    {
+      id: 'st_q1',
+      question: 'How concerned are you about losing strength, muscle, balance, or independence as you age?',
+      answer_type: 'single-select',
+      options: [
+        { label: 'Not concerned', value: 'none', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: 'Slightly concerned', value: 'slight', score: 1, risk_tags: ['STRENGTH_LOSS'], protocol_triggers: ['STRENGTH_PROTOCOL'] },
+        { label: 'Moderately concerned', value: 'moderate', score: 2, risk_tags: ['STRENGTH_LOSS'], protocol_triggers: ['STRENGTH_PROTOCOL'] },
+        { label: 'Very or extremely concerned', value: 'high', score: 3, risk_tags: ['STRENGTH_LOSS'], protocol_triggers: ['STRENGTH_PROTOCOL'] }
+      ]
+    },
+    {
+      id: 'st_q2',
+      question: 'How many days per week do you do strength or resistance training?',
+      answer_type: 'single-select',
+      options: [
+        { label: '3+ days', value: 'high', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: '1–2 days', value: 'moderate', score: 1, risk_tags: ['STRENGTH_LOSS'], protocol_triggers: ['STRENGTH_PROTOCOL'] },
+        { label: 'Less than once a week', value: 'low', score: 2, risk_tags: ['STRENGTH_LOSS'], protocol_triggers: ['STRENGTH_PROTOCOL'] },
+        { label: 'Never', value: 'none', score: 3, risk_tags: ['STRENGTH_LOSS', 'FALL_RISK'], protocol_triggers: ['STRENGTH_PROTOCOL'] }
+      ]
+    },
+    {
+      id: 'st_q3',
+      question: 'Have any daily physical tasks become harder for you recently — stairs, carrying, getting up from a chair, balance?',
+      answer_type: 'single-select',
+      options: [
+        { label: 'None of these', value: 'none', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: 'One has become slightly harder', value: 'one', score: 1, risk_tags: ['FUNCTIONAL_DECLINE'], protocol_triggers: ['STRENGTH_PROTOCOL'] },
+        { label: 'Several are noticeably harder', value: 'several', score: 2, risk_tags: ['FUNCTIONAL_DECLINE', 'FALL_RISK'], protocol_triggers: ['STRENGTH_PROTOCOL'] },
+        { label: 'Most daily tasks are harder', value: 'most', score: 3, risk_tags: ['FUNCTIONAL_DECLINE', 'FALL_RISK'], protocol_triggers: ['STRENGTH_PROTOCOL'], escalation_flag: true }
+      ]
+    },
+    {
+      id: 'st_q4',
+      question: 'How confident are you with your balance — single-leg stance, stairs without a railing, uneven ground?',
+      answer_type: 'single-select',
+      options: [
+        { label: 'Very confident', value: 'high', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: 'Mostly confident', value: 'moderate', score: 1, risk_tags: [], protocol_triggers: ['STRENGTH_PROTOCOL'] },
+        { label: 'Somewhat unsteady', value: 'low', score: 2, risk_tags: ['FALL_RISK'], protocol_triggers: ['STRENGTH_PROTOCOL'] },
+        { label: 'I avoid those situations', value: 'avoid', score: 3, risk_tags: ['FALL_RISK'], protocol_triggers: ['STRENGTH_PROTOCOL'] }
+      ]
+    },
+    {
+      id: 'st_q5',
+      question: 'How is your daily protein intake (palm-sized portion at most meals)?',
+      answer_type: 'single-select',
+      options: [
+        { label: 'Hit protein at every meal', value: 'high', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: 'Most meals', value: 'moderate', score: 1, risk_tags: [], protocol_triggers: ['STRENGTH_PROTOCOL'] },
+        { label: 'Inconsistent', value: 'low', score: 2, risk_tags: ['LOW_PROTEIN'], protocol_triggers: ['STRENGTH_PROTOCOL'] },
+        { label: 'Rarely', value: 'rare', score: 3, risk_tags: ['LOW_PROTEIN'], protocol_triggers: ['STRENGTH_PROTOCOL'] }
+      ]
+    },
+    {
+      id: 'st_q6',
+      question: 'Which physical-function goal matters most to you?',
+      answer_type: 'single-select',
+      options: [
+        { label: 'Build strength and muscle', value: 'strength', score: 1, risk_tags: ['STRENGTH_LOSS'], protocol_triggers: ['STRENGTH_PROTOCOL'] },
+        { label: 'Improve balance and reduce fall risk', value: 'balance', score: 1, risk_tags: ['FALL_RISK'], protocol_triggers: ['STRENGTH_PROTOCOL'] },
+        { label: 'Improve mobility and posture', value: 'mobility', score: 1, risk_tags: [], protocol_triggers: ['STRENGTH_PROTOCOL'] },
+        { label: 'Stay independent — stairs, carrying, getting off the floor', value: 'independence', score: 1, risk_tags: ['FUNCTIONAL_DECLINE'], protocol_triggers: ['STRENGTH_PROTOCOL'] }
+      ]
+    }
+  ],
+
+  // ─── Digestive Health & Microbiome (added May 2026) ────────────────────────
+  digestive_microbiome: [
+    {
+      id: 'dg_q1',
+      question: 'How often do you experience digestive discomfort — bloating, constipation, diarrhea, reflux, gas, or stomach upset?',
+      answer_type: 'single-select',
+      options: [
+        { label: 'Rarely or never', value: 'rare', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: 'A few times per month', value: 'monthly', score: 1, risk_tags: ['DIGESTIVE_DISCOMFORT'], protocol_triggers: ['DIGESTIVE_PROTOCOL'] },
+        { label: 'Weekly', value: 'weekly', score: 2, risk_tags: ['DIGESTIVE_DISCOMFORT'], protocol_triggers: ['DIGESTIVE_PROTOCOL'] },
+        { label: 'Several times per week or daily', value: 'frequent', score: 3, risk_tags: ['DIGESTIVE_DISCOMFORT'], protocol_triggers: ['DIGESTIVE_PROTOCOL'] }
+      ]
+    },
+    {
+      id: 'dg_q2',
+      question: 'How much fiber do you get from fruits, vegetables, beans, lentils, whole grains, nuts, or seeds?',
+      answer_type: 'single-select',
+      options: [
+        { label: 'High — fiber at most meals', value: 'high', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: 'Moderate', value: 'moderate', score: 1, risk_tags: [], protocol_triggers: ['DIGESTIVE_PROTOCOL'] },
+        { label: 'Low', value: 'low', score: 2, risk_tags: ['LOW_FIBER'], protocol_triggers: ['DIGESTIVE_PROTOCOL'] },
+        { label: 'Very low', value: 'very_low', score: 3, risk_tags: ['LOW_FIBER'], protocol_triggers: ['DIGESTIVE_PROTOCOL'] }
+      ]
+    },
+    {
+      id: 'dg_q3',
+      question: 'Do you avoid certain foods because they cause digestive symptoms?',
+      answer_type: 'single-select',
+      options: [
+        { label: 'No', value: 'no', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: 'Yes, one or two foods', value: 'few', score: 1, risk_tags: ['FOOD_TRIGGERS'], protocol_triggers: ['DIGESTIVE_PROTOCOL'] },
+        { label: 'Yes, several foods', value: 'several', score: 2, risk_tags: ['FOOD_TRIGGERS'], protocol_triggers: ['DIGESTIVE_PROTOCOL'] },
+        { label: 'Yes, many foods', value: 'many', score: 3, risk_tags: ['FOOD_TRIGGERS'], protocol_triggers: ['DIGESTIVE_PROTOCOL'] }
+      ]
+    },
+    {
+      id: 'dg_q4',
+      question: 'Have you noticed any of these in the last 3 months: blood in stool, black stool, unexplained weight loss, trouble swallowing, or severe persistent pain?',
+      answer_type: 'single-select',
+      options: [
+        { label: 'No', value: 'no', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: 'Once or twice', value: 'occasional', score: 3, risk_tags: ['DIGESTIVE_RED_FLAG'], protocol_triggers: ['DIGESTIVE_PROTOCOL'], escalation_flag: true },
+        { label: 'Several times', value: 'several', score: 3, risk_tags: ['DIGESTIVE_RED_FLAG'], protocol_triggers: ['DIGESTIVE_PROTOCOL'], escalation_flag: true },
+        { label: 'Yes, ongoing', value: 'ongoing', score: 3, risk_tags: ['DIGESTIVE_RED_FLAG'], protocol_triggers: ['DIGESTIVE_PROTOCOL'], escalation_flag: true }
+      ]
+    },
+    {
+      id: 'dg_q5',
+      question: 'How is your hydration on a typical day?',
+      answer_type: 'single-select',
+      options: [
+        { label: 'Plenty of water throughout the day', value: 'good', score: 0, risk_tags: [], protocol_triggers: [] },
+        { label: 'Mostly hydrated', value: 'mostly', score: 1, risk_tags: [], protocol_triggers: ['DIGESTIVE_PROTOCOL'] },
+        { label: 'Inconsistent', value: 'inconsistent', score: 2, risk_tags: ['LOW_HYDRATION'], protocol_triggers: ['DIGESTIVE_PROTOCOL'] },
+        { label: 'Rarely drink water', value: 'low', score: 3, risk_tags: ['LOW_HYDRATION'], protocol_triggers: ['DIGESTIVE_PROTOCOL'] }
+      ]
+    },
+    {
+      id: 'dg_q6',
+      question: 'Which digestive-health goal matters most to you right now?',
+      answer_type: 'single-select',
+      options: [
+        { label: 'Improve regularity', value: 'regularity', score: 1, risk_tags: [], protocol_triggers: ['DIGESTIVE_PROTOCOL'] },
+        { label: 'Reduce bloating', value: 'bloating', score: 1, risk_tags: ['DIGESTIVE_DISCOMFORT'], protocol_triggers: ['DIGESTIVE_PROTOCOL'] },
+        { label: 'Support microbiome diversity', value: 'microbiome', score: 1, risk_tags: [], protocol_triggers: ['DIGESTIVE_PROTOCOL'] },
+        { label: 'Reduce reflux triggers', value: 'reflux', score: 1, risk_tags: ['DIGESTIVE_DISCOMFORT'], protocol_triggers: ['DIGESTIVE_PROTOCOL'] }
       ]
     }
   ]

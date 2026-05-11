@@ -1,0 +1,190 @@
+.addons-block {
+  margin-top: 18px;
+  border-top: 1px solid var(--gray-200);
+  padding-top: 18px;
+}
+
+.addons-toggle {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f6f8fb;
+  border: 1px solid var(--gray-200);
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--gray-800);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.addons-toggle:hover {
+  background: #eef2f8;
+}
+
+.addons-title em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--gray-600);
+  margin-left: 4px;
+}
+
+.addons-chev {
+  font-size: 1.2rem;
+  color: var(--gray-500);
+}
+
+.addons-body {
+  margin-top: 14px;
+  padding: 16px;
+  background: #fafbfd;
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--gray-800);
+}
+
+.addons-gate h4 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  color: var(--gray-900);
+}
+
+.addons-gate p {
+  margin: 0 0 12px;
+}
+
+.addons-ack-btn {
+  margin-top: 6px;
+  padding: 10px 18px;
+  background: #0D9488;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.addons-ack-btn:hover {
+  background: #0B7F75;
+}
+
+.addons-coach {
+  font-style: italic;
+  color: var(--gray-700);
+  border-left: 3px solid #0D9488;
+  padding-left: 12px;
+  margin: 0 0 16px;
+}
+
+.addons-section {
+  margin-bottom: 18px;
+}
+
+.addons-section h4 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  color: var(--gray-900);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tier-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.tier-label.tier-1 {
+  background: #DCFCE7;
+  color: #166534;
+}
+
+.tier-label.tier-2 {
+  background: #FEF3C7;
+  color: #92400E;
+}
+
+.tier-label.tier-3 {
+  background: #FEE2E2;
+  color: #991B1B;
+}
+
+.addons-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.addons-section li {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: 6px;
+}
+
+.addons-section li strong {
+  color: var(--gray-900);
+}
+
+.addons-tier {
+  font-size: 0.82rem;
+  color: var(--gray-600);
+  font-weight: 500;
+}
+
+.addons-note {
+  display: block;
+  margin-top: 4px;
+  color: var(--gray-600);
+  font-size: 0.88rem;
+}
+
+.addons-safety {
+  margin-top: 6px;
+  padding: 6px 10px;
+  background: #FEF3C7;
+  color: #78350F;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.peptide-section {
+  padding: 12px;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: 6px;
+}
+
+.peptide-section h4 {
+  color: #991B1B;
+}
+
+.red-flag-section {
+  padding: 12px;
+  background: #FEF2F2;
+  border-left: 4px solid #DC2626;
+  border-radius: 6px;
+}
+
+.red-flag-section h4 {
+  color: #991B1B;
+}
+
+.addons-footer-disclaimer {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--gray-200);
+  font-size: 0.78rem;
+  color: var(--gray-500);
+  font-style: italic;
+}

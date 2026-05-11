@@ -72,10 +72,44 @@ export default function App() {
     checkAuthState()
   }, [])
 
-  const handlePhase1Complete = (results, resultId) => {
+  const handlePhase1Complete = async (results, resultId) => {
     setPhase1Results(results)
+
+    // Retake path: a logged-in user (userId set) must skip email_capture.
+    // That screen calls supabase.auth.signUp(), which fails with
+    // "user already registered" for their existing email — leaving them
+    // stuck on a sign-up form. Instead, write the new quiz_results row
+    // directly and route straight to the results screen.
+    if (userId) {
+      try {
+        const { data: quizRow, error: quizError } = await supabase
+          .from('quiz_results')
+          .insert({
+            user_id: userId,
+            chrono_age: results.chronoAge,
+            true_health_age: results.trueHealthAge,
+            age_diff: results.ageDiff,
+            grade: results.grade,
+            result_label: results.label,
+            answers: results.answers || {},
+            top_3_aging: results.top3Aging || null,
+            top_3_protecting: results.top3Protecting || null,
+            device_type: /Mobi|Android/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+            user_agent: navigator.userAgent,
+          })
+          .select()
+          .single()
+        if (quizError) console.warn('Retake quiz_results insert failed:', quizError)
+        setResultId(quizRow?.id || null)
+      } catch (err) {
+        console.warn('Retake quiz_results insert threw:', err)
+        setResultId(null)
+      }
+      setCurrentPhase('phase1_results')
+      return
+    }
+
     setResultId(resultId)
-    // Go directly to email capture - email required to see results
     setCurrentPhase('email_capture')
   }
 
