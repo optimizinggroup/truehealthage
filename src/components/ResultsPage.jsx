@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import ShareComponent from './ShareComponent'
+import ShareAfterReveal from './ShareAfterReveal'
 import ResultsReport from './ResultsReport'
 import { getRecommendedProtocols } from '../utils/protocolMapping'
 import '../styles/ResultsPage.css'
@@ -70,6 +71,13 @@ export default function ResultsPage({
               </p>
             </div>
           </div>
+
+          {/* Post-reveal viral share — positioned at peak emotional moment,
+              right under the number. Does NOT reveal the user's score; copy
+              is "I just found out my TrueHealth Age — you can too." Same
+              prompt works for users with great results AND embarrassing
+              results because there's no number on the card. */}
+          <ShareAfterReveal />
 
           {/* Category Breakdown with "Why It Matters" */}
           {phase1Results.categoryScores && (

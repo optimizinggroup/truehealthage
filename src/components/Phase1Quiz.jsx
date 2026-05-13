@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { calculatePhase1Results } from '../utils/quizLogic'
+import { track as phTrack } from '../utils/posthog'
 import TrueHealthAgeLogo from '../assets/logos/truehealthage.png'
 import '../styles/Phase1Quiz.css'
 
@@ -60,13 +61,44 @@ const PHASE1_QUESTIONS = [
   {
     id: 5,
     category: 'High-Impact Risks',
-    question: 'Have you been diagnosed with any of the following?',
-    type: 'multi',
+    question: 'Diabetes — which best describes you?',
+    type: 'single',
     options: [
-      { text: 'None', years: 0, isNone: true },
-      { text: 'Diabetes', years: 3 },
-      { text: 'Heart disease', years: 6 },
-      { text: 'Cancer', years: 4 }
+      { text: "I don't have diabetes", years: 0 },
+      { text: 'Pre-diabetes', years: 1 },
+      { text: 'Type 2 — well controlled (A1c in range, on plan)', years: 2 },
+      { text: 'Type 2 — poorly controlled or newly diagnosed', years: 4 },
+      { text: 'Type 1 diabetes', years: 3 }
+    ]
+  },
+  // Q23 + Q24 split out from the original combined chronic-disease question
+  // so users with very different severity profiles (controlled BP vs heart
+  // attack history; basal cell skin cancer vs metastatic disease) get an
+  // accurate health-age impact instead of one blunt average.
+  {
+    id: 23,
+    category: 'High-Impact Risks',
+    question: 'Cardiovascular — which best describes you?',
+    type: 'single',
+    options: [
+      { text: "I don't have any cardiovascular condition", years: 0 },
+      { text: 'High blood pressure or high cholesterol — controlled with treatment', years: 1 },
+      { text: 'High blood pressure or high cholesterol — uncontrolled or untreated', years: 3 },
+      { text: 'Atrial fibrillation (AFib) or heart failure', years: 5 },
+      { text: 'Heart attack, stroke, stent, or bypass history', years: 6 }
+    ]
+  },
+  {
+    id: 24,
+    category: 'High-Impact Risks',
+    question: 'Cancer — which best describes you?',
+    type: 'single',
+    options: [
+      { text: "I don't have and haven't had cancer", years: 0 },
+      { text: 'Non-melanoma skin cancer (basal or squamous cell), treated', years: 0.5 },
+      { text: 'Other cancer — in remission 5+ years', years: 1 },
+      { text: 'Melanoma or other cancer — active treatment or recent (<5 years)', years: 4 },
+      { text: 'Metastatic or stage IV cancer', years: 7 }
     ]
   },
 
@@ -266,6 +298,40 @@ const PHASE1_QUESTIONS = [
       { text: 'Sometimes', years: 1 },
       { text: 'Often', years: 3 }
     ]
+  },
+  // Q21 + Q22 are goal/level questions — they don't affect the True Health Age
+  // calculation (years: 0 across the board). They feed Phase 2 priority sort
+  // and the dashboard's tip personalization so we can match advice to what
+  // the user actually wants to work on and where they're starting from.
+  {
+    id: 21,
+    category: 'Goals',
+    question: 'What matters most to you right now? (pick all that apply)',
+    type: 'multi',
+    options: [
+      { text: 'More energy day-to-day', years: 0, goal: 'energy_fatigue' },
+      { text: 'Lose weight or improve body composition', years: 0, goal: 'weight_metabolism' },
+      { text: 'Get stronger and keep my mobility', years: 0, goal: 'strength_function' },
+      { text: 'Protect my heart and live longer', years: 0, goal: 'heart_fitness' },
+      { text: 'Sleep better and recover faster', years: 0, goal: 'sleep_recovery' },
+      { text: 'Lower my stress / feel calmer', years: 0, goal: 'stress_mental' },
+      { text: 'Sharper memory and focus', years: 0, goal: 'brain_performance' },
+      { text: 'Better digestion and gut health', years: 0, goal: 'digestive_microbiome' },
+      { text: 'Healthier skin and look younger', years: 0, goal: 'skin_health' },
+      { text: 'Balance hormones / vitality', years: 0, goal: 'hormone_health_vitality' },
+      { text: 'Prevent disease and age slowly', years: 0, goal: 'longevity_prevention' }
+    ]
+  },
+  {
+    id: 22,
+    category: 'Goals',
+    question: 'Where would you say you are on your health journey today?',
+    type: 'single',
+    options: [
+      { text: "Newbie — I do very little for my health right now", years: 0, level: 'newbie' },
+      { text: "Intermediate — I do some healthy things daily but not optimized", years: 0, level: 'intermediate' },
+      { text: "Pro — I'm dialed in and always looking for the edge", years: 0, level: 'pro' }
+    ]
   }
 ]
 
@@ -274,8 +340,37 @@ export default function Phase1Quiz({ onComplete }) {
   const [answers, setAnswers] = useState({})
   const [numberInput, setNumberInput] = useState('')
   const [loading, setLoading] = useState(false)
+  // Track when each question was first shown so we can capture time-on-question
+  // (the strategy doc's "drop-off points" signal lives here).
+  const questionShownAtRef = useRef(Date.now())
+  const startedRef = useRef(false)
 
   const currentQ = PHASE1_QUESTIONS[currentQuestion]
+
+  // Fire quiz_started exactly once on first mount
+  useEffect(() => {
+    if (startedRef.current) return
+    startedRef.current = true
+    phTrack('quiz_started', { total_questions: PHASE1_QUESTIONS.length })
+  }, [])
+
+  // Reset the "shown at" stopwatch every time the question changes
+  useEffect(() => {
+    questionShownAtRef.current = Date.now()
+  }, [currentQuestion])
+
+  // Helper used by every answer handler below to log a uniform event
+  const trackAnswer = (extras = {}) => {
+    const ms = Date.now() - questionShownAtRef.current
+    phTrack('quiz_question_answered', {
+      question_id: currentQ.id,
+      question_index: currentQuestion,
+      question_category: currentQ.category,
+      question_type: currentQ.type,
+      time_on_question_ms: ms,
+      ...extras,
+    })
+  }
 
   // When the user navigates back to a previously-answered number question
   // (age), repopulate the input so they see their prior answer and can
@@ -317,6 +412,7 @@ export default function Phase1Quiz({ onComplete }) {
         years: selectedOption.years
       }
     })
+    trackAnswer({ answer_text: selectedOption.text })
 
     if (currentQuestion < PHASE1_QUESTIONS.length - 1) {
       setCurrentQuestion(currentQuestion + 1)
@@ -338,6 +434,7 @@ export default function Phase1Quiz({ onComplete }) {
         years: 0
       }
     })
+    trackAnswer({ answer_text: numberInput })
 
     if (currentQuestion < PHASE1_QUESTIONS.length - 1) {
       setCurrentQuestion(currentQuestion + 1)
@@ -372,6 +469,7 @@ export default function Phase1Quiz({ onComplete }) {
         years: updatedSelections.reduce((sum, a) => sum + a.years, 0)
       }
     })
+    trackAnswer({ answer_text: updatedSelections.map(s => s.text).join(', '), multi: true })
 
     // If "None" is selected, automatically proceed
     if (selectedOption.isNone && !alreadySelected) {
@@ -436,6 +534,7 @@ export default function Phase1Quiz({ onComplete }) {
         weight: weightInput,
       }
     })
+    trackAnswer({ answer_text: bmiCategory, bmi: Math.round(bmi * 10) / 10 })
 
     if (currentQuestion < PHASE1_QUESTIONS.length - 1) {
       setCurrentQuestion(currentQuestion + 1)

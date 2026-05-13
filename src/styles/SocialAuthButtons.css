@@ -1,0 +1,85 @@
+.social-auth {
+  margin: 18px 0 8px;
+}
+
+.social-auth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 18px 0 16px;
+  color: #94a3b8;
+  font-size: 0.82rem;
+}
+
+.social-auth-divider::before,
+.social-auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
+}
+
+.social-auth-divider span {
+  padding: 0 14px;
+}
+
+.social-auth-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+.social-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.social-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.social-btn.google {
+  background: white;
+  color: #1f2937;
+  border: 1px solid #dadce0;
+}
+
+.social-btn.google:hover:not(:disabled) {
+  background: #f8f9fa;
+  border-color: #c6c9cd;
+}
+
+.social-btn.apple {
+  background: #000;
+  color: white;
+  border: 1px solid #000;
+}
+
+.social-btn.apple:hover:not(:disabled) {
+  background: #1a1a1a;
+}
+
+.social-icon {
+  flex-shrink: 0;
+}
+
+.social-auth-error {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  color: #b91c1c;
+  text-align: center;
+}

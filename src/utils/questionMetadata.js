@@ -32,11 +32,23 @@ export const QUESTION_METADATA = {
     improvementSteps: 'Limit to ≤7 drinks/week (women) or ≤14 (men); add alcohol-free days; replace with non-alcoholic options; track intake.',
     poorAnswers: ['8–14', '15+']
   },
-  5: { // Chronic disease
+  5: { // Diabetes status
     category: 'High-Impact Risks',
-    whyItMatters: 'Chronic diseases significantly increase biological aging risk.',
-    improvementSteps: 'Follow medical care plan; optimize medications; improve diet, activity, sleep; monitor biomarkers regularly.',
-    poorAnswers: ['Diabetes', 'Heart disease', 'Cancer']
+    whyItMatters: 'Diabetes accelerates vascular and metabolic aging; control and type both matter.',
+    improvementSteps: 'Follow medical care plan; aim for A1c in target range; prioritize protein, fiber, and daily movement; monitor glucose regularly.',
+    poorAnswers: ['Type 2 — poorly controlled or newly diagnosed', 'Type 1 diabetes', 'Type 2 — well controlled (A1c in range, on plan)']
+  },
+  23: { // Cardiovascular status
+    category: 'High-Impact Risks',
+    whyItMatters: 'Cardiovascular conditions are the leading driver of biological aging — severity and control both matter.',
+    improvementSteps: 'Work with your doctor on medication adherence; prioritize cardio (zone 2), strength training, sleep, and a Mediterranean-style diet.',
+    poorAnswers: ['Heart attack, stroke, stent, or bypass history', 'Atrial fibrillation (AFib) or heart failure', 'High blood pressure or high cholesterol — uncontrolled or untreated']
+  },
+  24: { // Cancer status
+    category: 'High-Impact Risks',
+    whyItMatters: 'Cancer impact varies enormously by type and stage; current treatment and metastatic disease carry the highest aging burden.',
+    improvementSteps: 'Follow your oncologist plan; protect sleep, nutrition, and movement during and after treatment; manage stress and inflammation.',
+    poorAnswers: ['Metastatic or stage IV cancer', 'Melanoma or other cancer — active treatment or recent (<5 years)', 'Other cancer — in remission 5+ years']
   },
   6: { // BMI
     category: 'Body & Vitals',

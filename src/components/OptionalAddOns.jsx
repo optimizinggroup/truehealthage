@@ -1,4 +1,6 @@
+import { useEffect } from 'react'
 import { getAddOnsForCategory, ADDON_DISCLAIMER, matchesSex } from '../utils/optionalAddOns'
+import { track as phTrack } from '../utils/posthog'
 import '../styles/OptionalAddOns.css'
 
 /**
@@ -18,6 +20,18 @@ import '../styles/OptionalAddOns.css'
  */
 export default function OptionalAddOns({ categoryId, userSex }) {
   const raw = getAddOnsForCategory(categoryId)
+
+  // Fire one event per dashboard render of this section so we can see
+  // which categories' supplement/therapy education actually gets viewed.
+  useEffect(() => {
+    if (raw) {
+      phTrack('addons_section_opened', {
+        category_id: categoryId,
+        user_sex: userSex || 'unknown',
+      })
+    }
+  }, [categoryId, userSex, raw])
+
   if (!raw) return null
 
   const data = {

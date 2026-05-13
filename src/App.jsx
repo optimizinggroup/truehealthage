@@ -11,7 +11,11 @@ import AppHeader from './components/AppHeader'
 import CoachIntro from './components/CoachIntro'
 import CoachDashboard from './components/CoachDashboard'
 import PrioritySelection from './components/PrioritySelection'
+import ShareBeforeReveal from './components/ShareBeforeReveal'
+import SettingsScreen from './components/SettingsScreen'
 import { normalizeSex } from './utils/optionalAddOns'
+import { clearAllScheduled } from './utils/notifications'
+import { pageview as phPageview, identify as phIdentify, resetIdentity as phReset, track as phTrack } from './utils/posthog'
 import './App.css'
 
 const COACH_INTRO_SEEN_KEY = 'tha_coach_intro_seen_v1'
@@ -21,7 +25,7 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 export default function App() {
-  const [currentPhase, setCurrentPhase] = useState('landing') // landing | coach_intro | login | forgot_password | reset_password | phase1 | phase1_results | phase2 | email_capture | results | priority_selection | coach_dashboard
+  const [currentPhase, setCurrentPhase] = useState('landing') // landing | coach_intro | login | forgot_password | reset_password | phase1 | phase1_results | phase2 | email_capture | share_before_reveal | results | priority_selection | coach_dashboard | settings
 
   // Always scroll to top when the user moves between phases. Without this,
   // they land on the next screen at the previous scroll position — which
@@ -37,8 +41,49 @@ export default function App() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       window.scrollTo({ top: 0, behavior: 'instant' })
+      // Fire a virtual page_view on every phase transition — twice:
+      // once to GA, once to PostHog. SPA never changes its URL so without
+      // these manual events both tools would only see one pageview per session.
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', 'page_view', {
+          page_title: `True Health Age — ${currentPhase}`,
+          page_path: `/${currentPhase}`,
+          page_location: `${window.location.origin}/${currentPhase}`,
+        })
+      }
+      phPageview(currentPhase)
     }
   }, [currentPhase])
+
+  // Ensure a row exists in public.users for the signed-in auth user. OAuth
+  // signups (Google / Apple) create an auth.users row but no public.users
+  // row, which would break the quiz_results FK on first quiz completion.
+  // Upserting here keeps the email-signup path working AND covers OAuth.
+  const ensureUsersRow = async (authUser) => {
+    if (!authUser?.id) return
+    try {
+      const meta = authUser.user_metadata || {}
+      const provider = authUser.app_metadata?.provider || 'email'
+      // Tie PostHog distinct_id to Supabase user.id so this user's anonymous
+      // quiz events + signed-in coaching events merge into one journey.
+      phIdentify(authUser.id, {
+        email: authUser.email,
+        name: meta.full_name || meta.name || null,
+        provider,
+      })
+      await supabase
+        .from('users')
+        .upsert({
+          id: authUser.id,
+          email: authUser.email,
+          name: meta.full_name || meta.name || authUser.email,
+          provider,
+          opted_in: true,
+        }, { onConflict: 'id' })
+    } catch (err) {
+      console.warn('users upsert failed (non-fatal):', err)
+    }
+  }
 
   // Check for reset password token or existing session on mount
   useEffect(() => {
@@ -56,7 +101,7 @@ export default function App() {
             // Valid session from existing login
             setUserEmail(session.user.email)
             setUserId(session.user.id)
-            // TODO: Load user's previous results
+            await ensureUsersRow(session.user)
             setCurrentPhase('landing')
           }
         } else {
@@ -75,6 +120,13 @@ export default function App() {
 
   const handlePhase1Complete = async (results, resultId) => {
     setPhase1Results(results)
+    phTrack('quiz_phase1_completed', {
+      true_health_age: results.trueHealthAge,
+      chrono_age: results.chronoAge,
+      age_diff: results.ageDiff,
+      grade: results.grade,
+      is_retake: !!userId,
+    })
 
     // Retake path: a logged-in user (userId set) must skip email_capture.
     // That screen calls supabase.auth.signUp(), which fails with
@@ -116,8 +168,11 @@ export default function App() {
 
   const handleEmailCapture = async (email) => {
     setUserEmail(email)
-    // After email, show Phase 1 results
-    setCurrentPhase('phase1_results')
+    // First-time signup path: gently ask them to forward the assessment to one
+    // friend BEFORE they see their number. Skip is one click; we never block.
+    // Retakes (handlePhase1Complete with userId set) go straight to results
+    // and never hit this screen, by design.
+    setCurrentPhase('share_before_reveal')
   }
 
   const handlePhase1ResultsComplete = () => {
@@ -174,6 +229,8 @@ export default function App() {
   }
 
   const handleLogout = () => {
+    clearAllScheduled().catch(() => {})
+    phReset()  // new PostHog anonymous identity for the next user on this device
     setUserEmail(null)
     setUserId(null)
     setPhase1Results(null)
@@ -293,6 +350,12 @@ export default function App() {
           />
         )}
 
+        {currentPhase === 'share_before_reveal' && phase1Results && userEmail && (
+          <ShareBeforeReveal
+            onContinue={() => setCurrentPhase('phase1_results')}
+          />
+        )}
+
         {currentPhase === 'phase1_results' && phase1Results && userEmail && (
           <ResultsPage
             phase1Results={phase1Results}
@@ -336,6 +399,7 @@ export default function App() {
             phase2Results={phase2Results}
             onActivated={(_protocolKey, _when) => setCurrentPhase('coach_dashboard')}
             onSkip={() => setCurrentPhase('coach_dashboard')}
+            onExploreMore={() => setCurrentPhase('phase2')}
           />
         )}
 
@@ -345,6 +409,15 @@ export default function App() {
             userName={userEmail}
             onRetakeQuiz={handleRetakeQuiz}
             onAddAnotherArea={handleAddAnotherArea}
+            onLogout={handleLogout}
+            onOpenSettings={() => setCurrentPhase('settings')}
+          />
+        )}
+
+        {currentPhase === 'settings' && (
+          <SettingsScreen
+            userEmail={userEmail}
+            onBack={() => setCurrentPhase('coach_dashboard')}
             onLogout={handleLogout}
           />
         )}

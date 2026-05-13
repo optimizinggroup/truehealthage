@@ -1,0 +1,128 @@
+.sar-card {
+  margin: 28px 0 8px;
+  padding: 24px 26px;
+  background: linear-gradient(135deg, #0D9488 0%, #10B981 100%);
+  color: white;
+  border-radius: 14px;
+  box-shadow: 0 8px 28px rgba(13, 148, 136, 0.22);
+}
+
+.sar-content {
+  max-width: 640px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.sar-eyebrow {
+  margin: 0 0 8px;
+  font-size: 0.72rem;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.sar-headline {
+  margin: 0 0 10px;
+  font-size: clamp(1.15rem, 3.5vw, 1.5rem);
+  font-weight: 700;
+  color: white;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.sar-body {
+  margin: 0 0 18px;
+  font-size: 0.97rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.94);
+}
+
+.sar-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.sar-btn {
+  border: none;
+  padding: 12px 22px;
+  font-size: 0.98rem;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: transform 0.1s ease, background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sar-btn:active { transform: translateY(1px); }
+
+.sar-btn.primary {
+  background: white;
+  color: #0F766E;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
+}
+
+.sar-btn.primary:hover { background: #F0FDFA; }
+
+.sar-btn.ghost {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.sar-btn.ghost:hover {
+  background: rgba(255, 255, 255, 0.10);
+}
+
+.sar-platforms {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+  max-width: 540px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.sar-platform {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 14px;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: white;
+  font-family: inherit;
+  transition: filter 0.15s ease, transform 0.1s ease;
+}
+
+.sar-platform:active { transform: translateY(1px); }
+.sar-platform:hover { filter: brightness(1.08); }
+
+.sar-platform-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.sar-platform.fb     { background: #1877F2; }
+.sar-platform.x      { background: #0F172A; }
+.sar-platform.mail   { background: #475569; }
+.sar-platform.copy   { background: #0F766E; }
+
+@media (max-width: 480px) {
+  .sar-card { padding: 20px 18px; }
+  .sar-platforms { grid-template-columns: 1fr 1fr; }
+}

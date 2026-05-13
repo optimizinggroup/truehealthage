@@ -26,12 +26,28 @@ const corsHeaders = {
 interface RequestBody {
   email?: string
   user_id?: string
+  // Full display name from EmailCapture or any future signup form. We split
+  // on the first space to derive first_name + last_name for Beehiiv. Anonymous
+  // marketing-site newsletter signups don't supply this and fall back to the
+  // template-side default greeting.
+  name?: string
   utm_source?: string
   utm_medium?: string
   utm_campaign?: string
   // Optional context tag — the user's first chosen protocol category, so
   // the newsletter can later send segment-specific content.
   focus_area?: string
+}
+
+// Split "Keith Kravitz" → { first: "Keith", last: "Kravitz" }
+// Single-word names go to first only; empty/whitespace → both null.
+function splitName(raw?: string): { first?: string; last?: string } {
+  if (!raw) return {}
+  const trimmed = String(raw).trim().replace(/\s+/g, ' ')
+  if (!trimmed) return {}
+  const idx = trimmed.indexOf(' ')
+  if (idx === -1) return { first: trimmed }
+  return { first: trimmed.slice(0, idx), last: trimmed.slice(idx + 1) }
 }
 
 Deno.serve(async (req) => {
@@ -41,9 +57,11 @@ Deno.serve(async (req) => {
 
   try {
     const body = (await req.json()) as RequestBody
-    let { email, user_id, focus_area, utm_source, utm_medium, utm_campaign } = body
+    let { email, user_id, name, focus_area, utm_source, utm_medium, utm_campaign } = body
 
-    // If no email but a user_id is given, look up email from auth/users
+    // If no email but a user_id is given, look up email AND name from our users table.
+    // Falling back to the stored name means OAuth signups (which don't pass `name`
+    // explicitly) still get personalized greetings.
     if (!email && user_id) {
       const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
         auth: { persistSession: false },
@@ -54,11 +72,14 @@ Deno.serve(async (req) => {
         .eq('id', user_id)
         .single()
       if (profile?.email) email = profile.email
+      if (!name && profile?.name) name = profile.name
     }
 
     if (!email) {
       return json({ error: 'email or user_id required' }, 400)
     }
+
+    const { first: firstName, last: lastName } = splitName(name)
 
     // Build Beehiiv subscription payload
     const subscribeBody: Record<string, unknown> = {
@@ -69,12 +90,14 @@ Deno.serve(async (req) => {
       utm_medium: utm_medium || 'web',
       utm_campaign: utm_campaign || 'signup',
     }
-    if (focus_area) {
-      // Beehiiv supports custom_fields and tags; tags are simpler for segmentation.
-      subscribeBody.custom_fields = [
-        { name: 'focus_area', value: focus_area },
-      ]
-    }
+
+    // Beehiiv supports first_name + last_name as standard subscriber-profile
+    // fields via custom_fields. Same array also carries our focus_area tag.
+    const customFields: Array<{ name: string; value: string }> = []
+    if (firstName) customFields.push({ name: 'first_name', value: firstName })
+    if (lastName)  customFields.push({ name: 'last_name',  value: lastName })
+    if (focus_area) customFields.push({ name: 'focus_area', value: focus_area })
+    if (customFields.length > 0) subscribeBody.custom_fields = customFields
 
     const beehiivRes = await fetch(
       `https://api.beehiiv.com/v2/publications/${BEEHIIV_PUBLICATION_ID}/subscriptions`,

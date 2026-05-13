@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
+import SocialAuthButtons from './SocialAuthButtons'
 import '../styles/LoginComponent.css'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
@@ -101,6 +102,8 @@ export default function LoginComponent({ onLoginSuccess, onForgotPassword, onSig
             {loading ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
+
+        <SocialAuthButtons disabled={loading} />
 
         <div className="login-footer">
           <button className="link-btn" onClick={onForgotPassword} disabled={loading}>

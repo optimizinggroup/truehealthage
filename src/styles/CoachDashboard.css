@@ -304,12 +304,39 @@
   font-size: 14px;
   line-height: 1.5;
   color: #2d3748;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .task-num {
   font-weight: 700;
   color: #0D9488;
   margin-right: 4px;
+}
+
+.task-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.task-swap-btn {
+  background: transparent;
+  border: 1px solid #cbd5e0;
+  color: #4a5568;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.task-swap-btn:hover {
+  background: #edf2f7;
+  border-color: #0D9488;
+  color: #0D9488;
 }
 
 .graduation-note {

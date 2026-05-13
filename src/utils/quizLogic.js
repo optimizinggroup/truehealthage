@@ -16,7 +16,7 @@ export function calculatePhase1Results(answers) {
   // non-apnea Sleep result was the visible symptom).
   const categoryMap = {
     'Baseline': [1, 2],
-    'High-Impact Risks': [3, 4, 5],
+    'High-Impact Risks': [3, 4, 5, 23, 24],
     'Body & Vitals': [6, 7, 8, 9],
     'Movement': [10, 11, 12],
     'Sleep': [13, 14, 15],

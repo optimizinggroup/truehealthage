@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
+import SocialAuthButtons from './SocialAuthButtons'
+import { track as phTrack, identify as phIdentify } from '../utils/posthog'
 import '../styles/EmailCapture.css'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
@@ -149,6 +151,14 @@ export default function EmailCapture({
         })
       }
 
+      // PostHog: identify the user + log the signup-completed event for funnels.
+      phIdentify(user.id, { email, name: fullName, provider: 'email' })
+      phTrack('auth_signup_completed', {
+        provider: 'email',
+        newsletter_optin: !!subscribeNewsletter,
+        had_quiz_result: !!quizRow?.id,
+      })
+
       // 5. (Optional) Subscribe to TrueHealth Protocols newsletter via Beehiiv.
       // Non-blocking; if this fails the user still gets through signup.
       if (subscribeNewsletter && session?.access_token) {
@@ -162,6 +172,7 @@ export default function EmailCapture({
           body: JSON.stringify({
             email,
             user_id: user.id,
+            name: fullName,            // → split into first_name/last_name in the edge function
             utm_source: 'truehealthage_app',
             utm_medium: 'web',
             utm_campaign: 'signup_optin',
@@ -288,6 +299,8 @@ export default function EmailCapture({
             </button>
           )}
         </form>
+
+        <SocialAuthButtons disabled={loading} />
 
         <p className="privacy-note">
           Your results are saved securely. You can log in anytime to review, edit, or retake assessments.

@@ -243,6 +243,9 @@ function score(tip, currentWeek, profile) {
   // habit they already added to their core routine
   if (profile.promotedTips && profile.promotedTips.includes(tip.tip)) return -1
 
+  // User marked "I already do this" — skip so we can surface something new
+  if (profile.excludedTips && profile.excludedTips.includes(tip.tip)) return -1
+
   return s
 }
 
@@ -383,6 +386,7 @@ export function buildProfileFromUser({
   phase2Answers,        // optional: { categoryId: { qid: { value, label, score, risk_tags } } }
   rankedCategories,     // optional: from phase2Results
   promotedTips,         // optional: array of tip strings already promoted
+  excludedTips,         // optional: array of tip strings the user already does daily
   activeCategoryId,     // current protocol's category — used for severity lookup
 }) {
   const profile = {}
@@ -436,6 +440,7 @@ export function buildProfileFromUser({
   }
 
   if (promotedTips) profile.promotedTips = promotedTips
+  if (excludedTips) profile.excludedTips = excludedTips
 
   return profile
 }

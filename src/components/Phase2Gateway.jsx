@@ -6,7 +6,14 @@ import '../styles/Phase2Gateway.css'
 
 export default function Phase2Gateway({ phase1Results, onStart, onSkip }) {
   const [mode, setMode] = useState('quick') // 'quick' or 'full'
-  const [selectedAreas, setSelectedAreas] = useState([])
+  // Pull category ids the user named as goals in Phase 1 Q21 — used both to
+  // preselect them in Quick mode and to badge them as "your goal" in the grid.
+  const goalCategoryIds = (() => {
+    const sels = phase1Results?.answers?.[21]?.selections
+    if (!Array.isArray(sels)) return []
+    return sels.map(s => s.goal).filter(Boolean)
+  })()
+  const [selectedAreas, setSelectedAreas] = useState(goalCategoryIds)
 
   const handleAreaToggle = (categoryId) => {
     if (selectedAreas.includes(categoryId)) {
@@ -106,20 +113,26 @@ export default function Phase2Gateway({ phase1Results, onStart, onSkip }) {
               Choose any areas you want to work on. You can pick one, a few, or all of them — we'll help you focus on one at a time.
             </p>
             <div className="categories-grid">
-              {PHASE2_CATEGORIES.map(category => (
-                <div
-                  key={category.id}
-                  className={`category-card ${selectedAreas.includes(category.id) ? 'selected' : ''}`}
-                  onClick={() => handleAreaToggle(category.id)}
-                >
-                  <div className="card-icon">{category.icon}</div>
-                  <h3>{category.name}</h3>
-                  <p>{category.description}</p>
-                  {selectedAreas.includes(category.id) && (
-                    <div className="selection-badge">✓ Selected</div>
-                  )}
-                </div>
-              ))}
+              {PHASE2_CATEGORIES.map(category => {
+                const isGoal = goalCategoryIds.includes(category.id)
+                return (
+                  <div
+                    key={category.id}
+                    className={`category-card ${selectedAreas.includes(category.id) ? 'selected' : ''}`}
+                    onClick={() => handleAreaToggle(category.id)}
+                  >
+                    <div className="card-icon">{category.icon}</div>
+                    <h3>{category.name}</h3>
+                    <p>{category.description}</p>
+                    {isGoal && (
+                      <div className="goal-badge">★ Your goal</div>
+                    )}
+                    {selectedAreas.includes(category.id) && (
+                      <div className="selection-badge">✓ Selected</div>
+                    )}
+                  </div>
+                )
+              })}
             </div>
             <p className="selection-count">
               {selectedAreas.length === 0

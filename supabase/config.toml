@@ -3,5 +3,12 @@ project_id = "ssckphhvxftbhpylhfmy"
 [functions.send-welcome-email]
 verify_jwt = true
 
+# Public-callable: anonymous visitors on truehealthage.com need to subscribe
+# from the marketing-site newsletter form. The function only forwards an email
+# to Beehiiv (which handles dedupe + opt-in) and does not expose user data.
 [functions.subscribe-newsletter]
+verify_jwt = false
+
+# Requires a signed-in user's JWT. Apple App Store Review Guideline 5.1.1(v).
+[functions.delete-account]
 verify_jwt = true

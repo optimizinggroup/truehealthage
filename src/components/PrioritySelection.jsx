@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { PHASE2_CATEGORIES } from '../utils/phase2Data'
+import { ensureNotificationPermission, scheduleWeeklyCheckin, scheduleDailyNudge } from '../utils/notifications'
+import { track as phTrack } from '../utils/posthog'
 import '../styles/PrioritySelection.css'
 
 const supabase = createClient(
@@ -27,7 +29,7 @@ const supabase = createClient(
  * raw protocol keys like RECOVERY_TIME or STRESS_MANAGEMENT — they
  * see the friendly category name (e.g. "Stress & Mental Health").
  */
-export default function PrioritySelection({ phase2Results, onActivated, onSkip }) {
+export default function PrioritySelection({ phase2Results, onActivated, onSkip, onExploreMore }) {
   const [step, setStep] = useState('default') // 'default' | 'choose' | 'when'
   const [chosen, setChosen] = useState(null)  // the category+protocol bundle they picked
   const [error, setError] = useState(null)
@@ -87,18 +89,36 @@ export default function PrioritySelection({ phase2Results, onActivated, onSkip }
     // "add another area" flow doesn't re-recommend their current focus).
     .filter(c => c.topProtocol && c.status?.level !== 'optimal' && !excludeCategories.has(c.categoryId))
 
-  // Empty state — nothing actionable triggered
+  // Categories the user took the Phase 2 quiz on that scored Optimal —
+  // not "actionable" by score, but they may still want to swap focus into
+  // one of them. Used to color the empty-state copy.
+  const hasOptimalRemaining = rankedCategories
+    .filter(c => !excludeCategories.has(c.categoryId))
+    .some(c => c.status?.level === 'optimal')
+
+  // Empty state — nothing actionable triggered (either everything they
+  // assessed scored Optimal, or they've already picked all the ones that
+  // didn't). Don't dead-end them — let them assess a different area.
   if (actionableCategories.length === 0) {
     return (
       <div className="priority-selection">
         <div className="priority-card">
-          <h2>You're in good shape.</h2>
+          <h2>{hasOptimalRemaining ? "Nice — you're solid on what you assessed." : "You've got the priority areas covered."}</h2>
           <p>
-            Your assessment didn't surface any priority concerns to coach you through right now. Keep doing what you're doing.
+            {hasOptimalRemaining
+              ? "The categories you tested didn't surface a concern worth coaching you through. Want to try a different area of your health?"
+              : "You're already working on the areas where you scored concerns. Want to assess a different area too?"}
           </p>
-          <button className="primary-btn" onClick={onSkip}>
-            Continue to Dashboard
-          </button>
+          <div className="priority-footer two-buttons">
+            <button className="secondary-btn" onClick={onSkip}>
+              Continue to Dashboard
+            </button>
+            {onExploreMore && (
+              <button className="primary-btn" onClick={onExploreMore}>
+                Assess another area →
+              </button>
+            )}
+          </div>
         </div>
       </div>
     )
@@ -145,6 +165,30 @@ export default function PrioritySelection({ phase2Results, onActivated, onSkip }
         setActivating(false)
         return
       }
+
+      phTrack('protocol_selected', {
+        category_id: currentChoice.categoryId,
+        category_name: currentChoice.categoryName,
+        protocol_key: currentChoice.topProtocol.name,
+        priority_rank: actionableCategories.findIndex(c => c.categoryId === currentChoice.categoryId) + 1,
+        was_top_recommendation: currentChoice.categoryId === topPriority.categoryId,
+        start_when: when,
+        score: currentChoice.score,
+      })
+
+      // Ask permission and schedule weekly check-in + daily nudge.
+      // No-op on web; on iOS/Android this prompts the OS notification
+      // permission dialog the first time, then schedules locally.
+      try {
+        const perm = await ensureNotificationPermission()
+        if (perm.granted) {
+          await scheduleWeeklyCheckin({
+            protocolId: parseInt(user.id.replace(/-/g, '').slice(0, 6), 16) || 1,
+            protocolName: currentChoice.categoryName,
+          })
+          await scheduleDailyNudge({ hour: 8 })
+        }
+      } catch (_) { /* non-fatal */ }
 
       onActivated(currentChoice.topProtocol.name, when)
     } catch (err) {
@@ -250,6 +294,15 @@ export default function PrioritySelection({ phase2Results, onActivated, onSkip }
             >
               ← Back
             </button>
+            {onExploreMore && (
+              <button
+                type="button"
+                className="text-btn"
+                onClick={onExploreMore}
+              >
+                Assess a different area →
+              </button>
+            )}
           </div>
         </div>
       </div>

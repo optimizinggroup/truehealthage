@@ -1,0 +1,97 @@
+.share-app {
+  margin: 24px 0;
+}
+
+.share-app--card .share-app-content {
+  background: linear-gradient(135deg, #F0FDFA 0%, #ECFDF5 100%);
+  border: 1px solid #99F6E4;
+  border-radius: 14px;
+  padding: 22px 24px;
+  text-align: center;
+}
+
+.share-app--inline .share-app-content {
+  padding: 12px 0;
+}
+
+.share-app-content h3 {
+  margin: 0 0 10px;
+  font-size: 1.1rem;
+  color: #0F766E;
+  font-weight: 700;
+}
+
+.share-app-pitch {
+  margin: 0 0 18px;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: #115E59;
+}
+
+.share-app-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.share-app-btn {
+  border: none;
+  padding: 11px 22px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.share-app-btn:active {
+  transform: translateY(1px);
+}
+
+.share-app-btn.primary {
+  background: linear-gradient(135deg, #0D9488 0%, #10B981 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.25);
+}
+
+.share-app-btn.primary:hover {
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.35);
+}
+
+.share-app-btn.secondary {
+  background: white;
+  color: #0F766E;
+  border: 1px solid #99F6E4;
+}
+
+.share-app-btn.secondary:hover {
+  background: #F0FDFA;
+}
+
+.share-app-error {
+  margin: 12px 0 0;
+  color: #B91C1C;
+  font-size: 0.85rem;
+}
+
+.share-app-note {
+  margin: 14px 0 0;
+  font-size: 0.78rem;
+  color: #475569;
+  font-style: italic;
+}
+
+@media (max-width: 480px) {
+  .share-app--card .share-app-content {
+    padding: 18px 16px;
+  }
+
+  .share-app-content h3 {
+    font-size: 1rem;
+  }
+
+  .share-app-btn {
+    width: 100%;
+  }
+}

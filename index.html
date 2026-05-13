@@ -1,6 +1,24 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- Google tag (gtag.js) — disabled inside Capacitor (file://) to avoid
+         analytics noise from native shell loads. Web visitors are tracked. -->
+    <script>
+      (function() {
+        var isCapacitor = (typeof window !== 'undefined') &&
+          (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+        if (isCapacitor) return;
+        var s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=G-PK37DPYH9C';
+        document.head.appendChild(s);
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function(){ window.dataLayer.push(arguments); };
+        window.gtag('js', new Date());
+        // send_page_view=false so we can fire per-phase page_view events from App.jsx
+        window.gtag('config', 'G-PK37DPYH9C', { send_page_view: false });
+      })();
+    </script>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

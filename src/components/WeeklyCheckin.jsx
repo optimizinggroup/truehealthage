@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { createClient } from '@supabase/supabase-js'
+import { track as phTrack } from '../utils/posthog'
 import '../styles/WeeklyCheckin.css'
 
 const supabase = createClient(
@@ -124,6 +125,16 @@ export default function WeeklyCheckin({ userProtocol, tasksOverride, onComplete,
       if (updateError) {
         console.warn('user_protocol update failed:', updateError)
       }
+
+      phTrack('weekly_checkin_completed', {
+        protocol_key: userProtocol.protocol_key,
+        category: userProtocol.category,
+        week_number: userProtocol.current_week,
+        days_completed_avg: avgDaysPerTask,
+        adherence_pct: adherencePct,
+        outcome,
+        wrote_note: !!userNote?.trim(),
+      })
 
       setStep('done')
       setTimeout(() => onComplete(), 1400)

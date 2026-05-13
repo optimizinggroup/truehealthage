@@ -5,6 +5,7 @@ import { PHASE2_CATEGORIES } from '../utils/phase2Data'
 import { pickTipsForUser, buildProfileFromUser, balanceTasksByMode } from '../utils/tipPicker.js'
 import WeeklyCheckin from './WeeklyCheckin'
 import OptionalAddOns from './OptionalAddOns'
+import ShareApp from './ShareApp'
 import { normalizeSex } from '../utils/optionalAddOns'
 import '../styles/CoachDashboard.css'
 
@@ -32,7 +33,7 @@ const TARGET_WEEKS_PER_PROTOCOL = 8
  * a retake; a future revision will pull the user's prior assessment and
  * present the unstarted concerns.
  */
-export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onAddAnotherArea, onLogout }) {
+export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onAddAnotherArea, onLogout, onOpenSettings }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [activeProtocol, setActiveProtocol] = useState(null)
@@ -46,6 +47,10 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onAd
   // user_protocols.promoted_additions column is a v1.1 follow-up.
   const [promotedSet, setPromotedSet] = useState(new Set())
   const [showStretches, setShowStretches] = useState(false)
+  // Tasks the user marked "I already do this" — globally scoped (not per
+  // protocol) since universals like "walk 10 min" recur across categories.
+  // Persisted in localStorage so the swap survives reloads + protocol switches.
+  const [excludedTips, setExcludedTips] = useState([])
   // Cached Phase 2 results (risk tags, raw responses, severity) used by the
   // tip picker to personalize daily actions per user. Loaded from localStorage.
   const [cachedPhase2, setCachedPhase2] = useState(null)
@@ -146,6 +151,15 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onAd
         } catch (_) {
           setPromotedSet(new Set())
         }
+
+        // Load excluded ("I already do this") tips — global per user
+        try {
+          const ekey = `tha_excluded_tips_${user.id}`
+          const eraw = typeof localStorage !== 'undefined' ? localStorage.getItem(ekey) : null
+          setExcludedTips(eraw ? JSON.parse(eraw) : [])
+        } catch (_) {
+          setExcludedTips([])
+        }
       } else {
         setLatestCheckin(null)
         setPromotedSet(new Set())
@@ -160,6 +174,18 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onAd
   const handleCheckinComplete = async () => {
     setActiveCheckin(null)
     await loadDashboard()
+  }
+
+  const handleAlreadyDoThis = async (taskText) => {
+    if (!taskText) return
+    const next = [...new Set([...excludedTips, taskText])]
+    setExcludedTips(next)
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        localStorage.setItem(`tha_excluded_tips_${user.id}`, JSON.stringify(next))
+      }
+    } catch (_) { /* non-fatal */ }
   }
 
   const handleTogglePromote = (idx) => {
@@ -259,15 +285,19 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onAd
           rankedCategories: cachedPhase2.rankedCategories,
           activeCategoryId: activeProtocol.category,
           promotedTips: [],
+          excludedTips,
         })
-      : {}
+      : { excludedTips }
     const picks = pickTipsForUser(activeProtocol.category, activeProtocol.current_week, profile)
     return picks.length >= 3 ? picks : null
   })()
 
   const displayTasks = personalizedTasks
     ? personalizedTasks.map(p => p.tip)
-    : balanceTasksByMode(activeProtocol?.content?.daily_micro_wins || [])
+    : balanceTasksByMode(
+        (activeProtocol?.content?.daily_micro_wins || [])
+          .filter(t => !excludedTips.includes(t))
+      )
   const tasksAreFromTipBank = !!personalizedTasks
 
   return (
@@ -385,7 +415,16 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onAd
             <ul className="weekly-tasks">
               {displayTasks.map((task, idx) => (
                 <li key={idx}>
-                  <span className="task-num">{idx + 1}.</span> {task}
+                  <span className="task-num">{idx + 1}.</span>
+                  <span className="task-text">{task}</span>
+                  <button
+                    type="button"
+                    className="task-swap-btn"
+                    onClick={() => handleAlreadyDoThis(task)}
+                    title="Already part of my routine — swap for something new"
+                  >
+                    I already do this · swap →
+                  </button>
                 </li>
               ))}
             </ul>
@@ -550,10 +589,17 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onAd
         </p>
       </div>
 
+      <ShareApp />
+
       <div className="dashboard-footer">
         <button className="secondary-btn" onClick={onRetakeQuiz}>
           Retake Assessment
         </button>
+        {onOpenSettings && (
+          <button className="text-btn" onClick={onOpenSettings}>
+            Settings
+          </button>
+        )}
         <button className="text-btn" onClick={onLogout}>
           Sign out
         </button>
