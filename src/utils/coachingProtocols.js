@@ -3445,11 +3445,25 @@ export const COACHING_PROTOCOLS = {
     difficulty: "moderate",
     time_per_day: "10 min",
     coach_intro: "Hormone health is a full-body topic — sleep, stress, body composition, vascular health, medications, and labs all play in. We don't diagnose hormone problems from a quiz. What we do is help you track patterns and prepare a better conversation with a qualified clinician. The lifestyle work below is safe, useful, and almost always overlaps with what the clinician will recommend first.",
+    coach_intro_male: "Hormone health for men is mostly testosterone, thyroid, sleep, body composition, and vascular health — and they all feed each other. We don't diagnose anything from a quiz. What we do is track patterns and prepare you for a smart conversation with a clinician. The lifestyle work below — sleep, strength, protein, walking — is what any good doctor will recommend first anyway, and it moves testosterone, energy, and libido more than most people expect.",
+    coach_intro_female: "Hormone health for women shifts across decades — cycles, perimenopause, menopause, thyroid, stress, sleep, body composition — and they all interact. We don't diagnose anything from a quiz. What we do is track patterns and prepare you for a smart conversation with a menopause- or hormone-informed clinician. The lifestyle work below — sleep, strength, protein, walking — overlaps with what a good clinician will recommend first.",
     this_week: "Start a 14-day symptom log: sleep, energy, mood, temperature changes, urinary comfort, intimate-function changes, and anything else that feels off. Pair it with the three daily actions below. Bring the log to a menopause-informed or hormone-informed clinician.",
+    this_week_male: "Start a 14-day log: morning energy, libido, sleep quality, grip strength feel, mood, recovery from workouts, and anything else that feels off. Pair it with the three daily actions below. Bring the log to your primary care doctor or a men's-health clinician and ask for testosterone, thyroid, vitamin D, and a basic metabolic panel.",
+    this_week_female: "Start a 14-day symptom log: sleep, energy, mood, hot flashes or night sweats, cycle changes, urinary comfort, intimate-function changes, and anything else that feels off. Pair it with the three daily actions below. Bring the log to a menopause-informed or hormone-informed clinician.",
     daily_micro_wins: [
       "Resistance training movement today — even 10 minutes of squats, push-ups, bands, or bodyweight work.",
       "Eat a palm-sized protein at every meal to support muscle, recovery, and metabolic health.",
       "Track one symptom today: sleep hours, hot flashes, energy 1–10, mood 1–10, or intimate-function notes.",
+    ],
+    daily_micro_wins_male: [
+      "Resistance training movement today — even 10 minutes of squats, push-ups, or bands. Strength training moves testosterone more than supplements do.",
+      "Eat a palm-sized protein at every meal to support muscle, recovery, and metabolic health.",
+      "Track one signal today: morning energy 1–10, libido 1–10, sleep hours, or recovery from yesterday.",
+    ],
+    daily_micro_wins_female: [
+      "Resistance training movement today — even 10 minutes of squats, push-ups, bands, or bodyweight work. Muscle is protective through every hormone shift.",
+      "Eat a palm-sized protein at every meal to support muscle, recovery, and metabolic health.",
+      "Track one symptom today: sleep hours, hot flashes or night sweats, energy 1–10, mood 1–10, or cycle notes.",
     ],
     weekly_additions: [
       null,
@@ -3467,7 +3481,11 @@ export const COACHING_PROTOCOLS = {
     if_did_zero: "No judgment. Pick one thing — write down how you slept tonight. That's the whole assignment.",
     what_youll_notice: "Week 1: you'll start to see patterns. Week 2-3: you'll have data to bring to a clinician. Week 4+: the lifestyle pieces (sleep, strength, protein) start moving the needle for most people.",
     avoid: "Online testosterone boosters with undisclosed ingredients. Compounded hormones without clinician oversight. Saliva-test-only treatment decisions. Crash diets that worsen fatigue and mood. Adjusting prescribed hormone therapy without your clinician.",
+    avoid_male: "Online testosterone boosters with undisclosed ingredients. TRT clinics that prescribe without proper bloodwork. Crash diets that tank energy and libido. Adjusting prescribed hormone therapy without your clinician. Anabolic steroids — different category, real consequences.",
+    avoid_female: "Compounded hormones without clinician oversight. Saliva-test-only treatment decisions. Crash diets that worsen fatigue, mood, and bone density. Adjusting prescribed hormone therapy without your clinician. Internet 'menopause cures' with proprietary blends.",
     red_flags: "Unexplained vaginal bleeding, blood in urine, breast changes, chest pain, severe shortness of breath, sudden neurologic symptoms, severe depression or self-harm thoughts, or active hormone-sensitive cancer — seek medical care directly. Do not self-coach these.",
+    red_flags_male: "Chest pain, severe shortness of breath, sudden neurologic symptoms, blood in urine, testicular lumps or pain, breast tissue changes, severe depression or self-harm thoughts, or active hormone-sensitive cancer — seek medical care directly. Do not self-coach these.",
+    red_flags_female: "Unexplained vaginal bleeding (especially post-menopause), blood in urine, breast changes or lumps, chest pain, severe shortness of breath, sudden neurologic symptoms, severe depression or self-harm thoughts, or active hormone-sensitive cancer — seek medical care directly. Do not self-coach these.",
     tracking_metric: "Days logged / symptoms tracked / clinician conversation booked",
     review_days: 7,
     escalation: "If you have a history of hormone-sensitive cancer, are pregnant or breastfeeding, trying to conceive, or have unexplained bleeding — speak with your clinician before starting any supplement, peptide, or hormone-adjacent therapy.",
@@ -3511,3 +3529,43 @@ export const COACHING_PROTOCOLS = {
 // Re-export under the old name for backward compat with the existing
 // renderer in Phase2Results.jsx and CoachDashboard.jsx.
 export const PROTOCOL_LIBRARY = COACHING_PROTOCOLS
+
+/**
+ * Resolve a protocol's content for a specific user sex. Hormone and a few
+ * other body-system protocols carry sex-specific variants — e.g. hormone
+ * health is genuinely different for a man (testosterone, prostate, vascular)
+ * vs a woman (perimenopause, vasomotor symptoms, vaginal/urinary health).
+ *
+ * For any field that has a `${field}_male` or `${field}_female` variant on
+ * the content, return the sex-matched variant. Falls back to the unisex
+ * field when no variant is provided or when sex is unknown.
+ *
+ * Sex must be 'male' | 'female' | null. Null = use unisex copy.
+ */
+const SEX_AWARE_FIELDS = [
+  'coach_intro',
+  'this_week',
+  'daily_micro_wins',
+  'weekly_additions',
+  'weekly_check_in',
+  'if_did_well',
+  'if_did_partial',
+  'if_did_zero',
+  'what_youll_notice',
+  'avoid',
+  'red_flags',
+  'escalation',
+  'theme',
+]
+
+export function resolveProtocolBySex(content, sex) {
+  if (!content || !sex || (sex !== 'male' && sex !== 'female')) return content
+  const out = { ...content }
+  for (const field of SEX_AWARE_FIELDS) {
+    const variantKey = `${field}_${sex}`
+    if (Object.prototype.hasOwnProperty.call(content, variantKey)) {
+      out[field] = content[variantKey]
+    }
+  }
+  return out
+}

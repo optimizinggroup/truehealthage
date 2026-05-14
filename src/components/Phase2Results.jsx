@@ -9,6 +9,8 @@ import {
   aggregateRiskTags,
   checkEscalationFlags
 } from '../utils/phase2Data'
+import { resolveProtocolBySex } from '../utils/coachingProtocols'
+import { normalizeSex } from '../utils/optionalAddOns'
 import '../styles/branding.css'
 import '../styles/Phase2Results.css'
 
@@ -70,15 +72,17 @@ export default function Phase2Results({ phase1Results, phase2Data, selectedAreas
     // Skip triggers without a protocol entry. Many trigger names referenced in
     // questions (e.g. SLEEP_QUALITY, BALANCED_MEALS) are not yet authored in
     // PROTOCOL_LIBRARY. Rather than crash, drop them and log so the gap is visible.
+    const userSex = normalizeSex(phase1Results?.answers?.[2]?.text)
     const protocols = Array.from(triggeredProtocols)
       .map(triggerName => {
-        const protocol = PROTOCOL_LIBRARY[triggerName]
-        if (!protocol) {
+        const baseProtocol = PROTOCOL_LIBRARY[triggerName]
+        if (!baseProtocol) {
           if (typeof console !== 'undefined') {
             console.warn(`[Phase2Results] Missing PROTOCOL_LIBRARY entry: ${triggerName}`)
           }
           return null
         }
+        const protocol = resolveProtocolBySex(baseProtocol, userSex)
         const categoryData = PHASE2_CATEGORIES.find(c => c.id === protocol.category)
         return {
           name: triggerName,

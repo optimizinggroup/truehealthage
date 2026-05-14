@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
-import { COACHING_PROTOCOLS } from '../utils/coachingProtocols.js'
+import { COACHING_PROTOCOLS, resolveProtocolBySex } from '../utils/coachingProtocols.js'
 import { PHASE2_CATEGORIES } from '../utils/phase2Data'
 import { pickTipsForUser, buildProfileFromUser, balanceTasksByMode } from '../utils/tipPicker.js'
 import WeeklyCheckin from './WeeklyCheckin'
@@ -111,10 +111,16 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onAd
         return
       }
 
+      // Resolve sex-specific protocol content (hormone protocol especially —
+      // a man should never see "vaginal bleeding" in red flags and a woman
+      // shouldn't get TRT-clinic warnings). Falls back to unisex copy when
+      // sex is unknown or no variant exists.
+      const userSex = normalizeSex(quizRow?.answers?.[2]?.text)
       const hydrated = (rows || [])
         .map((row) => {
-          const content = COACHING_PROTOCOLS[row.protocol_key]
-          if (!content) return null
+          const baseContent = COACHING_PROTOCOLS[row.protocol_key]
+          if (!baseContent) return null
+          const content = resolveProtocolBySex(baseContent, userSex)
           return { ...row, content }
         })
         .filter(Boolean)

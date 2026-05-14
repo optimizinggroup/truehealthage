@@ -396,6 +396,7 @@ export default function App() {
 
         {currentPhase === 'priority_selection' && phase2Results && (
           <PrioritySelection
+            phase1Results={phase1Results}
             phase2Results={phase2Results}
             onActivated={(_protocolKey, _when) => setCurrentPhase('coach_dashboard')}
             onSkip={() => setCurrentPhase('coach_dashboard')}

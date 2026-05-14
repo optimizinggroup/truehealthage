@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { PHASE2_CATEGORIES } from '../utils/phase2Data'
+import { COACHING_PROTOCOLS, resolveProtocolBySex } from '../utils/coachingProtocols'
+import { normalizeSex } from '../utils/optionalAddOns'
 import { ensureNotificationPermission, scheduleWeeklyCheckin, scheduleDailyNudge } from '../utils/notifications'
 import { track as phTrack } from '../utils/posthog'
 import '../styles/PrioritySelection.css'
@@ -29,7 +31,7 @@ const supabase = createClient(
  * raw protocol keys like RECOVERY_TIME or STRESS_MANAGEMENT — they
  * see the friendly category name (e.g. "Stress & Mental Health").
  */
-export default function PrioritySelection({ phase2Results, onActivated, onSkip, onExploreMore }) {
+export default function PrioritySelection({ phase1Results, phase2Results, onActivated, onSkip, onExploreMore }) {
   const [step, setStep] = useState('default') // 'default' | 'choose' | 'when'
   const [chosen, setChosen] = useState(null)  // the category+protocol bundle they picked
   const [error, setError] = useState(null)
@@ -38,6 +40,11 @@ export default function PrioritySelection({ phase2Results, onActivated, onSkip, 
   // them out when this screen is shown via "add another area" flow. We don't
   // want to recommend the same area they're already working on.
   const [excludeCategories, setExcludeCategories] = useState(new Set())
+  // When the user lands here via "add another area" (returning user, no fresh
+  // phase1Results in state), pull their latest quiz answers from the DB so
+  // we can still surface their stated goals + sex for sex-aware protocols.
+  const [loadedPhase1, setLoadedPhase1] = useState(null)
+  const effectivePhase1 = phase1Results || loadedPhase1
 
   // Always scroll to top when this screen mounts or step changes
   useEffect(() => {
@@ -61,20 +68,61 @@ export default function PrioritySelection({ phase2Results, onActivated, onSkip, 
         if (cancelled) return
         const cats = new Set((rows || []).map(r => r.category))
         setExcludeCategories(cats)
+
+        // Fallback: load latest phase 1 answers from quiz_results when the
+        // parent didn't pass them (returning user via "add another area").
+        if (!phase1Results) {
+          const { data: quizRow } = await supabase
+            .from('quiz_results')
+            .select('answers')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle()
+          if (!cancelled && quizRow?.answers) {
+            setLoadedPhase1({ answers: quizRow.answers })
+          }
+        }
       } catch (_) { /* not fatal */ }
     })()
     return () => { cancelled = true }
-  }, [])
+  }, [phase1Results])
 
   // Build the actionable list: each category that has a triggered protocol AND
   // is not "Optimal". Top of the list is the worst-scoring (= most concerns).
   const rankedCategories = phase2Results?.rankedCategories || []
   const protocols = phase2Results?.protocols || []
 
-  const actionableCategories = rankedCategories
+  // User's stated goal categories from Phase 1 Q21. Even if a goal category
+  // scored Optimal in Phase 2 (or wasn't part of the Quick Plan selection),
+  // we promise the user it shows up here — they explicitly said they want
+  // to work on it.
+  const goalCategoryIds = (() => {
+    const sels = effectivePhase1?.answers?.[21]?.selections
+    if (!Array.isArray(sels)) return []
+    return sels.map(s => s.goal).filter(Boolean)
+  })()
+  const userSex = normalizeSex(effectivePhase1?.answers?.[2]?.text)
+
+  // Helper: find any authored protocol for a given category id. Used to give
+  // a goal category a starter protocol even if none was triggered by the
+  // Phase 2 score (or the user skipped Phase 2 questions for that category).
+  const findProtocolForCategory = (categoryId) => {
+    const triggered = protocols.find(p => p.category === categoryId)
+    if (triggered) return triggered
+    const fallbackEntry = Object.entries(COACHING_PROTOCOLS).find(
+      ([_key, content]) => content?.category === categoryId
+    )
+    if (!fallbackEntry) return null
+    const [name, baseContent] = fallbackEntry
+    const content = resolveProtocolBySex(baseContent, userSex)
+    return { name, ...content }
+  }
+
+  const scoredCategories = rankedCategories
     .map((cat) => {
       const meta = PHASE2_CATEGORIES.find(c => c.id === cat.categoryId)
-      const topProtocol = protocols.find(p => p.category === cat.categoryId)
+      const topProtocol = findProtocolForCategory(cat.categoryId)
       return {
         categoryId: cat.categoryId,
         categoryName: meta?.name || cat.categoryId,
@@ -82,12 +130,49 @@ export default function PrioritySelection({ phase2Results, onActivated, onSkip, 
         score: cat.score,
         status: cat.status,
         topProtocol,
+        isGoal: goalCategoryIds.includes(cat.categoryId),
       }
     })
-    // Skip categories with no triggered protocol, optimal-tier categories,
-    // and any category the user already has an active protocol for (so the
-    // "add another area" flow doesn't re-recommend their current focus).
+
+  // Concern-based: categories with a protocol that aren't optimal and aren't
+  // already an active focus. These keep their existing priority order (worst
+  // score first).
+  const concernCategories = scoredCategories
     .filter(c => c.topProtocol && c.status?.level !== 'optimal' && !excludeCategories.has(c.categoryId))
+
+  // Goal-based: every goal the user stated, even if optimal or never scored.
+  // These ride above concern categories in the list so we honor the user's
+  // own choice. Excluded categories (already an active protocol) are still
+  // skipped.
+  const goalEntries = goalCategoryIds
+    .filter(id => !excludeCategories.has(id))
+    .map(id => {
+      const existing = scoredCategories.find(c => c.categoryId === id)
+      if (existing) return existing
+      const meta = PHASE2_CATEGORIES.find(c => c.id === id)
+      const topProtocol = findProtocolForCategory(id)
+      if (!topProtocol) return null
+      return {
+        categoryId: id,
+        categoryName: meta?.name || id,
+        icon: meta?.icon || '🎯',
+        score: null,             // wasn't part of Phase 2
+        status: { level: 'goal', label: 'Your goal' },
+        topProtocol,
+        isGoal: true,
+      }
+    })
+    .filter(Boolean)
+
+  // Merge: goals first (in the order they picked them), then concern categories.
+  // De-dup by categoryId in case a goal was also a scored concern.
+  const seen = new Set()
+  const actionableCategories = [...goalEntries, ...concernCategories]
+    .filter(c => {
+      if (seen.has(c.categoryId)) return false
+      seen.add(c.categoryId)
+      return true
+    })
 
   // Categories the user took the Phase 2 quiz on that scored Optimal —
   // not "actionable" by score, but they may still want to swap focus into
@@ -278,7 +363,8 @@ export default function PrioritySelection({ phase2Results, onActivated, onSkip, 
                 <div className="priority-option-body">
                   <h3>{cat.categoryName}</h3>
                   <p className="priority-option-meta">
-                    Score: {cat.score} of 18 · {cat.status?.label}
+                    {cat.isGoal && <span className="priority-goal-tag">★ Your goal · </span>}
+                    {cat.score != null ? `Score: ${cat.score} of 18 · ${cat.status?.label || ''}` : 'You picked this in Phase 1'}
                   </p>
                 </div>
                 <div className="priority-option-check">→</div>
