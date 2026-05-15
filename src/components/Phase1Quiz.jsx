@@ -125,7 +125,7 @@ const PHASE1_QUESTIONS = [
     question: 'Which best describes your current body type and weight distribution?',
     type: 'single',
     options: [
-      { text: "Muscular — I do heavy weight or resistance training regularly", years: -2 },
+      { text: "Muscular build — visibly more muscle than average, broad shoulders, defined arms and legs", years: -2 },
       { text: "Even or pear-shape — weight sits more in hips, thighs, or buttocks", years: 0 },
       { text: "Apple-shape — weight collects around my stomach; waistband feels tight even when my legs fit fine", years: 2 },
       { text: "Lean but soft-belly (\"skinny fat\") — thin frame, but almost all extra weight is in my belly", years: 3.5 }
@@ -223,6 +223,7 @@ const PHASE1_QUESTIONS = [
       { text: 'Less than 6 hours', years: 2.5 },
       { text: '6 to 7 hours', years: 0 },
       { text: '7 to 8 hours', years: -1.5 },
+      { text: '8 to 9 hours', years: -1 },
       { text: 'More than 9 hours', years: 1 }
     ]
   },

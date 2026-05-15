@@ -3,6 +3,7 @@ import ShareComponent from './ShareComponent'
 import ShareAfterReveal from './ShareAfterReveal'
 import ResultsReport from './ResultsReport'
 import { getRecommendedProtocols } from '../utils/protocolMapping'
+import { getCohortBand, getCohortBandColor } from '../utils/cohortPositioning'
 import '../styles/ResultsPage.css'
 
 export default function ResultsPage({
@@ -78,6 +79,49 @@ export default function ResultsPage({
               prompt works for users with great results AND embarrassing
               results because there's no number on the card. */}
           <ShareAfterReveal />
+
+          {/* Directional cohort framing — NO percentile claims. We don't yet
+              have validated population data, so the card uses descriptive
+              labels ("Exceptional" / "Strong" / "Typical" / "Needs attention")
+              instead of fake statistics. Once we have 1000+ quiz_results rows
+              (or validation against an independent biological-age measure),
+              we can swap to real percentiles. Code lives in
+              utils/cohortPositioning.js so the swap is local. */}
+          {(() => {
+            const band = getCohortBand(phase1Results.ageDiff)
+            const color = getCohortBandColor(band)
+            return (
+              <div style={{
+                marginTop: '24px',
+                padding: '22px',
+                background: '#fff',
+                borderRadius: '10px',
+                border: `2px solid ${color}33`,
+                borderLeft: `5px solid ${color}`,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px', gap: '10px', flexWrap: 'wrap' }}>
+                  <span style={{
+                    background: color,
+                    color: '#fff',
+                    padding: '4px 12px',
+                    borderRadius: '999px',
+                    fontSize: '0.8rem',
+                    fontWeight: 700,
+                    letterSpacing: '0.02em',
+                  }}>
+                    {band.label}
+                  </span>
+                </div>
+                <h3 style={{ fontSize: '1.15rem', marginBottom: '8px', color: '#1f2937', lineHeight: 1.4 }}>
+                  {band.headline}
+                </h3>
+                <p style={{ fontSize: '0.95rem', color: '#4b5563', lineHeight: 1.55, margin: 0 }}>
+                  {band.framing}
+                </p>
+              </div>
+            )
+          })()}
 
           {/* Category Breakdown with "Why It Matters" */}
           {phase1Results.categoryScores && (
