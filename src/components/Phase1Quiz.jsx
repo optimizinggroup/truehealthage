@@ -53,7 +53,7 @@ const PHASE1_QUESTIONS = [
       { text: '0–2', years: 0 },
       { text: '3–7', years: 0.5 },
       { text: '8–14', years: 2 },
-      { text: '15+', years: 4 }
+      { text: '15+', years: 3 }     // Reduced from 4 per OpenAI/Gemini review 2026-05-15 — aligns with Lancet 2018 (4-5 yr LE loss reserved for 25+ drinks)
     ]
   },
 
@@ -128,7 +128,7 @@ const PHASE1_QUESTIONS = [
       { text: "Muscular build — visibly more muscle than average, broad shoulders, defined arms and legs", years: -2 },
       { text: "Even or pear-shape — weight sits more in hips, thighs, or buttocks", years: 0 },
       { text: "Apple-shape — weight collects around my stomach; waistband feels tight even when my legs fit fine", years: 2 },
-      { text: "Lean but soft-belly (\"skinny fat\") — thin frame, but almost all extra weight is in my belly", years: 3.5 }
+      { text: "Lean but soft-belly (\"skinny fat\") — thin frame, but almost all extra weight is in my belly", years: 4.5 }  // Bumped from 3.5 per review — sarcopenic obesity literature supports higher value
     ]
   },
 
@@ -180,8 +180,8 @@ const PHASE1_QUESTIONS = [
     question: 'How often do you exercise or move your body?',
     type: 'single',
     options: [
-      { text: 'Rarely', years: 3 },
-      { text: '1–2 days/week', years: 1.5 },
+      { text: 'Rarely', years: 4.5 },     // Bumped from 3 per review 2026-05-15 — UCSD/BYU telomere studies show 8-9 yr biological-age gap for sedentary; we use 4.5 as point-in-time bio-age impact (conservative)
+      { text: '1–2 days/week', years: 2 }, // Bumped from 1.5 per review
       { text: '3–4 days/week', years: 0 },
       { text: '5+ days/week', years: -1 }
     ]
@@ -274,8 +274,8 @@ const PHASE1_QUESTIONS = [
     options: [
       { text: "Almost all whole foods — fruits, vegetables, beans, whole grains, fresh meats, eggs, fish, dairy. Rarely any packaged or fast food.", years: -0.5 },
       { text: "Mostly whole foods with some processed (about 80-90% whole, 10-20% packaged or restaurant food)", years: 0 },
-      { text: "About half processed (50% of meals are packaged snacks, fast food, sugary drinks, frozen dinners, or takeout)", years: 5 },
-      { text: "Mostly processed (80%+ packaged, fast food, sugary drinks, frequent takeout — limited whole foods)", years: 10 }
+      { text: "About half processed (50% of meals are packaged snacks, fast food, sugary drinks, frozen dinners, or takeout)", years: 3 },     // Reduced from 5 per OpenAI review 2026-05-15 — clinically defensible without biomarker backing
+      { text: "Mostly processed (80%+ packaged, fast food, sugary drinks, frequent takeout — limited whole foods)", years: 5 }                 // Reduced from 10 per OpenAI review — +10 not defensible without biomarker tie-in
     ]
   },
 
@@ -318,7 +318,8 @@ const PHASE1_QUESTIONS = [
     options: [
       { text: 'Low', years: 0 },
       { text: 'Moderate', years: 1 },
-      { text: 'High', years: 3 }
+      { text: 'High', years: 4 },                                              // Bumped from 3 per review 2026-05-15
+      { text: 'Extreme — affecting sleep, health, or daily function', years: 5 } // NEW per review — Epel telomere data supports a higher tier without overclaiming "17 yrs"
     ]
   },
 
@@ -334,6 +335,42 @@ const PHASE1_QUESTIONS = [
       { text: 'Often', years: 3 }
     ]
   },
+
+  // Q26 — Social Connection / Isolation. Added 2026-05-15 per OpenAI + Gemini
+  // scoring review. Holt-Lunstad meta-analyses (PLoS Med 2010, Perspect
+  // Psychol Sci 2015) found social isolation has mortality risk comparable
+  // to smoking 15 cigarettes/day. Strong support carries a small protective
+  // bonus; isolation carries a substantial penalty.
+  {
+    id: 26,
+    category: 'Mental Health',
+    question: 'Do you have close relationships you can rely on emotionally?',
+    type: 'single',
+    options: [
+      { text: 'Strong support — multiple close people I can count on', years: -1 },
+      { text: 'Some support — a few people I can rely on', years: 0 },
+      { text: 'Very little support — mostly handle things alone', years: 2 },
+      { text: 'None — I feel chronically isolated', years: 3 }
+    ]
+  },
+
+  // Q27 — Purpose / Life Engagement. Added 2026-05-15 per scoring review.
+  // Blue Zones research (Buettner) and Boyle et al. Arch Gen Psych 2010
+  // show strong sense of purpose associated with reduced all-cause mortality
+  // and slower cognitive decline.
+  {
+    id: 27,
+    category: 'Mental Health',
+    question: 'Do you feel your life has meaning, purpose, or direction?',
+    type: 'single',
+    options: [
+      { text: 'Strongly — I have clear purpose and reasons to keep going', years: -1 },
+      { text: 'Mostly — most days I feel engaged with life', years: 0 },
+      { text: 'Sometimes — I drift more than I would like', years: 1 },
+      { text: 'Rarely — I struggle to find meaning most days', years: 2 }
+    ]
+  },
+
   // Q21 + Q22 are goal/level questions — they don't affect the True Health Age
   // calculation (years: 0 across the board). They feed Phase 2 priority sort
   // and the dashboard's tip personalization so we can match advice to what

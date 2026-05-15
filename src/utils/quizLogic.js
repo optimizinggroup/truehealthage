@@ -21,7 +21,7 @@ export function calculatePhase1Results(answers) {
     'Movement': [10, 11, 12],
     'Sleep': [13, 14, 15],
     'Nutrition': [16, 17, 18],
-    'Mental Health': [19, 20],
+    'Mental Health': [19, 20, 26, 27],
   }
 
   // Sum all years adjustments from answers
@@ -146,8 +146,18 @@ export function calculatePhase1Results(answers) {
     categoryStatus[category] = status
   })
 
+  // Anti-aging bonus cap (added 2026-05-15 per scoring review).
+  // Without this, users with optimized lifestyle in every category could
+  // theoretically achieve -6 to -10 years younger — which crosses into
+  // claims that aren't defensible without biomarker validation (methylation
+  // testing, GrimAge, DunedinPACE, etc.). Cap protective effect at -5 to
+  // keep outputs credible and avoid the "healthy 50-year-old has age of
+  // a 40-year-old" result that triggers user distrust.
+  const ANTI_AGING_CAP = -5
+  const cappedYearsAdjustment = Math.max(yearsAdjustment, ANTI_AGING_CAP)
+
   // Calculate True Health Age
-  const trueHealthAge = Math.round(chronoAge + yearsAdjustment)
+  const trueHealthAge = Math.round(chronoAge + cappedYearsAdjustment)
 
   // Calculate age difference
   const ageDiff = trueHealthAge - chronoAge

@@ -143,7 +143,19 @@ export const QUESTION_METADATA = {
     category: 'Mental Health',
     whyItMatters: 'Depression impacts behavior, inflammation, and long-term health outcomes.',
     improvementSteps: 'Seek professional support; increase physical activity; maintain social connections; consider therapy or medical care.',
-    poorAnswers: ['Ongoing']
+    poorAnswers: ['Often']
+  },
+  26: { // Social connection / isolation
+    category: 'Mental Health',
+    whyItMatters: 'Social isolation has a mortality risk comparable to smoking 15 cigarettes per day (Holt-Lunstad 2010 meta-analysis). Strong relationships are one of the most well-validated longevity factors in the research.',
+    improvementSteps: 'Call or text one person today. Schedule a weekly recurring connection with someone you care about. Join one community group (faith, hobby, sport) to meet new people.',
+    poorAnswers: ['None — I feel chronically isolated', 'Very little support — mostly handle things alone']
+  },
+  27: { // Purpose / Life Engagement
+    category: 'Mental Health',
+    whyItMatters: 'Strong sense of purpose is associated with reduced all-cause mortality and slower cognitive decline. Blue Zones research consistently finds purpose ("ikigai") as a shared longevity factor across the longest-lived populations.',
+    improvementSteps: 'Identify one thing you look forward to this week. Volunteer once this month. Reflect on what gave you meaning in your best years — recreate one piece of that.',
+    poorAnswers: ['Rarely — I struggle to find meaning most days', 'Sometimes — I drift more than I would like']
   },
 }
 
