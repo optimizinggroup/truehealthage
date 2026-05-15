@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
-import { COACHING_PROTOCOLS, resolveProtocolBySex } from '../utils/coachingProtocols.js'
+import { COACHING_PROTOCOLS, resolveProtocol, stageForCategoryFromAnswers, cardioStageFromAnswer, cancerStageFromAnswer } from '../utils/coachingProtocols.js'
 import { PHASE2_CATEGORIES } from '../utils/phase2Data'
 import { pickTipsForUser, buildProfileFromUser, balanceTasksByMode } from '../utils/tipPicker.js'
 import WeeklyCheckin from './WeeklyCheckin'
@@ -111,16 +111,29 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onAd
         return
       }
 
-      // Resolve sex-specific protocol content (hormone protocol especially —
-      // a man should never see "vaginal bleeding" in red flags and a woman
-      // shouldn't get TRT-clinic warnings). Falls back to unisex copy when
-      // sex is unknown or no variant exists.
+      // Resolve protocol content for this user's context — sex AND stage.
+      //   - Sex variants: hormone protocol etc. (women shouldn't see TRT, men
+      //     shouldn't see "vaginal bleeding" red flags)
+      //   - Stage variants: CARDIOVASCULAR_PROTOCOL and CANCER_PROTOCOL change
+      //     completely based on Q23 (cardio severity) and Q24 (cancer severity).
+      //     Prevention guidance ≠ during-treatment guidance.
       const userSex = normalizeSex(quizRow?.answers?.[2]?.text)
       const hydrated = (rows || [])
         .map((row) => {
           const baseContent = COACHING_PROTOCOLS[row.protocol_key]
           if (!baseContent) return null
-          const content = resolveProtocolBySex(baseContent, userSex)
+          // Stage takes priority for the two big disease-arc protocols; for
+          // other protocols, derive stage from category as a hook for future
+          // additions (returns null today for categories without mapping).
+          let stage = null
+          if (row.protocol_key === 'CARDIOVASCULAR_PROTOCOL') {
+            stage = cardioStageFromAnswer(quizRow?.answers?.[23]?.text)
+          } else if (row.protocol_key === 'CANCER_PROTOCOL') {
+            stage = cancerStageFromAnswer(quizRow?.answers?.[24]?.text)
+          } else {
+            stage = stageForCategoryFromAnswers(baseContent.category, quizRow?.answers)
+          }
+          const content = resolveProtocol(baseContent, { sex: userSex, stage })
           return { ...row, content }
         })
         .filter(Boolean)

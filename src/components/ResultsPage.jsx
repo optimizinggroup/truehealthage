@@ -136,6 +136,84 @@ export default function ResultsPage({
             </div>
           )}
 
+          {/* Top 5 Aging Foods — conditional on Q16/Q17 answers. We surface
+              this only for users who answered they eat half-or-more processed
+              food, OR have sugary drinks a few times a week or more. For
+              people who already eat mostly whole foods, the section adds noise.
+              The 5 items mirror the 2026 UPF research (Gemini synthesis,
+              Keith-approved 2026-05-15). */}
+          {(() => {
+            const q16 = phase1Results?.answers?.[16]?.text || ''
+            const q17 = phase1Results?.answers?.[17]?.text || ''
+            const eatsProcessed = /50% of meals|80%\+/i.test(q16)
+            const drinksSugar = /Daily|A few times a week/i.test(q17)
+            if (!eatsProcessed && !drinksSugar) return null
+
+            const top5Foods = [
+              {
+                rank: 1,
+                title: 'Ultra-processed meats',
+                examples: 'Bacon, deli meats, hot dogs, pepperoni, sausage.',
+                why: 'Nitrites + PAHs from high-heat cooking directly attack the telomere caps on your DNA. High consumption is linked to a 20% increase in all-cause mortality.',
+                swap: 'Fresh roasted turkey or chicken, eggs, beans, or smoked salmon.',
+              },
+              {
+                rank: 2,
+                title: 'Sugar-sweetened beverages',
+                examples: 'Soda, "fruit" juices, energy drinks, sweetened coffee.',
+                why: 'Liquid sugar triggers glycation — sugar molecules bind to collagen and stiffen your arteries and skin. One soda a day = ~4.6 years of additional biological aging per decade.',
+                swap: 'Water, sparkling water with lemon, unsweetened tea, or black coffee.',
+              },
+              {
+                rank: 3,
+                title: 'Industrial seed oils',
+                examples: 'Soybean, corn, cottonseed, canola — in most shelf-stable snacks, restaurant fryers, salad dressings.',
+                why: 'Heated Omega-6 oils oxidize and incorporate into your cell membranes — the biological equivalent of rusting.',
+                swap: 'Cook with olive oil or avocado oil. Read labels on chips, crackers, dressings.',
+              },
+              {
+                rank: 4,
+                title: 'Refined "white" flour products',
+                examples: 'White bread, crackers, commercial pastries, most cereals.',
+                why: 'Stripped of fiber — acts like pure sugar in the body. Drives visceral fat (the "deep" belly fat that pumps inflammatory cytokines 24/7).',
+                swap: 'Steel-cut oats, sourdough, sprouted-grain bread, or beans for fiber.',
+              },
+              {
+                rank: 5,
+                title: 'Artificial emulsifiers + sweeteners',
+                examples: '"Low-cal" snacks, coffee creamers, most protein bars, packaged dressings.',
+                why: 'Break down the protective mucus lining of the gut ("leaky gut"), letting toxins reach the bloodstream and triggering chronic low-grade inflammation.',
+                swap: 'Whole-food snacks: fruit + nuts, cheese, hard-boiled eggs, plain Greek yogurt.',
+              },
+            ]
+
+            return (
+              <div style={{ marginTop: '40px', marginBottom: '40px', padding: '24px', background: '#fff7ed', borderRadius: '8px', borderLeft: '4px solid #ea580c' }}>
+                <h3 style={{ fontSize: '1.3rem', marginBottom: '8px', color: '#9a3412' }}>🍔 The 5 Foods Aging You Fastest</h3>
+                <p style={{ color: '#555', marginBottom: '20px', fontSize: '0.95rem', lineHeight: '1.5' }}>
+                  Based on your answers, processed food is one of the biggest levers you can pull. Cut these five and your body's repair systems (autophagy) get a real shift off — that's where the age-reversal happens.
+                </p>
+                {top5Foods.map((food) => (
+                  <div key={food.rank} style={{ marginBottom: '18px', paddingBottom: '14px', borderBottom: '1px solid #fed7aa' }}>
+                    <h4 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '4px', color: '#9a3412' }}>
+                      {food.rank}. {food.title}
+                    </h4>
+                    <p style={{ fontSize: '0.85rem', color: '#7c2d12', marginBottom: '6px', fontStyle: 'italic' }}>{food.examples}</p>
+                    <p style={{ fontSize: '0.9rem', color: '#555', marginBottom: '6px', lineHeight: '1.5' }}>
+                      <strong>Why it ages you:</strong> {food.why}
+                    </p>
+                    <p style={{ fontSize: '0.9rem', color: '#0f766e', lineHeight: '1.5' }}>
+                      <strong>Swap for:</strong> {food.swap}
+                    </p>
+                  </div>
+                ))}
+                <p style={{ fontSize: '0.85rem', color: '#7c2d12', marginTop: '8px', lineHeight: '1.5' }}>
+                  Don't try to cut all five overnight. Pick the one easiest to swap this week — usually #2 (sugary drinks) or #1 (deli meats) — and stack the next one in two weeks.
+                </p>
+              </div>
+            )
+          })()}
+
           {/* Protocol Recommendations */}
           {phase1Results.categoryScores && (
             <div style={{ marginTop: '40px', marginBottom: '40px', padding: '20px', background: '#f0f4ff', borderRadius: '8px', borderLeft: '4px solid #667eea' }}>

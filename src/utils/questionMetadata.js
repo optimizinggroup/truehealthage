@@ -44,6 +44,12 @@ export const QUESTION_METADATA = {
     improvementSteps: 'Work with your doctor on medication adherence; prioritize cardio (zone 2), strength training, sleep, and a Mediterranean-style diet.',
     poorAnswers: ['Heart attack, stroke, stent, or bypass history', 'Atrial fibrillation (AFib) or heart failure', 'High blood pressure or high cholesterol — uncontrolled or untreated']
   },
+  25: { // Body shape (BRI modifier)
+    category: 'Body & Vitals',
+    whyItMatters: 'Abdominal (visceral) fat drives biological-age acceleration more than total body weight — BMI alone misses this. Apple-shape and "skinny-fat" body types carry the highest hidden risk; muscular builds carry the lowest.',
+    improvementSteps: 'Resistance training 2-3x/week to build muscle and reduce visceral fat; prioritize protein and fiber; reduce added sugars and refined carbs; walk after meals to improve insulin sensitivity.',
+    poorAnswers: ['Lean but soft-belly ("skinny fat") — thin frame, but almost all extra weight is in my belly', 'Apple-shape — weight collects around my stomach; waistband feels tight even when my legs fit fine']
+  },
   24: { // Cancer status
     category: 'High-Impact Risks',
     whyItMatters: 'Cancer impact varies enormously by type and stage; current treatment and metastatic disease carry the highest aging burden.',
@@ -109,17 +115,17 @@ export const QUESTION_METADATA = {
     improvementSteps: 'Get a sleep study; consider CPAP or alternatives; maintain healthy weight.',
     poorAnswers: ['Yes (untreated)']
   },
-  16: { // Eating style  ← was Q15 in old metadata
+  16: { // Ultra-processed food (UPF) %
     category: 'Nutrition',
-    whyItMatters: 'Overall diet quality drives inflammation and long-term disease risk.',
-    improvementSteps: 'Shift toward whole foods; cook more meals; prioritize vegetables, lean proteins, whole grains.',
-    poorAnswers: ['Mostly processed or fast foods']
+    whyItMatters: 'The percentage of your diet that is ultra-processed is one of the strongest predictors of biological-age acceleration. 2026 telomere research shows people whose diets are 80%+ ultra-processed have a cellular age profile equating to 10-15 years of extra aging — through glycation ("crusty" arteries), inflammaging, and microbiome wipeout.',
+    improvementSteps: 'Pick one meal a day to cook from scratch this week. Replace one packaged snack with fruit, nuts, or yogurt. Read ingredient labels — if you can\'t pronounce 3+ ingredients, it\'s usually ultra-processed.',
+    poorAnswers: ['Mostly processed (80%+ packaged, fast food, sugary drinks, frequent takeout — limited whole foods)', 'About half processed (50% of meals are packaged snacks, fast food, sugary drinks, frozen dinners, or takeout)']
   },
-  17: { // Fast food / sugary drinks  ← was Q16 in old metadata
+  17: { // Sugar-sweetened beverages
     category: 'Nutrition',
-    whyItMatters: 'Ultra-processed foods and added sugars are strongly linked to metabolic disease.',
-    improvementSteps: 'Eliminate sugary drinks first; limit fast food to ≤1/week; replace snacks with nuts, fruit, yogurt.',
-    poorAnswers: ['Daily', 'A few times/week']
+    whyItMatters: 'Liquid sugar is the single most concentrated aging accelerator in the modern diet. One soda a day is associated with roughly 4.6 years of additional biological aging over a decade — through insulin spikes that drive glycation, the same process that stiffens arteries and wrinkles skin.',
+    improvementSteps: 'Cut one sugary drink today and swap for water, sparkling water, or unsweetened tea. Order coffee unsweetened. Treat juice like a dessert, not a beverage.',
+    poorAnswers: ['Daily', 'A few times a week']
   },
   18: { // Protein/grain quality  ← was Q17 in old metadata
     category: 'Nutrition',

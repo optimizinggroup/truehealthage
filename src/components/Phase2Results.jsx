@@ -9,7 +9,7 @@ import {
   aggregateRiskTags,
   checkEscalationFlags
 } from '../utils/phase2Data'
-import { resolveProtocolBySex } from '../utils/coachingProtocols'
+import { resolveProtocol, cardioStageFromAnswer, cancerStageFromAnswer } from '../utils/coachingProtocols'
 import { normalizeSex } from '../utils/optionalAddOns'
 import '../styles/branding.css'
 import '../styles/Phase2Results.css'
@@ -73,6 +73,8 @@ export default function Phase2Results({ phase1Results, phase2Data, selectedAreas
     // questions (e.g. SLEEP_QUALITY, BALANCED_MEALS) are not yet authored in
     // PROTOCOL_LIBRARY. Rather than crash, drop them and log so the gap is visible.
     const userSex = normalizeSex(phase1Results?.answers?.[2]?.text)
+    const cardioStage = cardioStageFromAnswer(phase1Results?.answers?.[23]?.text)
+    const cancerStage = cancerStageFromAnswer(phase1Results?.answers?.[24]?.text)
     const protocols = Array.from(triggeredProtocols)
       .map(triggerName => {
         const baseProtocol = PROTOCOL_LIBRARY[triggerName]
@@ -82,7 +84,10 @@ export default function Phase2Results({ phase1Results, phase2Data, selectedAreas
           }
           return null
         }
-        const protocol = resolveProtocolBySex(baseProtocol, userSex)
+        let stage = null
+        if (triggerName === 'CARDIOVASCULAR_PROTOCOL') stage = cardioStage
+        else if (triggerName === 'CANCER_PROTOCOL') stage = cancerStage
+        const protocol = resolveProtocol(baseProtocol, { sex: userSex, stage })
         const categoryData = PHASE2_CATEGORIES.find(c => c.id === protocol.category)
         return {
           name: triggerName,

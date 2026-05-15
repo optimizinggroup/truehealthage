@@ -17,7 +17,7 @@ export function calculatePhase1Results(answers) {
   const categoryMap = {
     'Baseline': [1, 2],
     'High-Impact Risks': [3, 4, 5, 23, 24],
-    'Body & Vitals': [6, 7, 8, 9],
+    'Body & Vitals': [6, 7, 8, 9, 25],
     'Movement': [10, 11, 12],
     'Sleep': [13, 14, 15],
     'Nutrition': [16, 17, 18],

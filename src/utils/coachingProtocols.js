@@ -3491,6 +3491,198 @@ export const COACHING_PROTOCOLS = {
     escalation: "If you have a history of hormone-sensitive cancer, are pregnant or breastfeeding, trying to conceive, or have unexplained bleeding — speak with your clinician before starting any supplement, peptide, or hormone-adjacent therapy.",
   },
 
+  // ─────────────────────────────────────────────────────────────────────────
+  //  CARDIOVASCULAR PROTOCOL (stage-aware, added 2026-05-15)
+  //  Stages are derived from Phase 1 Q23 (cardio severity):
+  //    prevention      — "I don't have any cardiovascular condition"
+  //    early_warning   — controlled or uncontrolled high BP / cholesterol
+  //    post_event      — AFib / heart failure / heart attack / stroke / stent / bypass
+  //  Source: 2026 ACC/AHA + Gemini synthesis (peer-reviewed and reviewed by Keith).
+  // ─────────────────────────────────────────────────────────────────────────
+  CARDIOVASCULAR_PROTOCOL: {
+    category: 'heart_fitness',
+    theme: 'Protect Your Heart',
+    difficulty: 'moderate',
+    time_per_day: '15-30 min',
+    coach_intro: "Your heart wants three things: flexible vessels, stable blood sugar, and a calm nervous system. Almost everything we'll do supports one or more of those. We meet you where you are — what you need this week depends on whether your heart's healthy, showing warning signs, or you've already had an event.",
+    coach_intro_prevention: "You don't have a cardiovascular condition yet, and the goal is to keep it that way. The single biggest predictor of a future heart event is what you do in the years before one. Walking, fiber, calm breathing — that's the playbook. We'll build it together.",
+    coach_intro_early_warning: "High blood pressure or cholesterol is the body's early-warning light. It is not a verdict — it's a window. The next 12 months are the most important you'll have to bend the curve. We'll work alongside your doctor, not instead of them, and focus on the things that move the needle fastest.",
+    coach_intro_post_event: "You've had an event — or your heart is doing something it shouldn't. The rules change here. We're not chasing performance, we're chasing rehabilitation. Everything below is conservative, doctor-approved-style work. If your cardiologist tells you something different than I do, listen to them first.",
+    this_week: "Pick one anchor habit and protect it like a meeting. Three days, same time, same place.",
+    this_week_prevention: "Walk 30 minutes at a conversational pace 5 days this week. Add a 10-minute walk after one meal a day — even just dinner — to blunt the post-meal blood sugar spike that scars arteries over time.",
+    this_week_early_warning: "Two anchors this week: (1) walk 30 minutes 5 days, conversational pace, and (2) eat one bowl of soluble fiber (oats, beans, or a tablespoon of psyllium in water) every day. Soluble fiber soaks up LDL cholesterol like a sponge. Keep sodium under 1,500 mg/day. Bring your latest BP + lipid numbers to your next doctor visit.",
+    this_week_post_event: "Walking only this week — short and frequent. 10-15 minutes, 2-3 times a day, at a slow pace. No intensity, no intervals. Confirm with your cardiologist what's safe before you add anything else. If you're in a formal cardiac rehab program, follow that plan first.",
+    daily_micro_wins: [
+      'Take a 10-minute walk after your largest meal to blunt the post-meal blood sugar spike.',
+      'Eat one fiber-rich food at one meal (oats, beans, berries, chia, vegetables).',
+      'Box breathing — 4 seconds in, 4 hold, 4 out, 4 hold — for 2 minutes. Lowers cortisol, the inflammation driver.',
+    ],
+    daily_micro_wins_prevention: [
+      'Walk 30 minutes at conversational pace — the kind where you can talk but not sing.',
+      'Eat leafy greens or a fatty-fish meal (the nitrates and omega-3s actually dilate vessels).',
+      'Box breathing 4-4-4-4 for 2-5 minutes to keep resting heart rate trending down.',
+    ],
+    daily_micro_wins_early_warning: [
+      'Eat one bowl of oats, ½ cup of beans, or a tablespoon of psyllium in water. Soluble fiber removes LDL.',
+      'Walk 30 minutes — combine 20 min Zone-2 cardio with 10 min of light resistance work this week.',
+      'Keep sodium under 1,500 mg today. Read one label before you eat it.',
+    ],
+    daily_micro_wins_post_event: [
+      'Walk 10-15 minutes at a very slow pace, 2-3 times today. No intensity.',
+      'Eat one serving of berries, dark chocolate (70%+ cacao), or pomegranate to support reperfusion repair.',
+      'Connect with one person today — talk, call, text. Post-event depression is real and hits adherence hard.',
+    ],
+    weekly_additions: [
+      null,
+      'Add a 10-minute post-meal walk after dinner.',
+      'Add one bowl of oats or beans to your week.',
+      'Try 5 minutes of box breathing twice today instead of once.',
+      'Swap one processed-meat meal for a fish or legume meal.',
+      'Walk for 30 minutes outside in daylight to combine cardio + vitamin D.',
+      'Track your resting heart rate one morning this week.',
+      'Replace one coffee with green tea (EGCG supports vessel health).',
+    ],
+    weekly_additions_prevention: [
+      null,
+      'Hit 7,000-10,000 steps a day this week. People who walk that much have markedly lower second-cardiac-event risk.',
+      'Add one strength session — 20 minutes is plenty. Strong muscles pull glucose out of the bloodstream.',
+      'Try 30 minutes of Zone 2 cardio — chatty pace, mostly nose-breathing.',
+      'Add raw garlic or onions to one meal this week — sulfur compounds support blood thinning.',
+      'Hang from a pull-up bar for 30 seconds — grip strength is one of the strongest heart-longevity predictors.',
+      'Cold finish your shower: 30 seconds of cold at the end. Boosts cardiovascular reserve.',
+      'Schedule a calcium-score CT scan if you are over 40 and have never had one. Best heart-age proxy out there.',
+    ],
+    weekly_additions_early_warning: [
+      null,
+      'Build to 20 minutes of Zone 2 cardio + 15 minutes of light resistance training, 3 days this week.',
+      'Replace one processed meal with the "DASH plate" — half vegetables, quarter lean protein, quarter whole grain.',
+      'Add magnesium glycinate (300 mg) before bed if your doctor approves — relaxes blood vessels.',
+      'CoQ10 conversation with your doctor if you\'re on a statin (statins deplete CoQ10).',
+      'Add one serving of fatty fish (salmon, sardines) twice this week, or take 2 g of high-quality omega-3.',
+      'Track your blood pressure at home 3 mornings this week. Bring the numbers to your next appointment.',
+      'Walk barefoot on grass for 5 minutes ("grounding") — early studies show it lowers inflammatory markers.',
+    ],
+    weekly_additions_post_event: [
+      null,
+      'Build to 15 minutes of supervised walking 2-3 times daily — only if your cardiologist clears it.',
+      'Add one Mediterranean-style meal: olive oil, fish, greens, beans, whole grains.',
+      'Confirm you have a cardiac rehab program lined up — every week without one is a week of lost recovery.',
+      'Try 5 minutes of laughter therapy daily — watch something funny. Endothelial relaxation is real.',
+      'Add one social call this week — connection materially improves post-event survival.',
+      'Track your resting heart rate every morning this week.',
+      'By week 12 with your cardiologist\'s clearance, build toward the "150-minute rule" — 30 minutes of moderate activity, 5 days a week.',
+    ],
+    weekly_check_in: 'Days you walked + days you hit fiber + how your resting heart rate felt this week.',
+    if_did_well: 'That\'s the engine for everything else — vessel flexibility, blood sugar control, calm nervous system. Hold the new baseline two weeks, then we add a stretch goal.',
+    if_did_partial: 'Walks are usually anchored — they either attach to a meal or a time of day, or they don\'t happen. Pick the anchor. Same target next week.',
+    if_did_zero: 'No judgment. Pick one thing: 10 minutes of walking after dinner tonight. That\'s the whole assignment.',
+    what_youll_notice: 'Week 2: easier breathing on stairs. Week 4: resting heart rate drops 3-5 bpm. Week 8+: real change in blood pressure and lipids.',
+    avoid: 'Trans fats (anything fried in restaurant oil that\'s been used repeatedly). Excessive alcohol — it weakens heart muscle. Skipping prescribed meds because "you feel fine."',
+    avoid_post_event: 'Any unsupervised intensity. Stimulants — even hidden ones in tea or soda — can cause arrhythmias right now. Grapefruit if you\'re on certain cardiac meds (it interferes with metabolism). High-dose antioxidant pills during active treatment without your cardiologist\'s sign-off.',
+    red_flags: 'Chest pain or pressure, severe shortness of breath, sudden one-sided weakness or speech changes, fainting, or a racing/skipping heart that won\'t calm down — these are 911, not coaching.',
+    red_flags_post_event: 'Any chest pain, severe shortness of breath, sudden weakness or speech changes, fainting, ankle/leg swelling that\'s new, or a heart rate that won\'t come down — call your cardiologist or go to the ER. We do not coach these.',
+    tracking_metric: 'Days walked + fiber meals + resting heart rate trend',
+    review_days: 7,
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  //  CANCER PROTOCOL (stage-aware, added 2026-05-15)
+  //  Stages derived from Phase 1 Q24 (cancer severity):
+  //    prevention        — "I don't have and haven't had cancer"
+  //    survivorship      — non-melanoma treated / in remission 5+ years
+  //    during_treatment  — active treatment, recent (<5 yrs), or metastatic
+  //  Source: 2026 ACS/AICR/ASCO synthesis with stage-specific overlays.
+  //  IMPORTANT: This protocol explicitly is supportive care, not curative.
+  // ─────────────────────────────────────────────────────────────────────────
+  CANCER_PROTOCOL: {
+    category: 'longevity_prevention',
+    theme: 'Cancer-Resilient Living',
+    difficulty: 'moderate',
+    time_per_day: '15-30 min',
+    coach_intro: "Cancer is a body-wide topic — metabolism, inflammation, DNA repair, microbiome, sleep, and stress all play in. No diet or supplement is a substitute for medical treatment. What we focus on is everything that supports the body around treatment, prevents recurrence, or lowers risk in the first place.",
+    coach_intro_prevention: "You don't have cancer, and almost everything you can do for prevention also lowers your risk of heart disease, diabetes, and dementia at the same time. Movement, fiber, plant variety, sleep, and not smoking — that's 70% of the protective effect. We'll keep this practical.",
+    coach_intro_survivorship: "You've been through it. The biggest things you can do now — and the data on this is strong — are regular movement, a Mediterranean-style plate, weight management, and addressing the lingering psychological piece (fear of recurrence is real and it impacts quality of life). For breast and colon cancer survivors specifically, regular exercise is linked to a 40-50% reduction in recurrence and all-cause mortality. That's bigger than any pill.",
+    coach_intro_during_treatment: "We're not your oncology team — we're the body around the treatment. Everything we do during active treatment is conservative and supportive: maintain muscle, manage fatigue, protect immunity, support sleep, calm the nervous system. Anything that touches treatment timing or supplements goes through your oncologist first. No exceptions.",
+    this_week: 'Pick one anchor habit and protect it. Same time, same place, three days.',
+    this_week_prevention: 'Aim for 30 minutes of moderate activity 5 days, eat 30 grams of fiber a day (oats, beans, vegetables, berries), and cut processed meats to one serving or less this week. Those three move the dial more than any supplement.',
+    this_week_survivorship: 'Walk or move 30 minutes 5 days this week, add 2 days of light strength training, and build one Mediterranean-style meal a day (olive oil, fish or beans, greens, whole grains). Check whether your vitamin D is above 30 ng/mL — if not, ask your doctor about supplementing.',
+    this_week_during_treatment: 'Walk 10-20 minutes a day at a slow, gentle pace — only as your treatment day allows. Eat small, frequent, calorie-dense meals if appetite is low (bone broth, avocado, oat porridge, eggs). Pause any high-dose antioxidant supplements (Vit C, E, NAC) unless your oncologist prescribed them — they can blunt some treatments.',
+    daily_micro_wins: [
+      'Add one fiber-rich food to a meal (oats, beans, berries, vegetables, chia).',
+      'Walk 10-30 minutes today at conversational pace.',
+      'Sleep in a cool, dark room — your nightly cancer-scanning and DNA-repair window depends on it.',
+    ],
+    daily_micro_wins_prevention: [
+      'Eat one serving of cruciferous vegetables (broccoli, cauliflower, kale) today.',
+      'Walk 30-45 minutes today at conversational pace.',
+      'Aim for 30 grams of fiber today — track it once just to see where you start.',
+    ],
+    daily_micro_wins_survivorship: [
+      'Walk 30-45 minutes today at conversational pace — keep recurrence risk down.',
+      'Eat a Mediterranean plate: olive oil, fish or beans, greens, whole grains.',
+      'Eat one serving of high-fiber prebiotic food (onions, garlic, leeks, oats) to rebuild gut microbiome.',
+    ],
+    daily_micro_wins_during_treatment: [
+      'Walk 10-20 minutes today at a slow pace — or just stand up and stretch every hour if a full walk is too much.',
+      'Eat small frequent meals — bone broth, avocado, soft eggs, oat porridge — to fight treatment-related muscle loss.',
+      'Try 5 minutes of mindfulness or slow breathing to manage chemo brain and anxiety.',
+    ],
+    weekly_additions: [
+      null,
+      'Add one cruciferous-vegetable serving daily (broccoli, kale, cauliflower).',
+      'Add 30 seconds of cold water at the end of one shower — boosts natural killer (NK) cells.',
+      'Replace one coffee with green tea (EGCG supports cancer-cell apoptosis).',
+      'Add one cup of berries or one square of >85% dark chocolate as your sweet — anthocyanins.',
+      'Take 1-2 Brazil nuts daily (selenium, thyroid + antioxidant enzymes).',
+      'Add a 12-hour eating window 3 nights this week (no food for 12 hrs overnight) — autophagy.',
+      'Try 5 minutes of forest bathing / nature time to lower cortisol-induced mutations.',
+    ],
+    weekly_additions_prevention: [
+      null,
+      'Cut processed meats (bacon, deli, sausage) to one serving or fewer this week — Class 1 carcinogens.',
+      'Add 2 sessions of HIIT or heavy resistance training — mitochondrial health is your DNA\'s defense system.',
+      'Add omega-3s — 2 g of high-quality fish/algae oil daily, or 2 fatty-fish meals.',
+      'Eat lycopene-rich cooked tomatoes (sauce, paste) twice this week — prostate/breast protection.',
+      'Replace seed oils with olive or avocado oil for cooking — lowers oxidative stress.',
+      'Add one serving of fermented food (kimchi, sauerkraut, kefir) — gut microbiome immune training.',
+      'Schedule a Galleri / multi-cancer liquid biopsy if you\'re over 50 or have a family history.',
+    ],
+    weekly_additions_survivorship: [
+      null,
+      'Build to 150 minutes of moderate cardio + 2 strength sessions per week (the evidence-based survivorship target).',
+      'Add one fermented food daily — rebuild the microbiome chemo or treatment knocked down.',
+      'Add a prebiotic (onions, garlic, leeks, oats) to one meal daily.',
+      'Cut highly processed "ultra-palatable" foods — they spike IGF-1, linked to recurrence.',
+      'Check vitamin D — aim for above 30 ng/mL (50+ ideal). Ask your doctor before supplementing.',
+      'Join or continue a survivor support group — addresses fear of recurrence, the #1 quality-of-life driver post-treatment.',
+      'Add eccentric strength work (slow-lowering squats and push-ups) — triggers myokines that signal repair.',
+    ],
+    weekly_additions_during_treatment: [
+      null,
+      'Eat protein at every meal — 1.2-1.5 g per kg body weight to prevent muscle wasting.',
+      'Try restorative yoga or 10-min slow walk after rest periods to prevent blood clots.',
+      'Add ginger tea for nausea (clinical support is moderate but real).',
+      'Avoid raw sprouts, unpasteurized juices, raw sushi, and grapefruit — infection risk and drug interactions.',
+      'Build a "chemo brain" 5-minute cognitive routine: a puzzle, a memory game, or a short reading.',
+      'Confirm with your oncologist before adding any supplement, even vitamin D.',
+      'One mindfulness or breathing session daily to manage diagnostic anxiety.',
+    ],
+    weekly_check_in: 'Days you walked + fiber meals + how your energy felt this week.',
+    if_did_well: 'That\'s how the body wants to be supported — movement, fiber, real food, real sleep. Hold the baseline two weeks, then we add one stretch goal.',
+    if_did_partial: 'Pick the smaller anchor next week — five-minute walks instead of 30, one fiber food at breakfast instead of three meals. Consistency beats volume.',
+    if_did_zero: 'No judgment. One thing — drink a glass of water with breakfast tomorrow. That\'s the whole week.',
+    what_youll_notice: 'Week 2-3: easier digestion, steadier afternoon energy. Week 4-8: real metabolic shifts. Year 1+: this is the kind of work that compounds quietly.',
+    avoid: 'Processed meats. Trans fats. Excessive alcohol. High-dose isolated antioxidant pills during active treatment unless prescribed.',
+    avoid_prevention: 'Processed meats (Class 1 carcinogens). Trans fats. Daily alcohol — any amount raises breast, colon, and esophageal cancer risk. High-dose Vitamin E + Selenium pills (the SELECT trial showed elevated prostate cancer risk).',
+    avoid_survivorship: 'Highly processed "ultra-palatable" foods (chips, sugary cereals) — they spike IGF-1, linked to recurrence. Tobacco of any kind. Daily alcohol. Skipping follow-up screening to "move on."',
+    avoid_during_treatment: 'High-dose antioxidant pills (Vit C, E, NAC) without oncologist sign-off — they can protect cancer cells from oxidative-stress treatments. Grapefruit (interferes with metabolism of many chemo drugs). Raw sushi, raw sprouts, unpasteurized juice — your immune system is compromised. Any new supplement without telling your oncologist.',
+    red_flags: 'Unexplained weight loss, persistent fever, new lumps, blood in stool or urine, persistent pain in one location for more than 3 weeks, unusual fatigue that does not respond to sleep — get evaluated. We do not coach these.',
+    red_flags_during_treatment: 'Fever above 100.4°F, uncontrolled vomiting, persistent diarrhea, signs of infection at IV sites, severe shortness of breath, severe abdominal pain, neurologic changes, or thoughts of self-harm — call your oncology team immediately. Do not self-coach these.',
+    tracking_metric: 'Days with movement + fiber + sleep hours',
+    review_days: 7,
+    escalation: 'If you have an active hormone-sensitive cancer, are immunocompromised, or recently started a new chemotherapy regimen, speak with your oncologist before starting ANY supplement or major dietary shift.',
+  },
+
   DIGESTIVE_PROTOCOL: {
     category: 'digestive_microbiome',
     theme: 'Support Your Gut',
@@ -3531,18 +3723,23 @@ export const COACHING_PROTOCOLS = {
 export const PROTOCOL_LIBRARY = COACHING_PROTOCOLS
 
 /**
- * Resolve a protocol's content for a specific user sex. Hormone and a few
- * other body-system protocols carry sex-specific variants — e.g. hormone
- * health is genuinely different for a man (testosterone, prostate, vascular)
- * vs a woman (perimenopause, vasomotor symptoms, vaginal/urinary health).
+ * Resolve a protocol's content for a specific user context (sex + stage).
  *
- * For any field that has a `${field}_male` or `${field}_female` variant on
- * the content, return the sex-matched variant. Falls back to the unisex
- * field when no variant is provided or when sex is unknown.
+ * Sex variants (`${field}_male` / `${field}_female`) — hormone health and
+ * other body-system protocols read genuinely differently for men vs. women.
  *
- * Sex must be 'male' | 'female' | null. Null = use unisex copy.
+ * Stage variants (`${field}_prevention` / `${field}_early_warning` /
+ * `${field}_during_treatment` / `${field}_survivorship` / `${field}_post_event`) —
+ * cancer and cardiovascular protocols change radically based on where the
+ * user is in the disease arc. We derive stage from Q23 (cardio severity)
+ * and Q24 (cancer severity), so no extra question is required.
+ *
+ * Stage wins over sex when both are present (a survivor's safety guidance
+ * is identical regardless of sex; sex copy may still apply for non-staged
+ * fields). Caller can pass `{ sex, stage }`. Either is optional. Unknown
+ * values fall through to the unisex / unstaged copy.
  */
-const SEX_AWARE_FIELDS = [
+const VARIANT_AWARE_FIELDS = [
   'coach_intro',
   'this_week',
   'daily_micro_wins',
@@ -3558,14 +3755,80 @@ const SEX_AWARE_FIELDS = [
   'theme',
 ]
 
+const VALID_SEXES = new Set(['male', 'female'])
+const VALID_STAGES = new Set([
+  'prevention',
+  'early_warning',
+  'during_treatment',
+  'survivorship',
+  'post_event',
+])
+
 export function resolveProtocolBySex(content, sex) {
-  if (!content || !sex || (sex !== 'male' && sex !== 'female')) return content
+  return resolveProtocol(content, { sex })
+}
+
+export function resolveProtocol(content, { sex, stage } = {}) {
+  if (!content) return content
   const out = { ...content }
-  for (const field of SEX_AWARE_FIELDS) {
-    const variantKey = `${field}_${sex}`
-    if (Object.prototype.hasOwnProperty.call(content, variantKey)) {
-      out[field] = content[variantKey]
+  const sexKey = VALID_SEXES.has(sex) ? sex : null
+  const stageKey = VALID_STAGES.has(stage) ? stage : null
+  for (const field of VARIANT_AWARE_FIELDS) {
+    // Stage wins over sex — cancer/CVD stage guidance is the higher-stakes
+    // signal. If both happen to be authored for the same field, stage takes it.
+    if (stageKey && Object.prototype.hasOwnProperty.call(content, `${field}_${stageKey}`)) {
+      out[field] = content[`${field}_${stageKey}`]
+      continue
+    }
+    if (sexKey && Object.prototype.hasOwnProperty.call(content, `${field}_${sexKey}`)) {
+      out[field] = content[`${field}_${sexKey}`]
     }
   }
   return out
+}
+
+/**
+ * Map the user's Q23 (cardio severity) answer text to a stage label used by
+ * resolveProtocol. Q23 is a single-select with `years` baked in; we read the
+ * text (or value) rather than re-deriving from years to stay robust.
+ */
+export function cardioStageFromAnswer(answerText) {
+  if (!answerText) return null
+  const t = String(answerText).toLowerCase()
+  if (t.includes("don't have") || t.includes("dont have")) return 'prevention'
+  if (t.includes('heart attack') || t.includes('stroke') || t.includes('stent') || t.includes('bypass')) return 'post_event'
+  if (t.includes('afib') || t.includes('atrial fibrillation') || t.includes('heart failure')) return 'post_event'
+  if (t.includes('high blood pressure') || t.includes('high cholesterol')) return 'early_warning'
+  return null
+}
+
+/**
+ * Map the user's Q24 (cancer severity) answer text to a stage label.
+ * "Don't have" → prevention. "In remission 5+ years" / non-melanoma treated
+ * → survivorship. "Active treatment" / metastatic → during_treatment.
+ */
+export function cancerStageFromAnswer(answerText) {
+  if (!answerText) return null
+  const t = String(answerText).toLowerCase()
+  if (t.includes("don't have") || t.includes("haven't had") || t.includes("havent had")) return 'prevention'
+  if (t.includes('metastatic') || t.includes('stage iv') || t.includes('active treatment') || t.includes('recent')) return 'during_treatment'
+  if (t.includes('remission') || t.includes('non-melanoma') || t.includes('treated')) return 'survivorship'
+  return null
+}
+
+/**
+ * Convenience: derive the right stage for a given protocol category from a
+ * user's phase 1 answers payload. Returns null for categories that don't
+ * support stage variants.
+ */
+export function stageForCategoryFromAnswers(categoryId, phase1Answers) {
+  if (!phase1Answers) return null
+  if (categoryId === 'heart_fitness' || categoryId === 'longevity_prevention') {
+    // Cardio stage applies cleanly to heart_fitness. For longevity_prevention
+    // we lean cardio first since CVD is the dominant longevity risk.
+    return cardioStageFromAnswer(phase1Answers?.[23]?.text)
+  }
+  // Cancer protocol category not directly modeled in PHASE2_CATEGORIES today;
+  // if it gets added, this is where we'd map it. Hook ready.
+  return null
 }

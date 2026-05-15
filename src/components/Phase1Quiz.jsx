@@ -114,6 +114,24 @@ const PHASE1_QUESTIONS = [
     placeholder_weight: 'Weight (lbs)'
   },
 
+  // Q25 — Body Shape modifier. BMI alone misclassifies muscular (overstates
+  // risk) and "skinny-fat" (understates risk) people. 2026 BRI research
+  // (Frontiers in Public Health, Nature) shows abdominal fat distribution
+  // is what actually drives biological-age acceleration. We ask in plain
+  // English because almost no one knows their waist circumference.
+  {
+    id: 25,
+    category: 'Body & Vitals',
+    question: 'Which best describes your current body type and weight distribution?',
+    type: 'single',
+    options: [
+      { text: "Muscular — I do heavy weight or resistance training regularly", years: -2 },
+      { text: "Even or pear-shape — weight sits more in hips, thighs, or buttocks", years: 0 },
+      { text: "Apple-shape — weight collects around my stomach; waistband feels tight even when my legs fit fine", years: 2 },
+      { text: "Lean but soft-belly (\"skinny fat\") — thin frame, but almost all extra weight is in my belly", years: 3.5 }
+    ]
+  },
+
   // Q7: Blood Pressure (Body & Vitals)
   {
     id: 7,
@@ -239,12 +257,24 @@ const PHASE1_QUESTIONS = [
   {
     id: 16,
     category: 'Nutrition',
-    question: 'Which best describes how you usually eat?',
+    // Q16 — Ultra-Processed Food (UPF) % question. Replaces the prior 3-option
+    // "how you usually eat" question with the 4-bucket UPF model backed by
+    // 2026 telomere and biological-age research. Year impacts match the
+    // PDF's "Aging Speed Table":
+    //   100% whole = -0.5 (mild reversal),
+    //   ~90/10     = 0,
+    //   ~50/50     = 5 (PDF says +5-7 years bio-age impact),
+    //   ~80%+ UPF  = 10 (PDF says +10-15 years bio-age impact).
+    // The UPF % framing is far more accurate than "mostly whole vs mix" —
+    // someone who eats fast food daily but also has salads scored "mix"
+    // under the old question and got a tiny +1; that's clinically wrong.
+    question: 'Which best describes the typical balance of your diet?',
     type: 'single',
     options: [
-      { text: 'Mostly whole foods', years: 0 },
-      { text: 'Mix of whole and processed', years: 1 },
-      { text: 'Mostly processed or fast foods', years: 3 }
+      { text: "Almost all whole foods — fruits, vegetables, beans, whole grains, fresh meats, eggs, fish, dairy. Rarely any packaged or fast food.", years: -0.5 },
+      { text: "Mostly whole foods with some processed (about 80-90% whole, 10-20% packaged or restaurant food)", years: 0 },
+      { text: "About half processed (50% of meals are packaged snacks, fast food, sugary drinks, frozen dinners, or takeout)", years: 5 },
+      { text: "Mostly processed (80%+ packaged, fast food, sugary drinks, frequent takeout — limited whole foods)", years: 10 }
     ]
   },
 
@@ -252,12 +282,16 @@ const PHASE1_QUESTIONS = [
   {
     id: 17,
     category: 'Nutrition',
-    question: 'How often do you eat fast food, packaged snacks, or drink sugary beverages?',
+    // Q17 refocused to sugar-sweetened beverages specifically — these are an
+    // independent, additive risk on top of overall UPF %. 2026 research:
+    // one soda a day = ~4.6 years biological aging acceleration over a
+    // decade. We split into rarely / weekly / daily so the curve matches.
+    question: 'How often do you drink sugar-sweetened beverages (sodas, sweetened coffee or tea, sports drinks, energy drinks, fruit juice)?',
     type: 'single',
     options: [
-      { text: 'Rarely (<1/week)', years: 0 },
-      { text: 'A few times/week', years: 1.5 },
-      { text: 'Daily', years: 3 }
+      { text: 'Rarely or never (less than 1 per week)', years: 0 },
+      { text: 'A few times a week', years: 2 },
+      { text: 'Daily', years: 4 }
     ]
   },
 
@@ -503,10 +537,15 @@ export default function Phase1Quiz({ onComplete }) {
     // Calculate BMI: (weight in pounds / (height in inches)^2) * 703
     const bmi = (weight / (totalHeightInches * totalHeightInches)) * 703
 
+    // BMI scoring rebuilt per the 2026 Body Roundness Index (BRI) research
+    // (Frontiers in Public Health, Nature). Baseline biological-age impact is
+    // now per the PDF spec — body shape modifier follows in Q25 to correct
+    // for BMI's well-known under/overestimation on muscular and skinny-fat
+    // body types.
     let bmiYears = 0
     let bmiCategory = ''
     if (bmi < 18.5) {
-      bmiYears = 1
+      bmiYears = 0.5
       bmiCategory = `Underweight (BMI ${bmi.toFixed(1)})`
     } else if (bmi < 25) {
       bmiYears = 0
@@ -514,12 +553,9 @@ export default function Phase1Quiz({ onComplete }) {
     } else if (bmi < 30) {
       bmiYears = 1.5
       bmiCategory = `Overweight (BMI ${bmi.toFixed(1)})`
-    } else if (bmi < 35) {
-      bmiYears = 3
-      bmiCategory = `Obese Class I (BMI ${bmi.toFixed(1)})`
     } else {
-      bmiYears = 4
-      bmiCategory = `Obese Class II (BMI ${bmi.toFixed(1)})`
+      bmiYears = 3.5
+      bmiCategory = `Obese (BMI ${bmi.toFixed(1)})`
     }
 
     const qId = currentQ.id

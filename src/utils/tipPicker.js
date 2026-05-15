@@ -89,6 +89,25 @@ function tipMatchesRiskTags(tip, riskTags) {
 //
 // week: 1 makes them eligible from week 1 onward.
 const UNIVERSAL_PHYSICAL_TIPS = [
+  // 2026 Longevity Blueprint — 3 Daily Core Habits (always-on foundation).
+  // These are the "do every day regardless of protocol" anchors from the
+  // CA/CVD protocol research. They get a foundation_boost: true tag so the
+  // picker scores them above generic universal tips. They're authored as
+  // one-per-mode so the picker's "1 physical + 1 nutrition + 1 behavioral"
+  // rule places them all on the dashboard together when no category-specific
+  // tip beats them on personalization.
+  {
+    category: 'any',
+    week: 1,
+    theme: 'Post-meal walk',
+    core: 'Glucose & vessel anchor',
+    tip: 'Take a 10-minute walk right after your largest meal today — blunts the post-meal glucose spike that scars arteries and feeds cancer cells.',
+    framing: "Ten minutes after dinner. That's the whole assignment. It's the single highest-leverage habit in longevity research.",
+    tracking: 'Days you walked after a meal',
+    safety: 'Pace is conversational, not vigorous. Stop for chest pain, dizziness, or unusual shortness of breath.',
+    mode: 'physical',
+    foundation_boost: true,
+  },
   {
     category: 'any',
     week: 1,
@@ -128,6 +147,18 @@ const UNIVERSAL_NUTRITION_TIPS = [
   {
     category: 'any',
     week: 1,
+    theme: 'Electrolyte hydration',
+    core: 'Daily foundation',
+    tip: 'Drink 500 ml of water with a pinch of sea salt and a squeeze of lemon when you wake — flushes the lymphatic system and hydrates the heart muscle.',
+    framing: "First thing. Before coffee. Glass of water with a pinch of salt and lemon. That's the foundation.",
+    tracking: 'Mornings you hit the morning electrolyte glass',
+    safety: 'Skip the salt if you are on a sodium-restricted diet — talk to your clinician first.',
+    mode: 'nutrition',
+    foundation_boost: true,
+  },
+  {
+    category: 'any',
+    week: 1,
     theme: 'Hydration',
     core: 'Daily nutrition basics',
     tip: 'Drink a glass of water 15 minutes before each meal — your gut and your appetite both benefit.',
@@ -161,6 +192,18 @@ const UNIVERSAL_NUTRITION_TIPS = [
 ]
 
 const UNIVERSAL_BEHAVIORAL_TIPS = [
+  {
+    category: 'any',
+    week: 1,
+    theme: 'Box breathing',
+    core: 'Cortisol foundation',
+    tip: 'Box breathing — 4 seconds in, 4 hold, 4 out, 4 hold — for 5 minutes today. Lowers cortisol, the primary driver of systemic inflammation behind both heart disease and cancer.',
+    framing: "Five minutes. 4 in, 4 hold, 4 out, 4 hold. That's the whole behavioral assignment most days.",
+    tracking: 'Days you did the breath box',
+    safety: 'Stop if you feel lightheaded; resume normal breathing.',
+    mode: 'behavioral',
+    foundation_boost: true,
+  },
   {
     category: 'any',
     week: 1,
@@ -214,6 +257,10 @@ function score(tip, currentWeek, profile) {
   // it matters — but generic category tips no longer crowd out the
   // foundation pillars Keith built into the program.
   if (tip.category === 'any') s += 5
+  // Extra boost for the 2026 CA/CVD blueprint's 3 daily core habits — they
+  // are stage-agnostic and benefit every protocol, so we want them to win
+  // most ties against generic universal tips.
+  if (tip.foundation_boost) s += 4
 
   // Risk-tag relevance (biggest personalization signal)
   s += tipMatchesRiskTags(tip, profile.riskTags) * 4
@@ -266,7 +313,15 @@ export function pickTipsForUser(category, currentWeek = 1, profile = {}) {
   // personalization beats foundation when the user has a strong signal,
   // foundation prevails the rest of the time.
   const allEligible = [
-    ...TIP_BANK.filter(t => t.category === category),
+    // A tip is eligible if its primary `category` matches OR its `categories`
+    // array (when present) includes this category. The 52 longevity micro-
+    // habits authored from the 2026 CA/CVD protocols use the multi-category
+    // form because many cross over (e.g. "post-meal walk" hits both
+    // heart_fitness and weight_metabolism).
+    ...TIP_BANK.filter(t =>
+      t.category === category ||
+      (Array.isArray(t.categories) && t.categories.includes(category))
+    ),
     ...UNIVERSAL_PHYSICAL_TIPS,
     ...UNIVERSAL_NUTRITION_TIPS,
     ...UNIVERSAL_BEHAVIORAL_TIPS,

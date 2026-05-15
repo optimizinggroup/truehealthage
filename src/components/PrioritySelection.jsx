@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { PHASE2_CATEGORIES } from '../utils/phase2Data'
-import { COACHING_PROTOCOLS, resolveProtocolBySex } from '../utils/coachingProtocols'
+import { COACHING_PROTOCOLS, resolveProtocol, cardioStageFromAnswer, cancerStageFromAnswer } from '../utils/coachingProtocols'
 import { normalizeSex } from '../utils/optionalAddOns'
 import { ensureNotificationPermission, scheduleWeeklyCheckin, scheduleDailyNudge } from '../utils/notifications'
 import { track as phTrack } from '../utils/posthog'
@@ -107,7 +107,26 @@ export default function PrioritySelection({ phase1Results, phase2Results, onActi
   // Helper: find any authored protocol for a given category id. Used to give
   // a goal category a starter protocol even if none was triggered by the
   // Phase 2 score (or the user skipped Phase 2 questions for that category).
+  const cardioStage = cardioStageFromAnswer(effectivePhase1?.answers?.[23]?.text)
+  const cancerStage = cancerStageFromAnswer(effectivePhase1?.answers?.[24]?.text)
+  const stageForProtocol = (key) => {
+    if (key === 'CARDIOVASCULAR_PROTOCOL') return cardioStage
+    if (key === 'CANCER_PROTOCOL') return cancerStage
+    return null
+  }
   const findProtocolForCategory = (categoryId) => {
+    // For cardio/longevity categories, prefer the stage-aware disease-arc
+    // protocol when the user has a real condition (Q23/Q24 non-prevention).
+    // This routes someone with high BP to CARDIOVASCULAR_PROTOCOL instead of
+    // a generic STEPS_PROTOCOL — the difference is night and day.
+    if (categoryId === 'heart_fitness' && cardioStage && cardioStage !== 'prevention') {
+      const base = COACHING_PROTOCOLS.CARDIOVASCULAR_PROTOCOL
+      if (base) return { name: 'CARDIOVASCULAR_PROTOCOL', ...resolveProtocol(base, { sex: userSex, stage: cardioStage }) }
+    }
+    if (categoryId === 'longevity_prevention' && cancerStage && cancerStage !== 'prevention') {
+      const base = COACHING_PROTOCOLS.CANCER_PROTOCOL
+      if (base) return { name: 'CANCER_PROTOCOL', ...resolveProtocol(base, { sex: userSex, stage: cancerStage }) }
+    }
     const triggered = protocols.find(p => p.category === categoryId)
     if (triggered) return triggered
     const fallbackEntry = Object.entries(COACHING_PROTOCOLS).find(
@@ -115,7 +134,7 @@ export default function PrioritySelection({ phase1Results, phase2Results, onActi
     )
     if (!fallbackEntry) return null
     const [name, baseContent] = fallbackEntry
-    const content = resolveProtocolBySex(baseContent, userSex)
+    const content = resolveProtocol(baseContent, { sex: userSex, stage: stageForProtocol(name) })
     return { name, ...content }
   }
 
