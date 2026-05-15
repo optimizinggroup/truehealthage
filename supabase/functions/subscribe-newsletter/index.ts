@@ -84,7 +84,7 @@ Deno.serve(async (req) => {
     // Build Beehiiv subscription payload
     const subscribeBody: Record<string, unknown> = {
       email,
-      reactivate_existing: false,        // don't auto-revive unsubscribed users
+      reactivate_existing: true,         // re-fire welcome automation on re-signup (recovers from failed first attempts, account deletions, prior testing)
       send_welcome_email: false,         // we send our own welcome from Coach K
       utm_source: utm_source || 'truehealthage_app',
       utm_medium: utm_medium || 'web',
