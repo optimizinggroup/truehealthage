@@ -11,6 +11,7 @@ import {
 } from '../utils/phase2Data'
 import { resolveProtocol, cardioStageFromAnswer, cancerStageFromAnswer } from '../utils/coachingProtocols'
 import { normalizeSex } from '../utils/optionalAddOns'
+import { track as phTrack } from '../utils/posthog'
 import '../styles/branding.css'
 import '../styles/Phase2Results.css'
 
@@ -186,6 +187,17 @@ export default function Phase2Results({ phase1Results, phase2Data, selectedAreas
       }),
       priorityFactors: results.topRiskTags
     }
+    // Funnel event: user actually finished Phase 2 quiz. This fires whether
+    // or not they go on to pick a priority protocol on the next screen, so we
+    // can distinguish "ran the quiz but bailed at priority" from "never
+    // started Phase 2 in the first place."
+    phTrack('phase2_quiz_completed', {
+      categories_assessed: selectedAreas?.length || 0,
+      protocols_triggered: results.protocols?.length || 0,
+      high_priority_count: (results.rankedCategories || []).filter(c => c.status?.level === 'high-priority').length,
+      had_escalation_flags: (results.escalationFlags || []).length > 0,
+    })
+
     onComplete(resultData)
   }
 

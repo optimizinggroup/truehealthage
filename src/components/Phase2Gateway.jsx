@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { PHASE2_CATEGORIES } from '../utils/phase2Data'
 import { getRecommendedProtocols } from '../utils/protocolMapping'
+import { track as phTrack } from '../utils/posthog'
 import '../styles/branding.css'
 import '../styles/Phase2Gateway.css'
 
@@ -29,6 +30,13 @@ export default function Phase2Gateway({ phase1Results, onStart, onSkip }) {
 
   const handleContinue = () => {
     if (selectedAreas.length === 0) return
+    // Funnel event: user committed to starting Phase 2 (selected categories
+    // + clicked Start). Pairs with quiz_started for Phase 1 dropoff analysis.
+    phTrack('phase2_started', {
+      mode,
+      areas_count: selectedAreas.length,
+      areas: selectedAreas,
+    })
     onStart(selectedAreas)
   }
 

@@ -2,8 +2,10 @@ import { useState } from 'react'
 import ShareComponent from './ShareComponent'
 import ShareAfterReveal from './ShareAfterReveal'
 import ResultsReport from './ResultsReport'
+import ScoreCitations from './ScoreCitations'
 import { getRecommendedProtocols } from '../utils/protocolMapping'
 import { getCohortBand, getCohortBandColor } from '../utils/cohortPositioning'
+import { track as phTrack } from '../utils/posthog'
 import '../styles/ResultsPage.css'
 
 export default function ResultsPage({
@@ -36,6 +38,94 @@ export default function ResultsPage({
   return (
     <div className="results-page">
       <div className="results-container">
+        {/* URGENT PHASE 2 CTA — top of page, mobile-first.
+            Pushes user to the FREE coaching program before they scroll into
+            the score detail. Only shown when showPhase2Option = true (first
+            view after Phase 1, before they've started Phase 2). Returning
+            users with phase2Results never see this. */}
+        {showPhase2Option && (
+          <section
+            style={{
+              background: 'linear-gradient(135deg, #0D9488 0%, #10B981 100%)',
+              color: '#fff',
+              borderRadius: '14px',
+              padding: '22px 22px 18px',
+              marginBottom: '24px',
+              boxShadow: '0 4px 16px rgba(13,148,136,0.25)',
+              textAlign: 'center',
+            }}
+          >
+            <p style={{
+              fontSize: '0.78rem',
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              opacity: 0.9,
+              marginBottom: '4px',
+              fontWeight: 700,
+            }}>
+              IMPROVE your TrueHealth Age
+            </p>
+            <p style={{
+              fontSize: '0.8rem',
+              opacity: 0.85,
+              marginBottom: '10px',
+              fontWeight: 600,
+              letterSpacing: '0.04em',
+            }}>
+              For a Limited Time
+            </p>
+            <h2 style={{
+              fontSize: 'clamp(1.15rem, 4.5vw, 1.55rem)',
+              fontWeight: 800,
+              marginBottom: '14px',
+              lineHeight: 1.25,
+              color: '#fff',
+            }}>
+              Get Your FREE Personalized<br />Health Coaching Program
+            </h2>
+            <button
+              type="button"
+              onClick={() => {
+                phTrack('phase2_cta_clicked', { placement: 'top_urgent' })
+                if (onPhase2Selection) onPhase2Selection()
+              }}
+              style={{
+                background: '#fff',
+                color: '#0D9488',
+                border: 'none',
+                borderRadius: '999px',
+                padding: '14px 36px',
+                fontSize: '1.05rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                letterSpacing: '0.02em',
+              }}
+            >
+              Start Here →
+            </button>
+            <p style={{
+              fontSize: '0.85rem',
+              marginTop: '12px',
+              fontWeight: 700,
+              color: '#fef3c7',
+              letterSpacing: '0.03em',
+            }}>
+              ⚡ Only a Few Spots Left
+            </p>
+          </section>
+        )}
+
+        {/* Anchor + scroll hint to the score detail below */}
+        {showPhase2Option && (
+          <div style={{ textAlign: 'center', marginBottom: '14px' }}>
+            <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0, fontWeight: 500 }}>
+              Your TrueHealth Age details below
+            </p>
+            <div style={{ fontSize: '1.4rem', color: '#0D9488', lineHeight: 1, marginTop: '2px' }}>↓</div>
+          </div>
+        )}
+
         {/* Phase 1 Results */}
         <section className="phase1-results">
           <h2>Your True Health Age Assessment</h2>
@@ -289,13 +379,19 @@ export default function ResultsPage({
               <p className="gateway-description">Based on your assessment, we've identified specific areas where targeted actions can help improve your health. Select the areas most important to you and get a personalized action plan.</p>
               <button
                 className="proceed-btn"
-                onClick={onPhase2Selection}
+                onClick={() => {
+                  phTrack('phase2_cta_clicked', { placement: 'bottom_gateway' })
+                  onPhase2Selection()
+                }}
               >
                 Start My Personalized Protocol →
               </button>
               <button
                 className="skip-btn"
-                onClick={onSkipPhase2}
+                onClick={() => {
+                  phTrack('phase2_skipped', { placement: 'bottom_gateway' })
+                  onSkipPhase2()
+                }}
               >
                 Skip for Now
               </button>
@@ -319,6 +415,11 @@ export default function ResultsPage({
             </p>
           </section>
         )}
+
+        {/* Citations — validation studies for users who want to verify the science.
+            We show study names + what they support; we do NOT expose the year-impact
+            formula. Collapsed by default so it doesn't clutter the page. */}
+        <ScoreCitations />
 
         {/* Action Section */}
         <section className="action-section">
