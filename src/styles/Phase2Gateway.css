@@ -68,10 +68,13 @@
 }
 
 .mode-card.active {
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(13, 148, 136, 0.08));
-  border-color: var(--brand-primary-blue);
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.15);
+  background: #1e3a8a;
+  border-color: #1e3a8a;
+  box-shadow: 0 8px 20px rgba(30, 58, 138, 0.3);
 }
+.mode-card.active h3,
+.mode-card.active p,
+.mode-card.active small { color: #fff !important; }
 
 .mode-card h3 {
   font-size: 1.1rem;
@@ -136,10 +139,12 @@
 }
 
 .category-card.selected {
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(13, 148, 136, 0.08));
-  border-color: var(--brand-primary-blue);
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.15);
+  background: #1e3a8a;            /* solid dark blue — readable white-on-dark */
+  border-color: #1e3a8a;
+  box-shadow: 0 8px 20px rgba(30, 58, 138, 0.3);
 }
+.category-card.selected h3,
+.category-card.selected p { color: #fff !important; }
 
 .card-icon {
   font-size: 2.5rem;

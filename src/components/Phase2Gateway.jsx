@@ -5,43 +5,63 @@ import { track as phTrack } from '../utils/posthog'
 import '../styles/branding.css'
 import '../styles/Phase2Gateway.css'
 
+// Default trio used for "Quick Recommended" when the user hasn't picked
+// goals — these three categories give the best baseline impact for most
+// adults. Override is applied below if the user picked goals in Q21.
+const DEFAULT_RECOMMENDED_TRIO = ['sleep_recovery', 'heart_fitness', 'weight_metabolism']
+
 export default function Phase2Gateway({ phase1Results, onStart, onSkip }) {
-  const [mode, setMode] = useState('quick') // 'quick' or 'full'
-  // Pull category ids the user named as goals in Phase 1 Q21 — used both to
-  // preselect them in Quick mode and to badge them as "your goal" in the grid.
+  // 'options' (the new 3-card menu) | 'customize' (the picker the user
+  // expands when they explicitly choose option 3)
+  const [mode, setMode] = useState('options')
+  const [selectedAreas, setSelectedAreas] = useState([])
+
+  // Pull category ids the user named as goals in Phase 1 Q21 — used to
+  // bias the "Quick Recommended" trio toward what they actually said
+  // mattered to them. Falls back to a defensible default if they picked
+  // fewer than 3 goals.
   const goalCategoryIds = (() => {
     const sels = phase1Results?.answers?.[21]?.selections
     if (!Array.isArray(sels)) return []
     return sels.map(s => s.goal).filter(Boolean)
   })()
-  const [selectedAreas, setSelectedAreas] = useState(goalCategoryIds)
+  // Recommended trio = user's first 3 goals, padded with the default trio.
+  const recommendedTrio = (() => {
+    const out = []
+    for (const id of goalCategoryIds) {
+      if (out.length >= 3) break
+      if (!out.includes(id)) out.push(id)
+    }
+    for (const id of DEFAULT_RECOMMENDED_TRIO) {
+      if (out.length >= 3) break
+      if (!out.includes(id)) out.push(id)
+    }
+    return out.slice(0, 3)
+  })()
 
   const handleAreaToggle = (categoryId) => {
     if (selectedAreas.includes(categoryId)) {
       setSelectedAreas(selectedAreas.filter(id => id !== categoryId))
     } else {
-      // Per the May 2026 spec: users may select any number of areas. The
-      // top-3 limit on Quick Plan was removed so users can pick what
-      // actually matters to them. PrioritySelection still asks them to
-      // start with one area at a time.
       setSelectedAreas([...selectedAreas, categoryId])
     }
   }
 
-  const handleContinue = () => {
+  // Auto-start helpers — no second click required for Quick / Full options.
+  const startQuick = () => {
+    phTrack('phase2_started', { mode: 'quick_recommended', areas_count: recommendedTrio.length, areas: recommendedTrio })
+    onStart(recommendedTrio)
+  }
+  const startFull = () => {
+    const all = PHASE2_CATEGORIES.map(c => c.id)
+    phTrack('phase2_started', { mode: 'full', areas_count: all.length, areas: all })
+    onStart(all)
+  }
+  const startCustom = () => {
     if (selectedAreas.length === 0) return
-    // Funnel event: user committed to starting Phase 2 (selected categories
-    // + clicked Start). Pairs with quiz_started for Phase 1 dropoff analysis.
-    phTrack('phase2_started', {
-      mode,
-      areas_count: selectedAreas.length,
-      areas: selectedAreas,
-    })
+    phTrack('phase2_started', { mode: 'customize', areas_count: selectedAreas.length, areas: selectedAreas })
     onStart(selectedAreas)
   }
-
-  const isQuickValid = mode === 'quick' && selectedAreas.length > 0
-  const isFullValid = mode === 'full'
 
   return (
     <div className="phase2-gateway">
@@ -86,39 +106,110 @@ export default function Phase2Gateway({ phase1Results, onStart, onSkip }) {
           </div>
         )}
 
-        {/* Mode Selection */}
-        <div className="mode-selector">
-          <div
-            className={`mode-card ${mode === 'quick' ? 'active' : ''}`}
-            onClick={() => {
-              setMode('quick')
-              setSelectedAreas([])
-            }}
-          >
-            <h3>Quick Plan</h3>
-            <p>Choose the areas you want to focus on</p>
-            <small>~5 min per area</small>
-          </div>
+        {/* THREE clear options — each card is the entire CTA. No second
+            click required for options 1 and 2; the click on the card itself
+            starts the assessment. Option 3 expands an inline picker. */}
+        {mode === 'options' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', margin: '20px 0 24px' }}>
+            {/* Option 1 — Quick Recommended */}
+            <button
+              type="button"
+              onClick={startQuick}
+              style={{
+                background: 'linear-gradient(135deg, #0D9488 0%, #10B981 100%)',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '14px',
+                padding: '20px 22px',
+                textAlign: 'left',
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(13,148,136,0.25)',
+              }}
+            >
+              <div style={{ fontSize: '0.78rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#FDE047', marginBottom: 4 }}>
+                Recommended
+              </div>
+              <div style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: 6, color: '#fff' }}>
+                🎯 Start with Recommended Quick Assessment
+              </div>
+              <div style={{ fontSize: '0.92rem', color: '#fff', opacity: 0.95, lineHeight: 1.45, marginBottom: 8 }}>
+                We picked 3 areas based on your goals and results. Fastest path to your plan.
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {recommendedTrio.map(id => {
+                  const c = PHASE2_CATEGORIES.find(x => x.id === id)
+                  if (!c) return null
+                  return (
+                    <span key={id} style={{ background: 'rgba(255,255,255,0.22)', color: '#fff', fontSize: '0.78rem', fontWeight: 600, padding: '4px 10px', borderRadius: 999 }}>
+                      {c.icon} {c.name}
+                    </span>
+                  )
+                })}
+              </div>
+              <div style={{ marginTop: 12, fontSize: '0.9rem', fontWeight: 700, color: '#FDE047' }}>Start now →</div>
+            </button>
 
-          <div
-            className={`mode-card ${mode === 'full' ? 'active' : ''}`}
-            onClick={() => {
-              setMode('full')
-              setSelectedAreas(PHASE2_CATEGORIES.map(c => c.id))
-            }}
-          >
-            <h3>Full Assessment</h3>
-            <p>Complete evaluation across all health areas</p>
-            <small>~5 min per area</small>
-          </div>
-        </div>
+            {/* Option 2 — Full Assessment */}
+            <button
+              type="button"
+              onClick={startFull}
+              style={{
+                background: '#fff',
+                color: '#1f2937',
+                border: '2px solid #cbd5e1',
+                borderRadius: '14px',
+                padding: '20px 22px',
+                textAlign: 'left',
+                cursor: 'pointer',
+              }}
+            >
+              <div style={{ fontSize: '1.15rem', fontWeight: 800, marginBottom: 6 }}>
+                📋 Start with Full Assessment
+              </div>
+              <div style={{ fontSize: '0.92rem', color: '#4b5563', lineHeight: 1.45 }}>
+                Cover all {PHASE2_CATEGORIES.length} health areas for the most thorough plan. Takes a few minutes longer.
+              </div>
+              <div style={{ marginTop: 10, fontSize: '0.9rem', fontWeight: 700, color: '#0D9488' }}>Start now →</div>
+            </button>
 
-        {/* Category Selection (Quick Mode) */}
-        {mode === 'quick' && (
+            {/* Option 3 — Customize */}
+            <button
+              type="button"
+              onClick={() => setMode('customize')}
+              style={{
+                background: '#fff',
+                color: '#1f2937',
+                border: '2px solid #cbd5e1',
+                borderRadius: '14px',
+                padding: '20px 22px',
+                textAlign: 'left',
+                cursor: 'pointer',
+              }}
+            >
+              <div style={{ fontSize: '1.15rem', fontWeight: 800, marginBottom: 6 }}>
+                ⚙️ Customize My Assessment
+              </div>
+              <div style={{ fontSize: '0.92rem', color: '#4b5563', lineHeight: 1.45 }}>
+                Pick exactly which areas you want to focus on.
+              </div>
+              <div style={{ marginTop: 10, fontSize: '0.9rem', fontWeight: 700, color: '#0D9488' }}>Pick areas →</div>
+            </button>
+
+            <button type="button" onClick={onSkip} style={{ background: 'transparent', border: 'none', color: '#6b7280', fontSize: '0.9rem', cursor: 'pointer', marginTop: 4, padding: 8 }}>
+              Skip for now
+            </button>
+          </div>
+        )}
+
+        {/* Customize picker (only when user explicitly chose Option 3) */}
+        {mode === 'customize' && (
           <div className="quick-mode">
-            <h2>Select focus areas</h2>
+            <button type="button" onClick={() => setMode('options')} style={{ background: 'transparent', border: 'none', color: '#0D9488', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer', marginBottom: 12, padding: 0 }}>
+              ← Back to options
+            </button>
+            <h2>Pick the areas you want to focus on</h2>
             <p className="mode-instruction">
-              Choose any areas you want to work on. You can pick one, a few, or all of them — we'll help you focus on one at a time.
+              Choose any number — even just one is fine. We'll help you focus on the most important first.
             </p>
             <div className="categories-grid">
               {PHASE2_CATEGORIES.map(category => {
@@ -132,12 +223,8 @@ export default function Phase2Gateway({ phase1Results, onStart, onSkip }) {
                     <div className="card-icon">{category.icon}</div>
                     <h3>{category.name}</h3>
                     <p>{category.description}</p>
-                    {isGoal && (
-                      <div className="goal-badge">★ Your goal</div>
-                    )}
-                    {selectedAreas.includes(category.id) && (
-                      <div className="selection-badge">✓ Selected</div>
-                    )}
+                    {isGoal && (<div className="goal-badge">★ Your goal</div>)}
+                    {selectedAreas.includes(category.id) && (<div className="selection-badge">✓ Selected</div>)}
                   </div>
                 )
               })}
@@ -147,49 +234,18 @@ export default function Phase2Gateway({ phase1Results, onStart, onSkip }) {
                 ? 'Select at least 1 area'
                 : `${selectedAreas.length} ${selectedAreas.length === 1 ? 'area' : 'areas'} selected`}
             </p>
-          </div>
-        )}
-
-        {/* Category Overview (Full Mode) */}
-        {mode === 'full' && (
-          <div className="full-mode">
-            <h2>Full Assessment</h2>
-            <p className="mode-instruction">
-              We'll ask 6 questions in each of these areas to create a personalized plan:
-            </p>
-            <div className="categories-list">
-              {PHASE2_CATEGORIES.map(category => (
-                <div key={category.id} className="category-item">
-                  <span className="category-icon">{category.icon}</span>
-                  <div className="category-info">
-                    <h4>{category.name}</h4>
-                    <p>{category.description}</p>
-                  </div>
-                </div>
-              ))}
+            <div className="gateway-footer">
+              <button className="skip-btn" onClick={onSkip}>Skip Phase 2</button>
+              <button
+                className={`continue-btn ${selectedAreas.length > 0 ? 'active' : 'disabled'}`}
+                onClick={startCustom}
+                disabled={selectedAreas.length === 0}
+              >
+                Continue to Assessment
+              </button>
             </div>
-            <p className="assessment-note">
-              💡 You can pause and resume your full assessment at any point.
-            </p>
           </div>
         )}
-
-        {/* Footer Actions */}
-        <div className="gateway-footer">
-          <button
-            className="skip-btn"
-            onClick={onSkip}
-          >
-            Skip Phase 2
-          </button>
-          <button
-            className={`continue-btn ${(isQuickValid || isFullValid) ? 'active' : 'disabled'}`}
-            onClick={handleContinue}
-            disabled={!isQuickValid && !isFullValid}
-          >
-            Continue to Assessment
-          </button>
-        </div>
       </div>
     </div>
   )

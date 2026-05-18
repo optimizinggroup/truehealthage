@@ -440,9 +440,9 @@ export default function CoachDashboard({ userEmail, userName, onRetakeQuiz, onAd
                     type="button"
                     className="task-swap-btn"
                     onClick={() => handleAlreadyDoThis(task)}
-                    title="Already part of my routine — swap for something new"
+                    title="Swap this task for a different one"
                   >
-                    I already do this · swap →
+                    SWAP for Different Task →
                   </button>
                 </li>
               ))}

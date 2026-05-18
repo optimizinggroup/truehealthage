@@ -94,11 +94,12 @@
 }
 
 .option-btn.selected {
-  background: var(--primary-color);
-  color: white;
-  border-color: var(--primary-color);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  background: #1e3a8a;            /* solid dark blue — readable white-on-dark */
+  color: #fff;
+  border-color: #1e3a8a;
+  box-shadow: 0 4px 12px rgba(30, 58, 138, 0.35);
 }
+.option-btn.selected * { color: #fff !important; }
 
 .submit-btn {
   width: 100%;

@@ -38,94 +38,6 @@ export default function ResultsPage({
   return (
     <div className="results-page">
       <div className="results-container">
-        {/* URGENT PHASE 2 CTA — top of page, mobile-first.
-            Pushes user to the FREE coaching program before they scroll into
-            the score detail. Only shown when showPhase2Option = true (first
-            view after Phase 1, before they've started Phase 2). Returning
-            users with phase2Results never see this. */}
-        {showPhase2Option && (
-          <section
-            style={{
-              background: 'linear-gradient(135deg, #0D9488 0%, #10B981 100%)',
-              color: '#fff',
-              borderRadius: '14px',
-              padding: '22px 22px 18px',
-              marginBottom: '24px',
-              boxShadow: '0 4px 16px rgba(13,148,136,0.25)',
-              textAlign: 'center',
-            }}
-          >
-            <p style={{
-              fontSize: '0.78rem',
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              opacity: 0.9,
-              marginBottom: '4px',
-              fontWeight: 700,
-            }}>
-              IMPROVE your TrueHealth Age
-            </p>
-            <p style={{
-              fontSize: '0.8rem',
-              opacity: 0.85,
-              marginBottom: '10px',
-              fontWeight: 600,
-              letterSpacing: '0.04em',
-            }}>
-              For a Limited Time
-            </p>
-            <h2 style={{
-              fontSize: 'clamp(1.15rem, 4.5vw, 1.55rem)',
-              fontWeight: 800,
-              marginBottom: '14px',
-              lineHeight: 1.25,
-              color: '#fff',
-            }}>
-              Get Your FREE Personalized<br />Health Coaching Program
-            </h2>
-            <button
-              type="button"
-              onClick={() => {
-                phTrack('phase2_cta_clicked', { placement: 'top_urgent' })
-                if (onPhase2Selection) onPhase2Selection()
-              }}
-              style={{
-                background: '#fff',
-                color: '#0D9488',
-                border: 'none',
-                borderRadius: '999px',
-                padding: '14px 36px',
-                fontSize: '1.05rem',
-                fontWeight: 800,
-                cursor: 'pointer',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                letterSpacing: '0.02em',
-              }}
-            >
-              Start Here →
-            </button>
-            <p style={{
-              fontSize: '0.85rem',
-              marginTop: '12px',
-              fontWeight: 700,
-              color: '#fef3c7',
-              letterSpacing: '0.03em',
-            }}>
-              ⚡ Only a Few Spots Left
-            </p>
-          </section>
-        )}
-
-        {/* Anchor + scroll hint to the score detail below */}
-        {showPhase2Option && (
-          <div style={{ textAlign: 'center', marginBottom: '14px' }}>
-            <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0, fontWeight: 500 }}>
-              Your TrueHealth Age details below
-            </p>
-            <div style={{ fontSize: '1.4rem', color: '#0D9488', lineHeight: 1, marginTop: '2px' }}>↓</div>
-          </div>
-        )}
-
         {/* Phase 1 Results */}
         <section className="phase1-results">
           <h2>Your True Health Age Assessment</h2>
@@ -162,6 +74,87 @@ export default function ResultsPage({
               </p>
             </div>
           </div>
+
+          {/* URGENT PHASE 2 CTA — placed DIRECTLY below the age cards (the
+              user has already seen TrueHealth Age + Actual Age, so this is
+              the right moment to push the coaching CTA). Headline is bold
+              yellow on the green background for max contrast. Only shows
+              on the first-time view (showPhase2Option). */}
+          {showPhase2Option && (
+            <section
+              style={{
+                background: 'linear-gradient(135deg, #0D9488 0%, #10B981 100%)',
+                color: '#fff',
+                borderRadius: '14px',
+                padding: '24px 22px 20px',
+                margin: '24px 0',
+                boxShadow: '0 6px 18px rgba(13,148,136,0.30)',
+                textAlign: 'center',
+              }}
+            >
+              <h2 style={{
+                fontSize: 'clamp(1.45rem, 6vw, 2rem)',
+                fontWeight: 900,
+                color: '#FDE047',                              /* bright yellow */
+                letterSpacing: '0.02em',
+                margin: '0 0 6px',
+                lineHeight: 1.15,
+                textShadow: '0 1px 2px rgba(0,0,0,0.18)',
+              }}>
+                IMPROVE YOUR TRUEHEALTH AGE
+              </h2>
+              <p style={{
+                fontSize: '0.85rem',
+                opacity: 0.95,
+                margin: '0 0 10px',
+                fontWeight: 600,
+                letterSpacing: '0.04em',
+                color: '#fff',
+              }}>
+                For a Limited Time
+              </p>
+              <p style={{
+                fontSize: 'clamp(1.05rem, 4vw, 1.3rem)',
+                fontWeight: 800,
+                margin: '0 0 16px',
+                lineHeight: 1.3,
+                color: '#fff',
+              }}>
+                Get Your FREE Personalized<br />Health Coaching Program
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  phTrack('phase2_cta_clicked', { placement: 'top_urgent' })
+                  if (onPhase2Selection) onPhase2Selection()
+                }}
+                style={{
+                  background: '#fff',
+                  color: '#0D9488',
+                  border: 'none',
+                  borderRadius: '999px',
+                  padding: '14px 36px',
+                  fontSize: '1.05rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
+                  letterSpacing: '0.02em',
+                }}
+              >
+                Start Here →
+              </button>
+              <p style={{
+                fontSize: '0.9rem',
+                marginTop: '14px',
+                marginBottom: 0,
+                fontWeight: 700,
+                color: '#FDE047',
+                letterSpacing: '0.03em',
+              }}>
+                ⚡ Only a Few Spots Left
+              </p>
+            </section>
+          )}
 
           {/* Post-reveal viral share — positioned at peak emotional moment,
               right under the number. Does NOT reveal the user's score; copy

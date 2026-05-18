@@ -108,10 +108,12 @@
 }
 
 .option-btn.selected {
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(13, 148, 136, 0.08));
-  border-color: var(--brand-primary-blue);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+  background: #1e3a8a;            /* solid dark blue — readable white-on-dark */
+  color: #fff;
+  border-color: #1e3a8a;
+  box-shadow: 0 4px 12px rgba(30, 58, 138, 0.35);
 }
+.option-btn.selected * { color: #fff !important; }
 
 .option-content {
   flex: 1;

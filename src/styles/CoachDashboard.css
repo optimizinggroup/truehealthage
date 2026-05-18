@@ -1,7 +1,10 @@
 .coach-dashboard {
   max-width: 760px;
-  margin: 0 auto;
-  padding: 24px 16px 48px;
+  margin: 24px auto;
+  padding: 28px 22px 48px;
+  background: #f8fafc;           /* light card so the dashboard isn't on the purple gradient */
+  border-radius: 16px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.10);
 }
 
 .dashboard-loading,

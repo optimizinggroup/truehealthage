@@ -149,17 +149,9 @@ export const PHASE2_QUESTIONS = {
         { label: 'Almost daily', value: 'daily', score: 3, risk_tags: ['BLOOD_SUGAR_SWINGS'], protocol_triggers: ['PROTEIN_INTAKE', 'MEAL_TIMING'] }
       ]
     },
-    {
-      id: 'ef_q5',
-      question: 'How active are you during a normal day, outside formal exercise?',
-      answer_type: 'single-select',
-      options: [
-        { label: 'Very active', value: 'very_active', score: 0, risk_tags: [], protocol_triggers: [] },
-        { label: 'Moderately active', value: 'moderate', score: 1, risk_tags: [], protocol_triggers: [] },
-        { label: 'Mostly sitting', value: 'sitting', score: 2, risk_tags: ['SEDENTARY_PATTERN'], protocol_triggers: ['DAILY_MOVEMENT'] },
-        { label: 'Almost completely sedentary', value: 'sedentary', score: 3, risk_tags: ['SEDENTARY_PATTERN'], protocol_triggers: ['START_MOVING'] }
-      ]
-    },
+    // (ef_q5 "How active during a normal day outside formal exercise"
+    // removed 2026-05-18 per Keith dedup review — duplicates Phase 1 Q11
+    // sitting-time question. Carry forward Phase 1 answer.)
     {
       id: 'ef_q6',
       question: 'How often do you feel physically or mentally burned out?',
@@ -218,17 +210,8 @@ export const PHASE2_QUESTIONS = {
         { label: 'Almost always', value: 'always', score: 3, risk_tags: ['POOR_SATIETY', 'BLOOD_SUGAR_SWINGS'], protocol_triggers: ['NUTRITION_PROTOCOL'] }
       ]
     },
-    {
-      id: 'wm_q5',
-      question: 'Where do you carry most extra weight?',
-      answer_type: 'single-select',
-      options: [
-        { label: 'I do not carry extra weight', value: 'none', score: 0, risk_tags: [], protocol_triggers: [] },
-        { label: 'Mostly hips/thighs', value: 'hips_thighs', score: 1, risk_tags: [], protocol_triggers: [] },
-        { label: 'Mostly abdomen/waist', value: 'abdomen', score: 2, risk_tags: ['ABDOMINAL_WEIGHT', 'METABOLIC_RISK'], protocol_triggers: ['ABDOMINAL_PROTOCOL'] },
-        { label: 'Not sure', value: 'unsure', score: 1, risk_tags: [], protocol_triggers: ['BODY_AWARENESS'] }
-      ]
-    },
+    // (wm_q5 "Where do you carry most extra weight" removed 2026-05-18 —
+    // duplicates Phase 1 Q25 body-shape/BRI question. Carry forward.)
     {
       id: 'wm_q6',
       question: 'How consistent is your eating schedule?',
@@ -389,17 +372,9 @@ export const PHASE2_QUESTIONS = {
   ],
 
   stress_mental: [
-    {
-      id: 'sm_q1',
-      question: 'How would you rate your current stress level?',
-      answer_type: 'single-select',
-      options: [
-        { label: 'Low', value: 'low', score: 0, risk_tags: [], protocol_triggers: [] },
-        { label: 'Moderate', value: 'moderate', score: 1, risk_tags: ['HIGH_STRESS'], protocol_triggers: ['STRESS_MANAGEMENT'] },
-        { label: 'High', value: 'high', score: 2, risk_tags: ['HIGH_STRESS'], protocol_triggers: ['STRESS_PROTOCOL'] },
-        { label: 'Extreme', value: 'extreme', score: 3, risk_tags: ['HIGH_STRESS'], protocol_triggers: ['PROFESSIONAL_SUPPORT'] }
-      ]
-    },
+    // (sm_q1 "How would you rate your current stress level" removed
+    // 2026-05-18 — duplicates Phase 1 Q19. Carry Phase 1 answer forward
+    // into Phase 2 scoring.)
     {
       id: 'sm_q2',
       question: 'How often do you feel overwhelmed?',
@@ -411,17 +386,8 @@ export const PHASE2_QUESTIONS = {
         { label: 'Most days', value: 'most_days', score: 3, risk_tags: ['OVERWHELM'], protocol_triggers: ['LIFE_RESTRUCTURING', 'PROFESSIONAL_SUPPORT'] }
       ]
     },
-    {
-      id: 'sm_q3',
-      question: 'How often have you felt anxious, depressed, or emotionally low recently?',
-      answer_type: 'single-select',
-      options: [
-        { label: 'Rarely', value: 'rarely', score: 0, risk_tags: [], protocol_triggers: [] },
-        { label: 'Sometimes', value: 'sometimes', score: 1, risk_tags: ['LOW_MOOD'], protocol_triggers: ['MOOD_SUPPORT'] },
-        { label: 'Often', value: 'often', score: 2, risk_tags: ['LOW_MOOD'], escalation_flag: true, protocol_triggers: ['PROFESSIONAL_SUPPORT'] },
-        { label: 'Most days', value: 'most_days', score: 3, risk_tags: ['LOW_MOOD'], escalation_flag: true, protocol_triggers: ['URGENT_PROFESSIONAL_SUPPORT'] }
-      ]
-    },
+    // (sm_q3 "anxious / depressed / emotionally low" removed 2026-05-18 —
+    // duplicates Phase 1 Q20 depression question. Carry forward.)
     {
       id: 'sm_q4',
       question: 'Do you have time each day to relax or decompress?',
@@ -444,17 +410,8 @@ export const PHASE2_QUESTIONS = {
         { label: 'Completely overwhelmed', value: 'overwhelmed', score: 3, risk_tags: ['SCHEDULE_STRESS', 'OVERWHELM'], protocol_triggers: ['LIFE_RESTRUCTURING'] }
       ]
     },
-    {
-      id: 'sm_q6',
-      question: 'Do you have people you can rely on for support?',
-      answer_type: 'single-select',
-      options: [
-        { label: 'Strong support', value: 'strong', score: 0, risk_tags: [], protocol_triggers: [] },
-        { label: 'Some support', value: 'some', score: 1, risk_tags: ['LOW_SOCIAL_SUPPORT'], protocol_triggers: ['BUILD_CONNECTIONS'] },
-        { label: 'Very little support', value: 'little', score: 2, risk_tags: ['LOW_SOCIAL_SUPPORT'], protocol_triggers: ['COMMUNITY_BUILDING'] },
-        { label: 'No support', value: 'none', score: 3, risk_tags: ['LOW_SOCIAL_SUPPORT'], escalation_flag: true, protocol_triggers: ['PROFESSIONAL_SUPPORT', 'COMMUNITY_BUILDING'] }
-      ]
-    }
+    // (sm_q6 "people you can rely on" removed 2026-05-18 — duplicates
+    // Phase 1 Q26 social connection question. Carry forward.)
   ],
 
   brain_performance: [
@@ -826,17 +783,10 @@ export const PHASE2_QUESTIONS = {
         { label: 'Prefer not to answer', value: 'skip', score: 0, risk_tags: [], protocol_triggers: [] }
       ]
     },
-    {
-      id: 'hm_q2',
-      question: 'How are sleep, energy, mood, or body composition affected day to day?',
-      answer_type: 'single-select',
-      options: [
-        { label: 'Not really affected', value: 'none', score: 0, risk_tags: [], protocol_triggers: [] },
-        { label: 'Mildly affected — I notice some changes', value: 'mild', score: 1, risk_tags: ['HORMONE_SYMPTOMS'], protocol_triggers: ['HORMONE_PROTOCOL'] },
-        { label: 'Moderately affected — daily routine disrupted', value: 'moderate', score: 2, risk_tags: ['HORMONE_SYMPTOMS'], protocol_triggers: ['HORMONE_PROTOCOL'] },
-        { label: 'Strongly or severely affected', value: 'severe', score: 3, risk_tags: ['HORMONE_SYMPTOMS', 'QOL_IMPACT'], protocol_triggers: ['HORMONE_PROTOCOL'] }
-      ]
-    },
+    // (hm_q2 "How are sleep, energy, mood, or body composition affected
+    // day to day?" removed 2026-05-18 per Keith review — it duplicated
+    // information we already get from sleep_recovery, energy_fatigue,
+    // stress_mental and weight_metabolism categories. Not adding signal.)
     {
       id: 'hm_q3',
       // Vasomotor symptoms are a well-documented menopause-transition pattern.
